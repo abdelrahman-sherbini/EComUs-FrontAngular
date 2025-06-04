@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "generate": "openapi-generator-cli generate -i server/api-docs.yaml -g typescript-angular -o src/app/modules/openapi --additional-properties fileNaming=kebab-case,withInterfaces=true,withCredentials=true,supportsES6=true --generate-alias-as-model",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -24,6 +25,7 @@
     "@angular/build": "^20.0.0",
     "@angular/cli": "^20.0.0",
     "@angular/compiler-cli": "^20.0.0",
+    "@openapitools/openapi-generator-cli": "^2.20.2",
     "@types/jasmine": "~5.1.0",
     "jasmine-core": "~5.7.0",
     "karma": "~6.4.0",

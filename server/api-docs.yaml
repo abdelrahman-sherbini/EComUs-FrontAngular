@@ -1,0 +1,2178 @@
+openapi: 3.1.0
+info:
+  title: E-Commerce Application
+  description: Backend APIs for E-Commerce app
+  contact:
+    name: sad name
+    url: https://sad.com/
+    email: sad@gmail.com
+  license:
+    name: License
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: v1.0.0
+externalDocs:
+  description: E-Commerce App Documentation
+  url: http://localhost:8080/swagger-ui/index.html
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+tags:
+- name: Customer - Categories
+  description: Customer category browsing
+- name: Admin - Users
+  description: Admin user management
+- name: Customer - Orders
+  description: Customer order management
+- name: Customer - Cart
+  description: Shopping cart operations
+- name: Customer
+  description: Customer operations
+- name: Admin - Orders
+  description: Admin order management
+- name: Admin - Categories
+  description: Admin category management
+- name: Customer - Wishlist
+  description: Customer wishlist
+- name: Customer - Products
+  description: Customer product browsing
+- name: Admin - Products
+  description: Admin product management
+- name: Customer - Profile
+  description: Customer profile management
+- name: Admin
+  description: Administrative operations
+- name: Authentication
+  description: "User authentication, registration and refresh token Generation"
+- name: Customer - Addresses
+  description: Customer address management
+paths:
+  /api/users/all:
+    put:
+      tags:
+      - user-controller-2
+      operationId: allUsers
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserDTO"
+  /api/public/users/profile:
+    get:
+      tags:
+      - Customer - Profile
+      operationId: profile
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDTO"
+      security:
+      - BearerAuth: []
+    put:
+      tags:
+      - Customer - Profile
+      operationId: updateProfile
+      parameters:
+      - name: userDTO
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/UpdateProfileDTO"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDTO"
+      security:
+      - BearerAuth: []
+  /api/public/users/profile/password:
+    put:
+      tags:
+      - Customer - Profile
+      operationId: updatePassword
+      parameters:
+      - name: changePasswordDTO
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/ChangePasswordDTO"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+      security:
+      - BearerAuth: []
+  /api/public/address:
+    get:
+      tags:
+      - Customer - Addresses
+      operationId: getAllAddresses
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AddressDTO"
+      security:
+      - BearerAuth: []
+    put:
+      tags:
+      - Customer - Addresses
+      operationId: updateAddress
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddressDTO"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddressDTO"
+      security:
+      - BearerAuth: []
+    post:
+      tags:
+      - Customer - Addresses
+      operationId: createAddress
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddressDTO"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddressDTO"
+      security:
+      - BearerAuth: []
+  /api/admin/products/{id}:
+    get:
+      tags:
+      - Admin - Products
+      operationId: getProductById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductDTO"
+      security:
+      - BearerAuth: []
+    put:
+      tags:
+      - Admin - Products
+      operationId: updateProduct
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewProductDTO"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductDTO"
+      security:
+      - BearerAuth: []
+    delete:
+      tags:
+      - Admin - Products
+      operationId: deleteProduct
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+  /api/admin/orders/{id}/update-status:
+    put:
+      tags:
+      - Admin - Orders
+      operationId: updateOrderStatus
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderStatusDTO"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderDTO"
+      security:
+      - BearerAuth: []
+  /api/admin/category:
+    get:
+      tags:
+      - Admin - Categories
+      operationId: getCategories
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryDTO"
+      security:
+      - BearerAuth: []
+    put:
+      tags:
+      - Admin - Categories
+      operationId: updateCategory
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryDTO"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryDTO"
+      security:
+      - BearerAuth: []
+    post:
+      tags:
+      - Admin - Categories
+      operationId: createCategory
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryDTO"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryDTO"
+      security:
+      - BearerAuth: []
+  /api/public/wishlist/{productId}:
+    get:
+      tags:
+      - Customer - Wishlist
+      operationId: getById
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WishlistDTO"
+      security:
+      - BearerAuth: []
+    post:
+      tags:
+      - Customer - Wishlist
+      operationId: add
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductDTO"
+      security:
+      - BearerAuth: []
+    delete:
+      tags:
+      - Customer - Wishlist
+      operationId: delete
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+  /api/public/orders:
+    get:
+      tags:
+      - Customer - Orders
+      operationId: getOrders
+      parameters:
+      - name: pageNum
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: pageSize
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      - name: sortField
+        in: query
+        description: "Field to sort by. Allowed values: address, payType, orderId,\
+          \ price, user, status"
+        required: false
+        schema:
+          default: orderId
+          enum:
+          - address
+          - payType
+          - orderId
+          - price
+          - user
+          - status
+      - name: sortDir
+        in: query
+        description: Sort direction
+        required: false
+        schema:
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: keyword
+        in: query
+        description: Keyword to search across multiple fields
+        required: false
+        schema: {}
+      - name: priceMin
+        in: query
+        description: Filter by priceMin
+        required: false
+        schema: {}
+      - name: priceMax
+        in: query
+        description: Filter by priceMax
+        required: false
+        schema: {}
+      - name: orderIdMax
+        in: query
+        description: Filter by order ID MAX
+        required: false
+        schema: {}
+      - name: orderIdMin
+        in: query
+        description: Filter by order ID MIN
+        required: false
+        schema: {}
+      - name: address
+        in: query
+        description: Filter by address
+        required: false
+        schema: {}
+      - name: OrderStatus
+        in: query
+        description: Filter by OrderStatus
+        required: false
+        schema:
+          enum:
+          - CANCELED
+          - COMPLETED
+          - PROCESSING
+          - SHIPPED
+      - name: payType
+        in: query
+        description: Filter by payment type
+        required: false
+        schema:
+          enum:
+          - CASH
+          - CREDIT
+      - name: userId
+        in: query
+        description: Filter by userId
+        required: false
+        schema: {}
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseOrderDTO"
+      security:
+      - BearerAuth: []
+    post:
+      tags:
+      - Customer - Orders
+      operationId: createOrder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckOutOrderDTO"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderDTO"
+      security:
+      - BearerAuth: []
+  /api/public/cart:
+    get:
+      tags:
+      - Customer - Cart
+      operationId: getCartItems
+      parameters:
+      - name: pageNum
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: pageSize
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      - name: sortField
+        in: query
+        description: "Field to sort by. Allowed values: quantity, productId, userId"
+        required: false
+        schema:
+          default: userId
+          enum:
+          - quantity
+          - productId
+          - userId
+      - name: sortDir
+        in: query
+        description: Sort direction
+        required: false
+        schema:
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: keyword
+        in: query
+        description: Keyword to search across multiple fields
+        required: false
+        schema: {}
+      - name: productName
+        in: query
+        description: Filter by product name
+        required: false
+        schema: {}
+      - name: description
+        in: query
+        description: Filter by description
+        required: false
+        schema: {}
+      - name: priceMin
+        in: query
+        description: Filter by minimum price
+        required: false
+        schema: {}
+      - name: priceMax
+        in: query
+        description: Filter by maximum price
+        required: false
+        schema: {}
+      - name: quantityMin
+        in: query
+        description: Filter by minimum quantity
+        required: false
+        schema: {}
+      - name: quantityMax
+        in: query
+        description: Filter by maximum quantity
+        required: false
+        schema: {}
+      - name: categoryId
+        in: query
+        description: Filter by categoryId
+        required: false
+        schema: {}
+      - name: categoryName
+        in: query
+        description: Filter by categoryName
+        required: false
+        schema: {}
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseCartDTO"
+      security:
+      - BearerAuth: []
+    post:
+      tags:
+      - Customer - Cart
+      operationId: addOrUpdateCartItem
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShoppingCartDTO"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartDTO"
+      security:
+      - BearerAuth: []
+    patch:
+      tags:
+      - Customer - Cart
+      operationId: removeOrUpdateCartItem
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShoppingCartDTO"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartDTO"
+      security:
+      - BearerAuth: []
+  /api/auth/token:
+    post:
+      tags:
+      - Authentication
+      operationId: token
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+  /api/auth/register:
+    post:
+      tags:
+      - Authentication
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserSignUpDTO"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+  /api/auth/logout:
+    post:
+      tags:
+      - Authentication
+      operationId: logout
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/auth/login:
+    post:
+      tags:
+      - Authentication
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserSignInDTO"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+  /api/admin/products:
+    get:
+      tags:
+      - Admin - Products
+      operationId: getProducts
+      parameters:
+      - name: pageNum
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: pageSize
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      - name: sortField
+        in: query
+        description: "Field to sort by. Allowed values: quantity, productId, purchaseCount,\
+          \ price, description, categories, productName"
+        required: false
+        schema:
+          default: productId
+          enum:
+          - quantity
+          - productId
+          - purchaseCount
+          - price
+          - description
+          - categories
+          - productName
+      - name: sortDir
+        in: query
+        description: Sort direction
+        required: false
+        schema:
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: keyword
+        in: query
+        description: Keyword to search across multiple fields
+        required: false
+        schema: {}
+      - name: productName
+        in: query
+        description: Filter by product name
+        required: false
+        schema: {}
+      - name: description
+        in: query
+        description: Filter by description
+        required: false
+        schema: {}
+      - name: priceMin
+        in: query
+        description: Filter by minimum price
+        required: false
+        schema: {}
+      - name: priceMax
+        in: query
+        description: Filter by maximum price
+        required: false
+        schema: {}
+      - name: quantityMin
+        in: query
+        description: Filter by minimum quantity
+        required: false
+        schema: {}
+      - name: quantityMax
+        in: query
+        description: Filter by maximum quantity
+        required: false
+        schema: {}
+      - name: categoryId
+        in: query
+        description: Filter by categoryId
+        required: false
+        schema: {}
+      - name: categoryName
+        in: query
+        description: Filter by categoryName
+        required: false
+        schema: {}
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseProductDTO"
+      security:
+      - BearerAuth: []
+    post:
+      tags:
+      - Admin - Products
+      operationId: addProduct
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                product:
+                  type: string
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+              required:
+              - images
+              - product
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductDTO"
+      security:
+      - BearerAuth: []
+  /api/users:
+    get:
+      tags:
+      - user-controller-2
+      operationId: users
+      parameters:
+      - name: pageNum
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: pageSize
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      - name: sortField
+        in: query
+        description: "Field to sort by. Allowed values: BD, role, phone, creditLimit,\
+          \ userName, job, userId, email"
+        required: false
+        schema:
+          default: userId
+          enum:
+          - BD
+          - role
+          - phone
+          - creditLimit
+          - userName
+          - job
+          - userId
+          - email
+      - name: sortDir
+        in: query
+        description: Sort direction
+        required: false
+        schema:
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: keyword
+        in: query
+        description: Keyword to search across multiple fields
+        required: false
+        schema: {}
+      - name: userId
+        in: query
+        description: Filter by user ID
+        required: false
+        schema: {}
+      - name: userName
+        in: query
+        description: Filter by username
+        required: false
+        schema: {}
+      - name: email
+        in: query
+        description: Filter by email
+        required: false
+        schema: {}
+      - name: role
+        in: query
+        description: Filter by user role
+        required: false
+        schema:
+          enum:
+          - USER
+          - ADMIN
+      - name: job
+        in: query
+        description: Filter by job
+        required: false
+        schema: {}
+      - name: phone
+        in: query
+        description: Filter by phone number
+        required: false
+        schema: {}
+      - name: creditLimit
+        in: query
+        description: Filter by credit limit
+        required: false
+        schema: {}
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseUserDTO"
+  /api/users/{id}:
+    get:
+      tags:
+      - user-controller-2
+      operationId: user
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+  /api/public/wishlist:
+    get:
+      tags:
+      - Customer - Wishlist
+      operationId: getWishItems
+      parameters:
+      - name: pageNum
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: pageSize
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      - name: sortField
+        in: query
+        description: "Field to sort by. Allowed values: productId, userId"
+        required: false
+        schema:
+          default: userId
+          enum:
+          - productId
+          - userId
+      - name: sortDir
+        in: query
+        description: Sort direction
+        required: false
+        schema:
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: keyword
+        in: query
+        description: Keyword to search across multiple fields
+        required: false
+        schema: {}
+      - name: productName
+        in: query
+        description: Filter by product name
+        required: false
+        schema: {}
+      - name: description
+        in: query
+        description: Filter by description
+        required: false
+        schema: {}
+      - name: priceMin
+        in: query
+        description: Filter by minimum price
+        required: false
+        schema: {}
+      - name: priceMax
+        in: query
+        description: Filter by maximum price
+        required: false
+        schema: {}
+      - name: categoryId
+        in: query
+        description: Filter by categoryId
+        required: false
+        schema: {}
+      - name: categoryName
+        in: query
+        description: Filter by categoryName
+        required: false
+        schema: {}
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseProductDTO"
+      security:
+      - BearerAuth: []
+  /api/public/products:
+    get:
+      tags:
+      - Customer - Products
+      operationId: getProducts_1
+      parameters:
+      - name: pageNum
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: pageSize
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      - name: sortField
+        in: query
+        description: "Field to sort by. Allowed values: quantity, productId, purchaseCount,\
+          \ price, description, categories, productName"
+        required: false
+        schema:
+          default: productId
+          enum:
+          - quantity
+          - productId
+          - purchaseCount
+          - price
+          - description
+          - categories
+          - productName
+      - name: sortDir
+        in: query
+        description: Sort direction
+        required: false
+        schema:
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: keyword
+        in: query
+        description: Keyword to search across multiple fields
+        required: false
+        schema: {}
+      - name: productName
+        in: query
+        description: Filter by product name
+        required: false
+        schema: {}
+      - name: description
+        in: query
+        description: Filter by description
+        required: false
+        schema: {}
+      - name: priceMin
+        in: query
+        description: Filter by minimum price
+        required: false
+        schema: {}
+      - name: priceMax
+        in: query
+        description: Filter by maximum price
+        required: false
+        schema: {}
+      - name: quantityMin
+        in: query
+        description: Filter by minimum quantity
+        required: false
+        schema: {}
+      - name: quantityMax
+        in: query
+        description: Filter by maximum quantity
+        required: false
+        schema: {}
+      - name: categoryId
+        in: query
+        description: Filter by categoryId
+        required: false
+        schema: {}
+      - name: categoryName
+        in: query
+        description: Filter by categoryName
+        required: false
+        schema: {}
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseProductDTO"
+  /api/public/products/{id}:
+    get:
+      tags:
+      - Customer - Products
+      operationId: getProductById_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductDTO"
+  /api/public/products/{id}/images:
+    get:
+      tags:
+      - Customer - Products
+      operationId: getProductImages
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/public/products/quantity/{quantity}:
+    get:
+      tags:
+      - Customer - Products
+      operationId: getProductByQuantity
+      parameters:
+      - name: quantity
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductDTO"
+  /api/public/products/name/{name}:
+    get:
+      tags:
+      - Customer - Products
+      operationId: getProductByName
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductDTO"
+  /api/public/orders/{id}:
+    get:
+      tags:
+      - Customer - Orders
+      operationId: getOrderById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderDTO"
+      security:
+      - BearerAuth: []
+  /api/public/category:
+    get:
+      tags:
+      - Customer - Categories
+      operationId: getCategories_1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryDTO"
+  /api/public/category/{id}:
+    get:
+      tags:
+      - Customer - Categories
+      operationId: getCategoryById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryDTO"
+  /api/public/cart/{productId}:
+    get:
+      tags:
+      - Customer - Cart
+      operationId: getCartItem
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartDTO"
+      security:
+      - BearerAuth: []
+    delete:
+      tags:
+      - Customer - Cart
+      operationId: removeCartItem
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+  /api/public/cart/total-quantity:
+    get:
+      tags:
+      - Customer - Cart
+      operationId: getTotalQuantity
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+      security:
+      - BearerAuth: []
+  /api/public/cart/total-price:
+    get:
+      tags:
+      - Customer - Cart
+      operationId: getTotalPrice
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+      security:
+      - BearerAuth: []
+  /api/public/cart/product-total/{productId}:
+    get:
+      tags:
+      - Customer - Cart
+      operationId: getProductTotalPrice
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+      security:
+      - BearerAuth: []
+  /api/admin/users:
+    get:
+      tags:
+      - Admin - Users
+      operationId: getAllUsers
+      parameters:
+      - name: pageNum
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: pageSize
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      - name: sortField
+        in: query
+        description: "Field to sort by. Allowed values: BD, role, phone, creditLimit,\
+          \ userName, job, userId, email"
+        required: false
+        schema:
+          default: userId
+          enum:
+          - BD
+          - role
+          - phone
+          - creditLimit
+          - userName
+          - job
+          - userId
+          - email
+      - name: sortDir
+        in: query
+        description: Sort direction
+        required: false
+        schema:
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: keyword
+        in: query
+        description: Keyword to search across multiple fields
+        required: false
+        schema: {}
+      - name: userId
+        in: query
+        description: Filter by user ID
+        required: false
+        schema: {}
+      - name: userName
+        in: query
+        description: Filter by username
+        required: false
+        schema: {}
+      - name: email
+        in: query
+        description: Filter by email
+        required: false
+        schema: {}
+      - name: role
+        in: query
+        description: Filter by user role
+        required: false
+        schema:
+          enum:
+          - USER
+          - ADMIN
+      - name: job
+        in: query
+        description: Filter by job
+        required: false
+        schema: {}
+      - name: phone
+        in: query
+        description: Filter by phone number
+        required: false
+        schema: {}
+      - name: creditLimit
+        in: query
+        description: Filter by credit limit
+        required: false
+        schema: {}
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseUserDTO"
+      security:
+      - BearerAuth: []
+  /api/admin/users/{id}:
+    get:
+      tags:
+      - Admin - Users
+      operationId: getUserById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDTO"
+      security:
+      - BearerAuth: []
+  /api/admin/products/{id}/images:
+    get:
+      tags:
+      - Admin - Products
+      operationId: getProductImages_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+      security:
+      - BearerAuth: []
+  /api/admin/products/name/{name}:
+    get:
+      tags:
+      - Admin - Products
+      operationId: getProductByName_1
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductDTO"
+      security:
+      - BearerAuth: []
+  /api/admin/orders:
+    get:
+      tags:
+      - Admin - Orders
+      operationId: getOrders_1
+      parameters:
+      - name: pageNum
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: pageSize
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      - name: sortField
+        in: query
+        description: "Field to sort by. Allowed values: address, payType, orderId,\
+          \ price, user, status"
+        required: false
+        schema:
+          default: orderId
+          enum:
+          - address
+          - payType
+          - orderId
+          - price
+          - user
+          - status
+      - name: sortDir
+        in: query
+        description: Sort direction
+        required: false
+        schema:
+          default: asc
+          enum:
+          - asc
+          - desc
+      - name: keyword
+        in: query
+        description: Keyword to search across multiple fields
+        required: false
+        schema: {}
+      - name: priceMin
+        in: query
+        description: Filter by priceMin
+        required: false
+        schema: {}
+      - name: priceMax
+        in: query
+        description: Filter by priceMax
+        required: false
+        schema: {}
+      - name: orderIdMax
+        in: query
+        description: Filter by order ID MAX
+        required: false
+        schema: {}
+      - name: orderIdMin
+        in: query
+        description: Filter by order ID MIN
+        required: false
+        schema: {}
+      - name: address
+        in: query
+        description: Filter by address
+        required: false
+        schema: {}
+      - name: OrderStatus
+        in: query
+        description: Filter by OrderStatus
+        required: false
+        schema:
+          enum:
+          - CANCELED
+          - COMPLETED
+          - PROCESSING
+          - SHIPPED
+      - name: payType
+        in: query
+        description: Filter by payment type
+        required: false
+        schema:
+          enum:
+          - CASH
+          - CREDIT
+      - name: userId
+        in: query
+        description: Filter by userId
+        required: false
+        schema: {}
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseOrderDTO"
+      security:
+      - BearerAuth: []
+  /api/admin/orders/{id}:
+    get:
+      tags:
+      - Admin - Orders
+      operationId: getOrderById_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderDTO"
+      security:
+      - BearerAuth: []
+  /api/admin/category/{id}:
+    get:
+      tags:
+      - Admin - Categories
+      operationId: getCategoryById_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryDTO"
+      security:
+      - BearerAuth: []
+    delete:
+      tags:
+      - Admin - Categories
+      operationId: deleteCategory
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+  /api/public/address/{id}:
+    delete:
+      tags:
+      - Customer - Addresses
+      operationId: deleteAddress
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+components:
+  schemas:
+    AddressDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        city:
+          type: string
+        area:
+          type: string
+        street:
+          type: string
+        buildingNo:
+          type: string
+      required:
+      - area
+      - buildingNo
+      - city
+      - street
+    CartDTO:
+      type: object
+      properties:
+        product:
+          $ref: "#/components/schemas/ProductDTO"
+        quantity:
+          type: integer
+          format: int32
+          minimum: 1
+      required:
+      - product
+    CategoryNoProductDTO:
+      type: object
+      properties:
+        categoryId:
+          type: integer
+          format: int64
+        categoryName:
+          type: string
+    OrderDTO:
+      type: object
+      properties:
+        orderId:
+          type: integer
+          format: int64
+        address:
+          type: string
+        price:
+          type: number
+        date:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+          - PROCESSING
+          - SHIPPED
+          - COMPLETED
+          - CANCELED
+        payType:
+          type: string
+          enum:
+          - CASH
+          - CREDIT
+        orderDetails:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderDetailsDTO"
+        userId:
+          type: integer
+          format: int64
+    OrderDetailsDTO:
+      type: object
+      properties:
+        orderDetailsId:
+          type: integer
+          format: int64
+        product:
+          $ref: "#/components/schemas/ProductDTO"
+        quantity:
+          type: integer
+          format: int32
+        price:
+          type: number
+    ProductDTO:
+      type: object
+      properties:
+        productId:
+          type: integer
+          format: int64
+        productName:
+          type: string
+          minLength: 1
+        description:
+          type: string
+          minLength: 1
+        quantity:
+          type: integer
+          format: int32
+          minimum: 1
+        price:
+          type: number
+          minimum: 1
+        categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryNoProductDTO"
+      required:
+      - description
+      - productName
+    UserDTO:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        userName:
+          type: string
+        email:
+          type: string
+        job:
+          type: string
+        creditNo:
+          type: string
+        creditLimit:
+          type: number
+        phone:
+          type: string
+        role:
+          type: string
+          enum:
+          - ADMIN
+          - USER
+        addresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/AddressDTO"
+        orders:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderDTO"
+        carts:
+          type: array
+          items:
+            $ref: "#/components/schemas/CartDTO"
+        bd:
+          type: string
+          format: date-time
+    UpdateProfileDTO:
+      type: object
+      properties:
+        userName:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          minLength: 1
+        job:
+          type: string
+        creditNo:
+          type: string
+        creditLimit:
+          type: number
+          minimum: 0.0
+        phone:
+          type: string
+      required:
+      - email
+      - userName
+    ChangePasswordDTO:
+      type: object
+      properties:
+        oldPassword:
+          type: string
+          minLength: 1
+        newPassword:
+          type: string
+          minLength: 1
+      required:
+      - newPassword
+      - oldPassword
+    CategoryNameDTO:
+      type: object
+      properties:
+        categoryName:
+          type: string
+    NewProductDTO:
+      type: object
+      properties:
+        productName:
+          type: string
+          minLength: 1
+        description:
+          type: string
+          minLength: 1
+        quantity:
+          type: integer
+          format: int32
+          minimum: 1
+        price:
+          type: number
+          minimum: 1
+        categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryNameDTO"
+      required:
+      - description
+      - productName
+    OrderStatusDTO:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - PROCESSING
+          - SHIPPED
+          - COMPLETED
+          - CANCELED
+      required:
+      - status
+    CategoryDTO:
+      type: object
+      properties:
+        categoryId:
+          type: integer
+          format: int64
+        categoryName:
+          type: string
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductDTO"
+      required:
+      - categoryId
+      - categoryName
+    CheckOutOrderDTO:
+      type: object
+      properties:
+        address:
+          type: string
+          minLength: 1
+        payType:
+          type: string
+          enum:
+          - CASH
+          - CREDIT
+      required:
+      - address
+      - payType
+    ShoppingCartDTO:
+      type: object
+      properties:
+        productId:
+          type: integer
+          format: int64
+          minimum: 1
+        quantity:
+          type: integer
+          format: int32
+          minimum: 1
+      required:
+      - productId
+    Token:
+      type: object
+      properties:
+        userId:
+          type: string
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+    UserSignUpDTO:
+      type: object
+      properties:
+        userName:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          minLength: 1
+        BD:
+          type: string
+          format: date-time
+        job:
+          type: string
+        creditNo:
+          type: string
+        creditLimit:
+          type: number
+          minimum: 0.0
+        phone:
+          type: string
+        bd:
+          type: string
+          format: date-time
+      required:
+      - email
+      - password
+      - userName
+    UserSignInDTO:
+      type: object
+      properties:
+        email:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          minLength: 1
+      required:
+      - email
+      - password
+    PagedResponseUserDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserDTO"
+        currentPage:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        pageSize:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+        empty:
+          type: boolean
+        sortField:
+          type: string
+        sortDir:
+          type: string
+        keyword:
+          type: string
+        searchParams:
+          type: object
+          additionalProperties: {}
+        allowedSortFields:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+    PagedResponseProductDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductDTO"
+        currentPage:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        pageSize:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+        empty:
+          type: boolean
+        sortField:
+          type: string
+        sortDir:
+          type: string
+        keyword:
+          type: string
+        searchParams:
+          type: object
+          additionalProperties: {}
+        allowedSortFields:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+    WishlistDTO:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        productId:
+          type: integer
+          format: int64
+        productName:
+          type: string
+        productPrice:
+          type: number
+          format: double
+        productImage:
+          type: string
+    PagedResponseOrderDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderDTO"
+        currentPage:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        pageSize:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+        empty:
+          type: boolean
+        sortField:
+          type: string
+        sortDir:
+          type: string
+        keyword:
+          type: string
+        searchParams:
+          type: object
+          additionalProperties: {}
+        allowedSortFields:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+    PagedResponseCartDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/CartDTO"
+        currentPage:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        pageSize:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+        empty:
+          type: boolean
+        sortField:
+          type: string
+        sortDir:
+          type: string
+        keyword:
+          type: string
+        searchParams:
+          type: object
+          additionalProperties: {}
+        allowedSortFields:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
