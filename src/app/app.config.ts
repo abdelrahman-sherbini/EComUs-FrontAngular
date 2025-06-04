@@ -5,6 +5,7 @@ import { routes } from './app.routes';
 import {HTTP_INTERCEPTORS, provideHttpClient, withInterceptors, withInterceptorsFromDi} from '@angular/common/http';
 import {BASE_PATH} from './modules/openapi';
 import {AuthInterceptor} from './interceptors/auth-interceptor';
+import {environment} from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -12,7 +13,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(withInterceptorsFromDi()),
-    { provide: BASE_PATH, useValue: 'http://localhost:8080'},
+    { provide: BASE_PATH, useValue: `${environment.apiUrl}` },
     {provide:HTTP_INTERCEPTORS, useClass: AuthInterceptor,multi: true},
   ]
 };
