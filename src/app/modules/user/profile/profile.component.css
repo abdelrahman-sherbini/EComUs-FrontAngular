@@ -1,0 +1,15 @@
+.card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.badge {
+  font-size: 0.9em;
+}
+
+.bg-light {
+  background-color: #f8f9fa !important;
+}

@@ -1,0 +1,195 @@
+<div class="container-fluid p-4" *ngIf="authService.isAuthenticated$ | async">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h1 class="h3 mb-0">User Profile</h1>
+        <button
+          (click)="loadUserProfile()"
+          class="btn btn-primary"
+          [disabled]="loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+          {{ loading ? 'Loading...' : 'Refresh Profile' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading && !profileData" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3 text-muted">Loading profile data...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    {{ error }}
+  </div>
+
+  <!-- Profile Data -->
+  <div *ngIf="profileData" class="row">
+    <!-- Personal Information Card -->
+    <div class="col-12 col-lg-6 mb-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-person-circle me-2"></i>
+            Personal Information
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-6 mb-3">
+              <label class="form-label text-muted small">User ID</label>
+              <p class="fw-bold mb-0">{{ profileData.userId || 'N/A' }}</p>
+            </div>
+            <div class="col-sm-6 mb-3">
+              <label class="form-label text-muted small">Username</label>
+              <p class="fw-bold mb-0">{{ profileData.userName || 'N/A' }}</p>
+            </div>
+            <div class="col-sm-6 mb-3">
+              <label class="form-label text-muted small">Email</label>
+              <p class="fw-bold mb-0">{{ profileData.email || 'N/A' }}</p>
+            </div>
+            <div class="col-sm-6 mb-3">
+              <label class="form-label text-muted small">Phone</label>
+              <p class="fw-bold mb-0">{{ profileData.phone || 'N/A' }}</p>
+            </div>
+            <div class="col-sm-6 mb-3">
+              <label class="form-label text-muted small">Job</label>
+              <p class="fw-bold mb-0">{{ profileData.job || 'N/A' }}</p>
+            </div>
+            <div class="col-sm-6 mb-3">
+              <label class="form-label text-muted small">Role</label>
+              <span class="badge" [class]="getRoleBadgeClass()">
+                    {{ profileData.role || 'N/A' }}
+                  </span>
+            </div>
+            <div class="col-12 mb-3" *ngIf="profileData.bd">
+              <label class="form-label text-muted small">Birth Date</label>
+              <p class="fw-bold mb-0">{{ profileData.bd | date:'mediumDate' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Financial Information Card -->
+    <div class="col-12 col-lg-6 mb-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header bg-success text-white">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-credit-card me-2"></i>
+            Financial Information
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12 mb-3">
+              <label class="form-label text-muted small">Credit Card Number</label>
+              <p class="fw-bold mb-0">
+                {{ profileData.creditNo ? maskCreditCard(profileData.creditNo) : 'N/A' }}
+              </p>
+            </div>
+            <div class="col-12 mb-3">
+              <label class="form-label text-muted small">Credit Limit</label>
+              <p class="fw-bold mb-0 text-success">
+                {{ profileData.creditLimit ? (profileData.creditLimit | currency) : 'N/A' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Addresses Card -->
+    <div class="col-12 mb-4" *ngIf="profileData.addresses && profileData.addresses.length > 0">
+      <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-geo-alt me-2"></i>
+            Addresses ({{ profileData.addresses.length }})
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12 col-md-6 col-lg-4 mb-3" *ngFor="let address of profileData.addresses; trackBy: trackByAddressId">
+              <div class="border rounded p-3 h-100 bg-light">
+                <h6 class="fw-bold">Address {{ address.id }}</h6>
+                <p class="mb-1 small text-muted">{{ address.street }}</p>
+                <p class="mb-1 small text-muted">{{ address.city }}, {{ address.area }}</p>
+                <p class="mb-0 small text-muted">{{ address.buildingNo }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders Summary Card -->
+    <div class="col-12 col-md-6 mb-4" *ngIf="profileData.orders">
+      <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-bag me-2"></i>
+            Order History
+          </h5>
+        </div>
+        <div class="card-body text-center">
+          <h2 class="display-4 fw-bold text-warning">{{ profileData.orders.length }}</h2>
+          <p class="text-muted mb-0">Total Orders</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cart Summary Card -->
+    <div class="col-12 col-md-6 mb-4" *ngIf="profileData.carts">
+      <div class="card shadow-sm">
+        <div class="card-header bg-secondary text-white">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-cart me-2"></i>
+            Shopping Carts
+          </h5>
+        </div>
+        <div class="card-body text-center">
+          <h2 class="display-4 fw-bold text-secondary">{{ profileData.carts.length }}</h2>
+          <p class="text-muted mb-0">Active Carts</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row" *ngIf="profileData">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Quick Actions</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-outline-primary">
+              <i class="bi bi-pencil me-1"></i>
+              Edit Profile
+            </button>
+            <button class="btn btn-outline-secondary">
+              <i class="bi bi-key me-1"></i>
+              Change Password
+            </button>
+            <button class="btn btn-outline-info">
+              <i class="bi bi-plus-circle me-1"></i>
+              Add Address
+            </button>
+            <button class="btn btn-outline-success">
+              <i class="bi bi-bag me-1"></i>
+              View Orders
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
