@@ -32,6 +32,12 @@ export class AuthInterceptor implements HttpInterceptor {
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401 && this.authService.isAuthenticated()) {
           return this.handle401Error(authReq, next);
+        }else if (error.status === 403) {
+          console.error('Access forbidden: You do not have permission to access this resource.');
+          this.authService.navigateToForbiddenPage();
+        }else if (error.status === 500) {
+          console.error('Internal server error: Please try again later.');
+          // this.authService.navigateToErrorPage();
         }
         return throwError(() => error);
       })

@@ -261,4 +261,9 @@ export class AuthService {
       console.error('Failed to clear stored token:', error);
     }
   }
+
+  navigateToForbiddenPage() {
+    this.router.navigate(['/login']);
+
+  }
 }
