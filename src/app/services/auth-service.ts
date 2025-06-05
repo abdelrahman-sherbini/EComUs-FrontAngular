@@ -7,6 +7,9 @@ export interface AuthState {
   isAuthenticated: boolean;
   accessToken: string | null;
   userId: string | null;
+  roles: string[] | null;
+  email: string | null;
+  isAdmin: boolean;
   isLoading: boolean;
   error: string | null;
 }
@@ -24,6 +27,9 @@ export class AuthService {
     isAuthenticated: false,
     accessToken: null,
     userId: null,
+    roles: null,
+    email: null,
+    isAdmin: false,
     isLoading: true,
     error: null
   });
@@ -31,7 +37,13 @@ export class AuthService {
   public authState$ = this.authStateSubject.asObservable();
   public isAuthenticated$ = this.authState$.pipe(map(state => state.isAuthenticated));
   public isLoading$ = this.authState$.pipe(map(state => state.isLoading));
-  public currentUser$ = this.authState$.pipe(map(state => ({ userId: state.userId })));
+  public isAdmin$ = this.authState$.pipe(map(state => state.isAdmin));
+  public currentUser$ = this.authState$.pipe(map(state => ({
+    userId: state.userId,
+    email: state.email,
+    roles: state.roles,
+    isAdmin: state.isAdmin
+  })));
 
   constructor(
     private authApiService: AuthenticationService,
@@ -43,10 +55,14 @@ export class AuthService {
   private initializeAuth(): void {
     const storedToken = this.getStoredToken();
     if (storedToken) {
+      const tokenData = this.decodeToken(storedToken.accessToken);
       this.updateAuthState({
         isAuthenticated: true,
         accessToken: storedToken.accessToken,
         userId: storedToken.userId,
+        email: tokenData.email || null,
+        roles: tokenData.roles || null,
+        isAdmin: this.checkIsAdmin(tokenData.roles || []),
         isLoading: false,
         error: null
       });
@@ -55,6 +71,9 @@ export class AuthService {
         isAuthenticated: false,
         accessToken: null,
         userId: null,
+        email: null,
+        roles: null,
+        isAdmin: false,
         isLoading: false,
         error: null
       });
@@ -154,6 +173,35 @@ export class AuthService {
   }
 
   /**
+   * Check if user is admin
+   */
+  isAdmin(): boolean {
+    return this.getCurrentState().isAdmin;
+  }
+
+  /**
+   * Get current user email
+   */
+  getCurrentUserEmail(): string | null {
+    return this.getCurrentState().email;
+  }
+
+  /**
+   * Get current user roles
+   */
+  getCurrentUserRoles(): string[] | null {
+    return this.getCurrentState().roles;
+  }
+
+  /**
+   * Check if user has specific role
+   */
+  hasRole(role: string): boolean {
+    const roles = this.getCurrentState().roles;
+    return roles ? roles.includes(role) : false;
+  }
+
+  /**
    * Get current user ID
    */
   getCurrentUserId(): string | null {
@@ -191,11 +239,15 @@ export class AuthService {
   }
 
   private handleAuthSuccess(token: Token): void {
+    const tokenData = this.decodeToken(token.accessToken || '');
     this.storeToken(token);
     this.updateAuthState({
       isAuthenticated: true,
       accessToken: token.accessToken || null,
       userId: token.userId || null,
+      email: tokenData.email || null,
+      roles: tokenData.roles || null,
+      isAdmin: this.checkIsAdmin(tokenData.roles || []),
       isLoading: false,
       error: null
     });
@@ -207,6 +259,9 @@ export class AuthService {
       isAuthenticated: false,
       accessToken: null,
       userId: null,
+      email: null,
+      roles: null,
+      isAdmin: false,
       isLoading: false,
       error: errorMessage
     });
@@ -218,6 +273,9 @@ export class AuthService {
       isAuthenticated: false,
       accessToken: null,
       userId: null,
+      email: null,
+      roles: null,
+      isAdmin: false,
       isLoading: false,
       error: null
     });
@@ -260,6 +318,28 @@ export class AuthService {
     } catch (error) {
       console.error('Failed to clear stored token:', error);
     }
+  }
+
+  /**
+   * Decode JWT token to extract claims
+   */
+  private decodeToken(token: string): any {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload;
+    } catch (error) {
+      console.error('Failed to decode token:', error);
+      return {};
+    }
+  }
+
+  /**
+   * Check if user has admin role
+   */
+  private checkIsAdmin(roles: string[]): boolean {
+    // Adjust these role names based on your actual role structure
+    const adminRoles = ['ROLE_ADMIN', 'ADMIN', 'admin'];
+    return roles.some(role => adminRoles.includes(role));
   }
 
   navigateToForbiddenPage() {
