@@ -17,6 +17,8 @@ servers:
 - url: http://localhost:8080
   description: Generated server url
 tags:
+- name: Admin - statistics
+  description: Admin statistics
 - name: Customer - Categories
   description: Customer category browsing
 - name: Admin - Users
@@ -1453,6 +1455,389 @@ paths:
                 $ref: "#/components/schemas/UserDTO"
       security:
       - BearerAuth: []
+  /api/admin/statistics/users/top-customers:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getTopCustomers
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TopCustomersProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/users/role-distribution:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getUserRoleDistribution
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserRoleDistributionProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/users/customer-stats:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getCustomerOrderStatistics
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CustomerOrderStatsProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/quick/top-10-products:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getTop10Products
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TopSellingProductProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/quick/top-10-customers:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getTop10Customers
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TopCustomersProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/quick/recent-10-orders:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getLast10Orders
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RecentOrderProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/quick/last-year-orders:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getLastYearOrderStats
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MonthlyOrderStatsProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/quick/last-week-orders:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getLastWeekOrderStats
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DailyOrderStatsProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/quick/last-month-orders:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getLastMonthOrderStats
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DailyOrderStatsProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/products/top-selling:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getTopSellingProducts
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TopSellingProductProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/products/sales-stats:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getProductSalesStatistics
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductSalesStatsProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/products/order-details-stats:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getOrderDetailsStatistics
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderDetailsStatsProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/orders/summary:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getOrderStatistics
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderStatsProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/orders/status-distribution:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getOrderStatusDistribution
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrderStatusDistributionProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/orders/revenue-by-period:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getRevenueByPeriod
+      parameters:
+      - name: startDate
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: endDate
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RevenueByPeriodProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/orders/recent:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getRecentOrders
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RecentOrderProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/orders/payment-stats:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getPaymentTypeStatistics
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PaymentTypeStatsProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/orders/monthly-stats:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getMonthlyOrderStats
+      parameters:
+      - name: months
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 12
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MonthlyOrderStatsProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/orders/daily-stats:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getDailyOrderStats
+      parameters:
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 30
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DailyOrderStatsProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/orders/by-location:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getOrdersByLocation
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrdersByLocationProjection"
+      security:
+      - BearerAuth: []
+  /api/admin/statistics/dashboard:
+    get:
+      tags:
+      - Admin - statistics
+      operationId: getDashboardSummary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummaryProjection"
+      security:
+      - BearerAuth: []
   /api/admin/products/{id}/images:
     get:
       tags:
@@ -2171,6 +2556,222 @@ components:
           items:
             type: string
           uniqueItems: true
+    TopCustomersProjection:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        email:
+          type: string
+        totalOrders:
+          type: integer
+          format: int64
+        totalSpent:
+          type: number
+        userName:
+          type: string
+    UserRoleDistributionProjection:
+      type: object
+      properties:
+        count:
+          type: integer
+          format: int64
+        role:
+          type: string
+    CustomerOrderStatsProjection:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        email:
+          type: string
+        averageOrderValue:
+          type: number
+        totalOrders:
+          type: integer
+          format: int64
+        totalSpent:
+          type: number
+        lastOrderDate:
+          type: string
+          format: date
+        userName:
+          type: string
+    TopSellingProductProjection:
+      type: object
+      properties:
+        productId:
+          type: integer
+          format: int64
+        productName:
+          type: string
+        totalRevenue:
+          type: number
+        totalQuantitySold:
+          type: integer
+          format: int64
+    RecentOrderProjection:
+      type: object
+      properties:
+        status:
+          type: string
+        orderId:
+          type: integer
+          format: int64
+        orderDate:
+          type: string
+          format: date
+        orderTotal:
+          type: number
+        userEmail:
+          type: string
+        userName:
+          type: string
+    MonthlyOrderStatsProjection:
+      type: object
+      properties:
+        year:
+          type: integer
+          format: int32
+        month:
+          type: integer
+          format: int32
+        monthlyRevenue:
+          type: number
+        orderCount:
+          type: integer
+          format: int64
+    DailyOrderStatsProjection:
+      type: object
+      properties:
+        orderCount:
+          type: integer
+          format: int64
+        orderDate:
+          type: string
+          format: date
+        dailyRevenue:
+          type: number
+    ProductSalesStatsProjection:
+      type: object
+      properties:
+        totalQuantity:
+          type: integer
+          format: int64
+        productId:
+          type: integer
+          format: int64
+        productName:
+          type: string
+        totalRevenue:
+          type: number
+        averageOrderQuantity:
+          type: number
+        orderCount:
+          type: integer
+          format: int64
+    OrderDetailsStatsProjection:
+      type: object
+      properties:
+        averageItemsPerOrder:
+          type: number
+        averageItemPrice:
+          type: number
+        totalItemsSold:
+          type: integer
+          format: int64
+    OrderStatsProjection:
+      type: object
+      properties:
+        averageOrderValue:
+          type: number
+        cancelledOrders:
+          type: integer
+          format: int64
+        totalOrders:
+          type: integer
+          format: int64
+        totalRevenue:
+          type: number
+        pendingOrders:
+          type: integer
+          format: int64
+        completedOrders:
+          type: integer
+          format: int64
+    OrderStatusDistributionProjection:
+      type: object
+      properties:
+        count:
+          type: integer
+          format: int64
+        status:
+          type: string
+        totalAmount:
+          type: number
+    RevenueByPeriodProjection:
+      type: object
+      properties:
+        revenue:
+          type: number
+        orderCount:
+          type: integer
+          format: int64
+        periodDate:
+          type: string
+          format: date
+    PaymentTypeStatsProjection:
+      type: object
+      properties:
+        count:
+          type: integer
+          format: int64
+        totalAmount:
+          type: number
+        percentage:
+          type: number
+          format: double
+        paymentType:
+          type: string
+    OrdersByLocationProjection:
+      type: object
+      properties:
+        state:
+          type: string
+        city:
+          type: string
+        totalRevenue:
+          type: number
+        orderCount:
+          type: integer
+          format: int64
+    DashboardSummaryProjection:
+      type: object
+      properties:
+        revenueGrowthRate:
+          type: number
+          format: double
+        newCustomersThisMonth:
+          type: integer
+          format: int64
+        todayRevenue:
+          type: number
+        totalUsers:
+          type: integer
+          format: int64
+        totalOrders:
+          type: integer
+          format: int64
+        totalRevenue:
+          type: number
+        pendingOrders:
+          type: integer
+          format: int64
+        todayOrders:
+          type: integer
+          format: int64
   securitySchemes:
     BearerAuth:
       type: http
