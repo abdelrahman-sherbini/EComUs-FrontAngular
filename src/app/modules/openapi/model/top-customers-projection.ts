@@ -10,8 +10,8 @@
 
 
 export interface TopCustomersProjection { 
-    userId?: number;
     email?: string;
+    userId?: number;
     totalOrders?: number;
     totalSpent?: number;
     userName?: string;
