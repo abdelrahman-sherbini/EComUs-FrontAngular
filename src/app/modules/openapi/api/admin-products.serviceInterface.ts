@@ -43,6 +43,14 @@ export interface AdminProductsServiceInterface {
      * 
      * 
      * @param id 
+     * @param imageName 
+     */
+    deleteProductImage(id: number, imageName: string, extraHttpRequestParams?: any): Observable<{}>;
+
+    /**
+     * 
+     * 
+     * @param id 
      */
     getProductById(id: number, extraHttpRequestParams?: any): Observable<ProductDTO>;
 
@@ -86,5 +94,13 @@ export interface AdminProductsServiceInterface {
      * @param newProductDTO 
      */
     updateProduct(id: number, newProductDTO: NewProductDTO, extraHttpRequestParams?: any): Observable<ProductDTO>;
+
+    /**
+     * 
+     * 
+     * @param id 
+     * @param images 
+     */
+    uploadProductImages(id: string, images: Array<Blob>, extraHttpRequestParams?: any): Observable<{}>;
 
 }

@@ -10,11 +10,11 @@
 
 
 export interface RecentOrderProjection { 
+    orderDate?: string;
+    userEmail?: string;
+    orderTotal?: number;
     status?: string;
     orderId?: number;
-    orderDate?: string;
-    orderTotal?: number;
-    userEmail?: string;
     userName?: string;
 }
 

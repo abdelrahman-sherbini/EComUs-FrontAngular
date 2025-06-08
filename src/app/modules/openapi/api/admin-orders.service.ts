@@ -109,16 +109,16 @@ export class AdminOrdersService extends BaseService implements AdminOrdersServic
      * @param orderIdMax Filter by order ID MAX
      * @param orderIdMin Filter by order ID MIN
      * @param address Filter by address
-     * @param orderStatus Filter by OrderStatus
+     * @param status Filter by OrderStatus
      * @param payType Filter by payment type
      * @param userId Filter by userId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getOrders1(pageNum?: number, pageSize?: number, sortField?: 'address' | 'payType' | 'orderId' | 'price' | 'user' | 'status', sortDir?: 'asc' | 'desc', keyword?: any, priceMin?: any, priceMax?: any, orderIdMax?: any, orderIdMin?: any, address?: any, orderStatus?: 'CANCELED' | 'COMPLETED' | 'PROCESSING' | 'SHIPPED', payType?: 'CASH' | 'CREDIT', userId?: any, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PagedResponseOrderDTO>;
-    public getOrders1(pageNum?: number, pageSize?: number, sortField?: 'address' | 'payType' | 'orderId' | 'price' | 'user' | 'status', sortDir?: 'asc' | 'desc', keyword?: any, priceMin?: any, priceMax?: any, orderIdMax?: any, orderIdMin?: any, address?: any, orderStatus?: 'CANCELED' | 'COMPLETED' | 'PROCESSING' | 'SHIPPED', payType?: 'CASH' | 'CREDIT', userId?: any, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PagedResponseOrderDTO>>;
-    public getOrders1(pageNum?: number, pageSize?: number, sortField?: 'address' | 'payType' | 'orderId' | 'price' | 'user' | 'status', sortDir?: 'asc' | 'desc', keyword?: any, priceMin?: any, priceMax?: any, orderIdMax?: any, orderIdMin?: any, address?: any, orderStatus?: 'CANCELED' | 'COMPLETED' | 'PROCESSING' | 'SHIPPED', payType?: 'CASH' | 'CREDIT', userId?: any, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PagedResponseOrderDTO>>;
-    public getOrders1(pageNum?: number, pageSize?: number, sortField?: 'address' | 'payType' | 'orderId' | 'price' | 'user' | 'status', sortDir?: 'asc' | 'desc', keyword?: any, priceMin?: any, priceMax?: any, orderIdMax?: any, orderIdMin?: any, address?: any, orderStatus?: 'CANCELED' | 'COMPLETED' | 'PROCESSING' | 'SHIPPED', payType?: 'CASH' | 'CREDIT', userId?: any, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getOrders1(pageNum?: number, pageSize?: number, sortField?: 'address' | 'payType' | 'orderId' | 'price' | 'user' | 'status', sortDir?: 'asc' | 'desc', keyword?: any, priceMin?: any, priceMax?: any, orderIdMax?: any, orderIdMin?: any, address?: any, status?: 'CANCELED' | 'COMPLETED' | 'PROCESSING' | 'SHIPPED', payType?: 'CASH' | 'CREDIT', userId?: any, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PagedResponseOrderDTO>;
+    public getOrders1(pageNum?: number, pageSize?: number, sortField?: 'address' | 'payType' | 'orderId' | 'price' | 'user' | 'status', sortDir?: 'asc' | 'desc', keyword?: any, priceMin?: any, priceMax?: any, orderIdMax?: any, orderIdMin?: any, address?: any, status?: 'CANCELED' | 'COMPLETED' | 'PROCESSING' | 'SHIPPED', payType?: 'CASH' | 'CREDIT', userId?: any, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PagedResponseOrderDTO>>;
+    public getOrders1(pageNum?: number, pageSize?: number, sortField?: 'address' | 'payType' | 'orderId' | 'price' | 'user' | 'status', sortDir?: 'asc' | 'desc', keyword?: any, priceMin?: any, priceMax?: any, orderIdMax?: any, orderIdMin?: any, address?: any, status?: 'CANCELED' | 'COMPLETED' | 'PROCESSING' | 'SHIPPED', payType?: 'CASH' | 'CREDIT', userId?: any, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PagedResponseOrderDTO>>;
+    public getOrders1(pageNum?: number, pageSize?: number, sortField?: 'address' | 'payType' | 'orderId' | 'price' | 'user' | 'status', sortDir?: 'asc' | 'desc', keyword?: any, priceMin?: any, priceMax?: any, orderIdMax?: any, orderIdMin?: any, address?: any, status?: 'CANCELED' | 'COMPLETED' | 'PROCESSING' | 'SHIPPED', payType?: 'CASH' | 'CREDIT', userId?: any, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
@@ -142,7 +142,7 @@ export class AdminOrdersService extends BaseService implements AdminOrdersServic
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>address, 'address');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>orderStatus, 'OrderStatus');
+          <any>status, 'status');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>payType, 'payType');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,

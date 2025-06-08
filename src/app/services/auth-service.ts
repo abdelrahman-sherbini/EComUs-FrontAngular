@@ -9,6 +9,7 @@ export interface AuthState {
   userId: string | null;
   roles: string[] | null;
   email: string | null;
+  name: string | null;
   isAdmin: boolean;
   isLoading: boolean;
   error: string | null;
@@ -29,6 +30,7 @@ export class AuthService {
     userId: null,
     roles: null,
     email: null,
+    name: null,
     isAdmin: false,
     isLoading: true,
     error: null
@@ -42,6 +44,7 @@ export class AuthService {
     userId: state.userId,
     email: state.email,
     roles: state.roles,
+    name: state.name,
     isAdmin: state.isAdmin
   })));
 
@@ -62,6 +65,7 @@ export class AuthService {
         userId: storedToken.userId,
         email: tokenData.email || null,
         roles: tokenData.roles || null,
+        name: tokenData.name || null,
         isAdmin: this.checkIsAdmin(tokenData.roles || []),
         isLoading: false,
         error: null
@@ -73,6 +77,7 @@ export class AuthService {
         userId: null,
         email: null,
         roles: null,
+        name: null,
         isAdmin: false,
         isLoading: false,
         error: null
@@ -247,6 +252,7 @@ export class AuthService {
       userId: token.userId || null,
       email: tokenData.email || null,
       roles: tokenData.roles || null,
+      name: tokenData.name || null,
       isAdmin: this.checkIsAdmin(tokenData.roles || []),
       isLoading: false,
       error: null
@@ -261,6 +267,7 @@ export class AuthService {
       userId: null,
       email: null,
       roles: null,
+      name: null,
       isAdmin: false,
       isLoading: false,
       error: errorMessage
@@ -275,6 +282,7 @@ export class AuthService {
       userId: null,
       email: null,
       roles: null,
+      name: null,
       isAdmin: false,
       isLoading: false,
       error: null

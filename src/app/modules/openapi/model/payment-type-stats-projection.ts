@@ -12,7 +12,7 @@
 export interface PaymentTypeStatsProjection { 
     count?: number;
     totalAmount?: number;
-    percentage?: number;
     paymentType?: string;
+    percentage?: number;
 }
 

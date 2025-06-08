@@ -11,7 +11,7 @@
 
 export interface OrderStatusDistributionProjection { 
     count?: number;
-    status?: string;
     totalAmount?: number;
+    status?: string;
 }
 
