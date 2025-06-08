@@ -9,6 +9,7 @@ import {OrdersComponent} from './orders/orders.component';
 import {ProductManagementComponent} from './product-management/product-management.component';
 import {CategoryManagementComponent} from './category-management/category-management.component';
 import {UsersComponent} from './users/users.component';
+import {AnalyticsComponent} from './analytics/analytics.component';
 
 const routes:Routes = [
   // {
@@ -33,7 +34,7 @@ const routes:Routes = [
       {path :'products',component:ProductManagementComponent},
       { path: 'categories', component: CategoryManagementComponent },
       { path: 'users', component: UsersComponent },
-      // { path: 'analytics', component: AnalyticsComponent },
+      { path: 'analytics', component: AnalyticsComponent },
     ]
   }
 ];
