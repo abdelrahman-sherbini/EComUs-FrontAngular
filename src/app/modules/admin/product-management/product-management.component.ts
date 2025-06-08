@@ -192,23 +192,48 @@ export class ProductManagementComponent implements OnInit, OnDestroy {
   }
 
   loadProductImages(productId: number): void {
-    this.productsService.getProductImages1(productId)
+    // Check if we already have images for this product
+    if (this.productImages[productId] && this.productImages[productId].length > 0) {
+      // If this is the selected product, update its images
+      if (this.selectedProduct?.productId === productId) {
+        this.selectedProductImages = this.productImages[productId];
+      }
+      return;
+    }
+
+    // If not, find the product in our products array
+    const product = this.products.find(p => p.productId === productId);
+    if (product && product.images) {
+      this.productImages[productId] = product.images;
+
+      // If this is the selected product, update its images
+      if (this.selectedProduct?.productId === productId) {
+        this.selectedProductImages = product.images;
+      }
+      return;
+    }
+
+    // If we still don't have images, fetch them from the API as a fallback
+    this.productsService.getProductById(productId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (images) => {
-          this.productImages[productId] = images;
+        next: (product) => {
+          if (product.images) {
+            this.productImages[productId] = product.images;
 
-          // If this is the selected product, update its images too
-          if (this.selectedProduct?.productId === productId) {
-            this.selectedProductImages = images;
+            // If this is the selected product, update its images
+            if (this.selectedProduct?.productId === productId) {
+              this.selectedProductImages = product.images;
+            }
           }
         },
         error: (error) => {
-          console.error(`Error loading images for product ${productId}:`, error);
+          console.error(`Error loading product ${productId}:`, error);
           this.productImages[productId] = [];
         }
       });
   }
+
 
   onPageChange(page: number): void {
     this.currentPage = page;
@@ -464,6 +489,48 @@ export class ProductManagementComponent implements OnInit, OnDestroy {
       });
   }
 
+  // Delete an existing product image
+  deleteProductImage(index: number): void {
+    if (!this.selectedProduct?.productId) {
+      return;
+    }
+
+    const productId = this.selectedProduct.productId;
+    const imagePath = this.selectedProductImages[index];
+
+    // Extract the image name from the path
+    const imageName = imagePath.split('/').pop();
+
+    if (!imageName) {
+      this.toastService.showError('Could not determine image name');
+      return;
+    }
+
+    // Confirm deletion
+    if (confirm('Are you sure you want to delete this image?')) {
+      this.productsService.deleteProductImage(productId, imageName)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            // Remove from local arrays
+            this.selectedProductImages.splice(index, 1);
+
+            if (this.productImages[productId]) {
+              const imageIndex = this.productImages[productId].findIndex(img => img === imagePath);
+              if (imageIndex !== -1) {
+                this.productImages[productId].splice(imageIndex, 1);
+              }
+            }
+
+            this.toastService.showSuccess('Image deleted successfully');
+          },
+          error: (error) => {
+            console.error('Error deleting image:', error);
+            this.toastService.showError('Failed to delete image');
+          }
+        });
+    }
+  }
   // Handle successful update
   private handleUpdateSuccess(product: ProductDTO): void {
     this.toastService.showSuccess('Product updated successfully');

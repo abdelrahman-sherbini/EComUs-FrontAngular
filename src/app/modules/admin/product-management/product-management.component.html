@@ -252,7 +252,7 @@ of {{ pagedResponse.totalElements || 0 }} products
             <div class="product-details">
               <div class="detail-item">
                 <i class="fas fa-dollar-sign text-success"></i>
-                <span class="price-large">${{ product.price | number:'1.2-2' }}</span>
+                <span class="price-large">{{ product.price | number:'1.2-2' }}</span>
               </div>
 
               <div class="detail-item">
@@ -326,7 +326,87 @@ of {{ pagedResponse.totalElements || 0 }} products
     </nav>
   </div>
 
-  View Product Modal
+  <!-- View Product Modal -->
+  <div class="modal fade" id="viewProductModal" tabindex="-1" aria-labelledby="viewProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="viewProductModalLabel">Product Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" *ngIf="selectedProduct">
+          <div class="product-details-container">
+            <h3 class="product-title">{{ selectedProduct.productName }}</h3>
+            <p class="product-id-detail">Product ID: #{{ selectedProduct.productId }}</p>
+
+            <!-- Product Images -->
+            <div class="product-images-section">
+              <h5 class="section-title">Product Images</h5>
+              <div class="product-images-gallery">
+                <div class="row" *ngIf="selectedProductImages?.length">
+                  <div class="col-md-3 mb-3" *ngFor="let image of selectedProductImages">
+                    <div class="image-thumbnail">
+                      <img [src]="image" alt="Product image">
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="!selectedProductImages?.length" class="no-images-message">
+                  <i class="fas fa-image fa-3x text-muted mb-2"></i>
+                  <p>No images available for this product</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Product Description -->
+            <div class="product-info-section">
+              <h5 class="section-title">Description</h5>
+              <p class="product-description">{{ selectedProduct.description }}</p>
+            </div>
+
+            <!-- Product Details -->
+            <div class="product-info-section">
+              <h5 class="section-title">Details</h5>
+              <div class="info-item">
+                <span class="info-label">Price:</span>
+                <span class="info-value price-value">${{ selectedProduct.price | number:'1.2-2' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Quantity in Stock:</span>
+                <span class="info-value stock-value"
+                      [class.text-warning]="(selectedProduct.quantity || 0) < 10"
+                      [class.text-danger]="(selectedProduct.quantity || 0) === 0">
+                  {{ selectedProduct.quantity || 0 }}
+                </span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Purchase Count:</span>
+                <span class="info-value">{{ selectedProduct.purchaseCount || 0 }}</span>
+              </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="product-info-section" *ngIf="selectedProduct.categories?.length">
+              <h5 class="section-title">Categories</h5>
+              <div class="categories-container">
+                <span *ngFor="let category of selectedProduct.categories" class="category-badge">
+                  {{ category.categoryName }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary"
+                  data-bs-toggle="modal" data-bs-target="#updateProductModal"
+                  (click)="selectedProduct && openUpdateModal(selectedProduct)" data-bs-dismiss="modal">
+            <i class="fas fa-edit me-1"></i>Edit Product
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Update Product Modal -->
   <div class="modal fade" id="updateProductModal" tabindex="-1" aria-labelledby="updateProductModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -404,8 +484,12 @@ of {{ pagedResponse.totalElements || 0 }} products
               <div class="current-images-container">
                 <div class="row" *ngIf="selectedProductImages?.length">
                   <div class="col-md-3 mb-3" *ngFor="let image of selectedProductImages; let i = index">
-                    <div class="current-image-item">
+                    <div class="current-image-item position-relative">
                       <img [src]="image" class="img-thumbnail" alt="Product image">
+                      <button type="button" class="btn btn-sm btn-danger remove-image-btn"
+                              (click)="deleteProductImage(i)" title="Delete image">
+                        <i class="fas fa-times"></i>
+                      </button>
                     </div>
                   </div>
                 </div>
