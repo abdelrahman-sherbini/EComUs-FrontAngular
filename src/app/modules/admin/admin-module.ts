@@ -7,6 +7,7 @@ import {TestComponent} from './test/test.component';
 import {LayoutComponent} from './layout/layout.component';
 import {OrdersComponent} from './orders/orders.component';
 import {ProductManagementComponent} from './product-management/product-management.component';
+import {CategoryManagementComponent} from './category-management/category-management.component';
 
 const routes:Routes = [
   // {
@@ -29,9 +30,9 @@ const routes:Routes = [
       { path: 'orders', component: OrdersComponent },
       {path :'test',component:TestComponent},
       {path :'products',component:ProductManagementComponent},
+      { path: 'categories', component: CategoryManagementComponent },
       // { path: 'users', component: UsersComponent },
       // { path: 'analytics', component: AnalyticsComponent },
-      // { path: 'categories', component: CategoriesComponent },
     ]
   }
 ];
