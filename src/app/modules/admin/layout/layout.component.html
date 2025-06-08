@@ -134,61 +134,132 @@
 
 <!-- Add Product Modal -->
 <div class="modal fade" id="addProductModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Add New Product</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title" id="addProductModalLabel">
+          <i class="fas fa-plus-circle me-2"></i>Add New Product
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
-        <form>
+
+      <form [formGroup]="productForm" (ngSubmit)="onSubmitProduct()">
+        <div class="modal-body">
+          <!-- Product Name -->
+          <div class="mb-3">
+            <label for="productName" class="form-label">Product Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="productName" formControlName="productName"
+                   placeholder="Enter product name">
+            <div *ngIf="productForm.get('productName')?.invalid && productForm.get('productName')?.touched"
+                 class="text-danger small mt-1">
+              Product name is required
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="description" formControlName="description" rows="3"
+                      placeholder="Enter product description"></textarea>
+            <div *ngIf="productForm.get('description')?.invalid && productForm.get('description')?.touched"
+                 class="text-danger small mt-1">
+              Description is required
+            </div>
+          </div>
+
+          <!-- Price and Quantity Row -->
           <div class="row">
             <div class="col-md-6">
-              <div class="mb-3">
-                <label class="form-label">Product Name</label>
-                <input type="text" class="form-control" placeholder="Enter product name">
+              <label for="price" class="form-label">Price <span class="text-danger">*</span></label>
+              <div class="input-group mb-3">
+                <span class="input-group-text">$</span>
+                <input type="number" class="form-control" id="price" formControlName="price"
+                       placeholder="0.00" step="0.01" min="0">
+              </div>
+              <div *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched"
+                   class="text-danger small mt-1">
+                Valid price is required
               </div>
             </div>
             <div class="col-md-6">
-              <div class="mb-3">
-                <label class="form-label">Category</label>
-                <select class="form-select">
-                  <option>Select Category</option>
-                  <option>Electronics</option>
-                  <option>Clothing</option>
-                  <option>Books</option>
-                </select>
+              <label for="quantity" class="form-label">Quantity <span class="text-danger">*</span></label>
+              <input type="number" class="form-control mb-3" id="quantity" formControlName="quantity"
+                     placeholder="0" min="0">
+              <div *ngIf="productForm.get('quantity')?.invalid && productForm.get('quantity')?.touched"
+                   class="text-danger small mt-1">
+                Valid quantity is required
               </div>
             </div>
           </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label class="form-label">Price</label>
-                <input type="number" class="form-control" placeholder="0.00">
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label class="form-label">Stock Quantity</label>
-                <input type="number" class="form-control" placeholder="0">
-              </div>
-            </div>
-          </div>
+
+          <!-- Categories -->
           <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea class="form-control" rows="3" placeholder="Product description"></textarea>
+            <label class="form-label">Categories</label>
+            <div class="category-selection">
+              <div *ngIf="categoriesLoading" class="text-center py-3">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                  <span class="visually-hidden">Loading categories...</span>
+                </div>
+              </div>
+
+              <div *ngIf="!categoriesLoading" class="row">
+                <div class="col-md-6" *ngFor="let category of availableCategories">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox"
+                           [id]="'category-' + category.categoryId"
+                           [checked]="isSelectedCategory(category.categoryId)"
+                           (change)="onCategoryChange(category, $event)">
+                    <label class="form-check-label" [for]="'category-' + category.categoryId">
+                      {{ category.categoryName }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="!categoriesLoading && availableCategories.length === 0" class="text-muted text-center py-3">
+                <i class="fas fa-tags me-2"></i>No categories available. Please create categories first.
+              </div>
+            </div>
           </div>
+
+          <!-- Image Upload -->
           <div class="mb-3">
-            <label class="form-label">Product Image</label>
-            <input type="file" class="form-control" accept="image/*">
+            <label for="productImages" class="form-label">Product Images</label>
+            <input type="file" class="form-control" id="productImages"
+                   (change)="onImageSelect($event)" multiple accept="image/*">
+            <div class="form-text">Select multiple images (PNG, JPG, JPEG). Max 5 images.</div>
+
+            <!-- Image Preview -->
+            <div *ngIf="selectedImages.length > 0" class="image-preview-container mt-3">
+              <div class="row">
+                <div class="col-md-3 mb-2" *ngFor="let image of selectedImages; let i = index">
+                  <div class="image-preview-item">
+                    <img [src]="image.preview" class="img-thumbnail" alt="Product image">
+                    <button type="button" class="btn btn-sm btn-danger image-remove-btn"
+                            (click)="removeImage(i)" title="Remove image">
+                      <i class="fas fa-times"></i>
+                    </button>
+                    <div class="image-name text-center mt-1">
+                      <small class="text-muted">{{ image.file.name }}</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary">Add Product</button>
-      </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid || isSubmittingProduct">
+            <span *ngIf="isSubmittingProduct" class="spinner-border spinner-border-sm me-2" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </span>
+            <i *ngIf="!isSubmittingProduct" class="fas fa-plus me-2"></i>
+            {{ isSubmittingProduct ? 'Adding Product...' : 'Add Product' }}
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -228,7 +299,7 @@
 
 <!-- Quick Add Floating Button -->
 <div class="floating-actions">
-  <div class="fab-container">
+  <div class="fab-container dropup">
     <button class="fab fab-main" data-bs-toggle="dropdown">
       <i class="fas fa-plus"></i>
     </button>
