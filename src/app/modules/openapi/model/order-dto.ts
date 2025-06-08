@@ -19,6 +19,7 @@ export interface OrderDTO {
     payType?: OrderDTO.PayTypeEnum;
     orderDetails?: Array<OrderDetailsDTO>;
     userId?: number;
+    userName?: string;
 }
 export namespace OrderDTO {
     export const StatusEnum = {

@@ -1,0 +1,490 @@
+<!-- orders.component.html -->
+<div class="orders-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">
+          <i class="fas fa-shopping-bag me-3"></i>
+          Order Management
+        </h1>
+        <p class="page-subtitle">Manage and track all customer orders</p>
+      </div>
+      <div class="header-right">
+        <div class="header-stats">
+          <div class="stat-item">
+            <span class="stat-label">Total Orders</span>
+            <span class="stat-value">{{ pagedResponse?.totalElements || 0 }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Filter Pills -->
+  <div class="filter-pills-container">
+    <div class="filter-pills">
+      <button
+        *ngFor="let option of statusOptions"
+        class="filter-pill"
+        [class.active]="currentFilter === option.value"
+        [attr.data-color]="option.color"
+        (click)="onFilterChange(option.value)">
+        <i [class]="option.icon"></i>
+        <span class="pill-label">{{ option.label }}</span>
+        <span class="pill-count">{{ option.count }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Search and Controls -->
+  <div class="controls-section">
+    <div class="search-controls">
+      <div class="search-box">
+        <i class="fas fa-search search-icon"></i>
+        <input
+          type="text"
+          class="form-control search-input"
+          placeholder="Search orders by Address, status, payType..."
+          [value]="searchKeyword"
+          (input)="onSearch($event)">
+      </div>
+
+      <button
+        class="btn btn-outline-primary advanced-btn"
+        (click)="toggleAdvancedFilters()">
+        <i class="fas fa-sliders-h me-2"></i>
+        Advanced Filters
+        <i class="fas fa-chevron-down ms-2 chevron-icon"
+           [class.rotated]="showAdvancedFilters"></i>
+      </button>
+    </div>
+
+    <!-- Advanced Filters Panel -->
+    <div class="advanced-filters" [class.show]="showAdvancedFilters">
+      <div class="filters-grid">
+        <div class="filter-group">
+          <label class="filter-label">Price Range</label>
+          <div class="price-range">
+            <input
+              type="number"
+              class="form-control"
+              placeholder="Min"
+              [(ngModel)]="priceMin">
+            <span class="range-separator">to</span>
+            <input
+              type="number"
+              class="form-control"
+              placeholder="Max"
+              [(ngModel)]="priceMax">
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Order ID Range</label>
+          <div class="price-range">
+            <input
+              type="number"
+              class="form-control"
+              placeholder="Min ID"
+              [(ngModel)]="orderIdMin">
+            <span class="range-separator">to</span>
+            <input
+              type="number"
+              class="form-control"
+              placeholder="Max ID"
+              [(ngModel)]="orderIdMax">
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Address</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Filter by address"
+            [(ngModel)]="addressFilter">
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Payment Type</label>
+          <select class="form-select" [(ngModel)]="payTypeFilter">
+            <option value="all">All Payment Types</option>
+            <option value="CASH">Cash</option>
+            <option value="CREDIT">Credit</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">User ID</label>
+          <input
+            type="number"
+            class="form-control"
+            placeholder="Filter by user ID"
+            [(ngModel)]="userIdFilter">
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn btn-outline-secondary" (click)="clearAdvancedFilters()">
+          <i class="fas fa-times me-2"></i>Clear
+        </button>
+        <button class="btn btn-primary" (click)="applyAdvancedFilters()">
+          <i class="fas fa-filter me-2"></i>Apply Filters
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner">
+      <div class="spinner-ring"></div>
+      <span class="loading-text">Loading orders...</span>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="alert alert-danger error-alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    {{ error }}
+    <button class="btn btn-outline-danger btn-sm ms-3" (click)="loadOrders()">
+      <i class="fas fa-redo me-1"></i>Retry
+    </button>
+  </div>
+
+  <!-- Orders Table -->
+  <div *ngIf="!loading && !error" class="table-container">
+    <div class="table-header">
+      <div class="table-controls">
+        <div class="page-size-control">
+          <label>Show:</label>
+          <select class="form-select form-select-sm"
+                  [value]="pageSize"
+                  (change)="onPageSizeChange($event)">
+            <option *ngFor="let size of pageSizeOptions" [value]="size">
+              {{ size }}
+            </option>
+          </select>
+          <span>entries</span>
+        </div>
+
+        <div class="table-info">
+          <span *ngIf="pagedResponse">
+            Showing {{ ((currentPage - 1) * pageSize) + 1 }} to
+            {{ Math.min(currentPage * pageSize, pagedResponse.totalElements || 0) }} of
+            {{ pagedResponse.totalElements }} entries
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table orders-table">
+        <thead>
+        <tr>
+          <th class="sortable" (click)="onSort('orderId')">
+            Order ID
+            <i class="fas fa-sort sort-icon"
+               [class.fa-sort-up]="sortField === 'orderId' && sortDirection === 'asc'"
+               [class.fa-sort-down]="sortField === 'orderId' && sortDirection === 'desc'"></i>
+          </th>
+          <th class="sortable" (click)="onSort('user')">
+            Customer
+            <i class="fas fa-sort sort-icon"
+               [class.fa-sort-up]="sortField === 'user' && sortDirection === 'asc'"
+               [class.fa-sort-down]="sortField === 'user' && sortDirection === 'desc'"></i>
+          </th>
+          <th class="sortable" (click)="onSort('price')">
+            Amount
+            <i class="fas fa-sort sort-icon"
+               [class.fa-sort-up]="sortField === 'price' && sortDirection === 'asc'"
+               [class.fa-sort-down]="sortField === 'price' && sortDirection === 'desc'"></i>
+          </th>
+          <th class="sortable" (click)="onSort('status')">
+            Status
+            <i class="fas fa-sort sort-icon"
+               [class.fa-sort-up]="sortField === 'status' && sortDirection === 'asc'"
+               [class.fa-sort-down]="sortField === 'status' && sortDirection === 'desc'"></i>
+          </th>
+          <th class="sortable" (click)="onSort('payType')">
+            Payment
+            <i class="fas fa-sort sort-icon"
+               [class.fa-sort-up]="sortField === 'payType' && sortDirection === 'asc'"
+               [class.fa-sort-down]="sortField === 'payType' && sortDirection === 'desc'"></i>
+          </th>
+          <th>Date</th>
+          <th class="sortable" (click)="onSort('address')">
+            Address
+            <i class="fas fa-sort sort-icon"
+               [class.fa-sort-up]="sortField === 'address' && sortDirection === 'asc'"
+               [class.fa-sort-down]="sortField === 'address' && sortDirection === 'desc'"></i>
+          </th>
+          <th class="text-center">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let order of orders; trackBy: trackByOrderId" class="order-row">
+          <td class="order-id">
+            <span class="id-badge">#{{ order.orderId }}</span>
+          </td>
+          <td class="customer-info">
+            <div class="customer-details">
+              <div class="customer-avatar">
+                <i class="fas fa-user-circle"></i>
+              </div>
+              <span class="customer-id">User #{{ order.userId }}</span>
+            </div>
+          </td>
+          <td class="amount">
+            <span class="price-amount">{{ formatCurrency(order.price) }}</span>
+          </td>
+          <td class="status">
+              <span [class]="getStatusBadgeClass(order.status)">
+                <i class="status-icon fas"
+                   [class.fa-clock]="order.status === 'PROCESSING'"
+                   [class.fa-shipping-fast]="order.status === 'SHIPPED'"
+                   [class.fa-check-circle]="order.status === 'COMPLETED'"
+                   [class.fa-times-circle]="order.status === 'CANCELED'"></i>
+                {{ order.status }}
+              </span>
+          </td>
+          <td class="payment">
+              <span [class]="getPaymentTypeBadgeClass(order.payType)">
+                <i class="fas"
+                   [class.fa-money-bill-wave]="order.payType === 'CASH'"
+                   [class.fa-credit-card]="order.payType === 'CREDIT'"></i>
+                {{ order.payType }}
+              </span>
+          </td>
+          <td class="date">
+            <span class="order-date">{{ formatDate(order.date) }}</span>
+          </td>
+          <td class="address">
+            <div class="address-cell" [title]="order.address">
+              <i class="fas fa-map-marker-alt me-1"></i>
+              <span class="address-text">{{ order.address | slice:0:30 }}{{ (order.address?.length || 0) > 30 ? '...' : '' }}</span>
+            </div>
+          </td>
+          <td class="actions text-center">
+            <div class="action-buttons">
+              <button
+                class="btn btn-sm btn-outline-primary action-btn"
+                (click)="viewOrderDetails(order)"
+                title="View Details">
+                <i class="fas fa-eye"></i>
+              </button>
+
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="orders.length === 0" class="empty-state">
+      <div class="empty-content">
+        <div class="empty-icon-container">
+          <i class="fas fa-shopping-bag empty-icon"></i>
+        </div>
+        <h3 class="empty-title">No Orders Found</h3>
+        <p class="empty-description">No orders match your current filters. Try adjusting your search criteria.</p>
+        <button class="btn btn-primary empty-action" (click)="clearAdvancedFilters()">
+          <i class="fas fa-refresh me-2"></i>Reset Filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="pagedResponse && pagedResponse.totalPages! > 1" class="pagination-container">
+      <nav aria-label="Orders pagination">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="pagedResponse.first">
+            <a class="page-link" (click)="onPageChange(1)" aria-label="First">
+              <i class="fas fa-angle-double-left"></i>
+            </a>
+          </li>
+          <li class="page-item" [class.disabled]="pagedResponse.first">
+            <a class="page-link" (click)="onPageChange(currentPage - 1)" aria-label="Previous">
+              <i class="fas fa-angle-left"></i>
+            </a>
+          </li>
+
+          <li *ngFor="let page of getPaginationArray()"
+              class="page-item"
+              [class.active]="page === currentPage">
+            <a class="page-link" (click)="onPageChange(page)">{{ page  }}</a>
+          </li>
+
+          <li class="page-item" [class.disabled]="pagedResponse.last">
+            <a class="page-link" (click)="onPageChange(currentPage + 1)" aria-label="Next">
+              <i class="fas fa-angle-right"></i>
+            </a>
+          </li>
+          <li class="page-item" [class.disabled]="pagedResponse.last">
+            <a class="page-link" (click)="onPageChange((pagedResponse.totalPages || 1))" aria-label="Last">
+              <i class="fas fa-angle-double-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<!-- Order Details Modal -->
+<div *ngIf="selectedOrder" class="modal fade show d-block order-modal" tabindex="-1" style="background: rgba(0,0,0,0.6);">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-shopping-bag me-2"></i>
+          Order Details - #{{ selectedOrder.orderId }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeOrderDetails()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="order-details-content">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="detail-section">
+                <h6 class="section-title">
+                  <i class="fas fa-info-circle me-2"></i>Order Information
+                </h6>
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <span class="detail-label">Order ID:</span>
+                    <span class="detail-value">#{{ selectedOrder.orderId }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Customer ID:</span>
+                    <span class="detail-value">{{ selectedOrder.userId }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Customer name:</span>
+                    <span class="detail-value">{{ selectedOrder.userName }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Order Date:</span>
+                    <span class="detail-value">{{ formatDate(selectedOrder.date) }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Status:</span>
+                    <span [class]="getStatusBadgeClass(selectedOrder.status)">
+                      <i class="status-icon fas me-1"
+                         [class.fa-clock]="selectedOrder.status === 'PROCESSING'"
+                         [class.fa-shipping-fast]="selectedOrder.status === 'SHIPPED'"
+                         [class.fa-check-circle]="selectedOrder.status === 'COMPLETED'"
+                         [class.fa-times-circle]="selectedOrder.status === 'CANCELED'"></i>
+                      {{ selectedOrder.status }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="detail-section">
+                <h6 class="section-title">
+                  <i class="fas fa-credit-card me-2"></i>Payment & Delivery
+                </h6>
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <span class="detail-label">Total Amount:</span>
+                    <span class="detail-value price-highlight">{{ formatCurrency(selectedOrder.price) }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Payment Type:</span>
+                    <span [class]="getPaymentTypeBadgeClass(selectedOrder.payType)">
+                      <i class="fas me-1"
+                         [class.fa-money-bill-wave]="selectedOrder.payType === 'CASH'"
+                         [class.fa-credit-card]="selectedOrder.payType === 'CREDIT'"></i>
+                      {{ selectedOrder.payType }}
+                    </span>
+                  </div>
+                  <div class="detail-item full-width">
+                    <span class="detail-label">Delivery Address:</span>
+                    <span class="detail-value address-detail">
+                      <i class="fas fa-map-marker-alt me-1"></i>
+                      {{ selectedOrder.address }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Items -->
+          <div *ngIf="selectedOrder.orderDetails && selectedOrder.orderDetails.length > 0" class="order-items-section">
+            <h6 class="section-title">
+              <i class="fas fa-list me-2"></i>Order Items
+            </h6>
+            <div class="table-responsive">
+              <table class="table table-sm order-items-table">
+                <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                  <th>Total</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let item of selectedOrder.orderDetails">
+                  <td>
+                    <div class="product-info">
+                      <i class="fas fa-box me-2"></i>
+                      {{ item.product?.productName || 'Product #' + item.product?.productId }}
+                    </div>
+                  </td>
+                  <td>
+                    <span class="quantity-badge">{{ item.quantity }}</span>
+                  </td>
+                  <td>{{ formatCurrency(item.price) }}</td>
+                  <td class="item-total">{{ formatCurrency((item.price || 0) * (item.quantity || 0)) }}</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeOrderDetails()">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <div class="dropdown">
+          <button class="btn btn-primary dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  [disabled]="getValidNextStatuses(selectedOrder.status).length === 0">
+            <i class="fas fa-edit me-2"></i>Update Status
+          </button>
+          <ul class="dropdown-menu">
+            <li *ngIf="getValidNextStatuses(selectedOrder.status).length === 0" class="dropdown-header">
+              <i class="fas fa-info-circle me-2"></i>No transitions available
+            </li>
+            <ng-container *ngFor="let status of statusList">
+              <li *ngIf="canTransitionTo(selectedOrder.status, status)">
+                <a class="dropdown-item"
+                   (click)="updateOrderStatus(selectedOrder.orderId!, status)">
+                  <i class="fas {{ getStatusTransitionInfo(status).icon }} {{ getStatusTransitionInfo(status).color }} me-2"></i>
+                  {{ getStatusTransitionInfo(status).label }}
+                </a>
+              </li>
+              <li *ngIf="!canTransitionTo(selectedOrder.status, status) && status !== selectedOrder.status">
+                <a class="dropdown-item disabled text-muted" style="pointer-events: none;">
+                  <i class="fas {{ getStatusTransitionInfo(status).icon }} me-2"></i>
+                  {{ getStatusTransitionInfo(status).label }}
+                  <small class="ms-2">(Not available)</small>
+                </a>
+              </li>
+            </ng-container>
+            <li *ngIf="getValidNextStatuses(selectedOrder.status).length > 0"><hr class="dropdown-divider"></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

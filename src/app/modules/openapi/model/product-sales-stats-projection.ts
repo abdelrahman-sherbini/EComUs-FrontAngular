@@ -10,11 +10,11 @@
 
 
 export interface ProductSalesStatsProjection { 
-    productName?: string;
     productId?: number;
     totalQuantity?: number;
-    orderCount?: number;
+    productName?: string;
     totalRevenue?: number;
+    orderCount?: number;
     averageOrderQuantity?: number;
 }
 

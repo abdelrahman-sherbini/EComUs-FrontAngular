@@ -12,7 +12,7 @@
 export interface OrdersByLocationProjection { 
     state?: string;
     city?: string;
-    orderCount?: number;
     totalRevenue?: number;
+    orderCount?: number;
 }
 

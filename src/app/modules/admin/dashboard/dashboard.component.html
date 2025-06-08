@@ -1,0 +1,643 @@
+<!-- Dashboard Template for dashboard.component.html -->
+<div class="dashboard-container fade-in">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="d-flex justify-content-center align-items-center" style="height: 400px;">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    {{ error }}
+    <button type="button" class="btn-close" (click)="retryOperation()"></button>
+  </div>
+
+  <!-- Main Dashboard Content -->
+  <div *ngIf="!isLoading">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h1 class="h3 mb-1">Dashboard Overview</h1>
+        <p class="text-muted mb-0">Welcome back! Here's what's happening with your store.</p>
+      </div>
+      <div>
+        <button class="btn btn-outline-primary me-2" (click)="exportReport()">
+          <i class="fas fa-download me-1"></i>Export Report
+        </button>
+        <button class="btn btn-primary" (click)="refreshData()">
+          <i class="fas fa-sync-alt me-1" [class.fa-spin]="isLoading"></i>Refresh Data
+        </button>
+      </div>
+    </div>
+
+    <!-- Summary Statistics Cards -->
+    <div class="row mb-4">
+      <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+        <div class="stat-card">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon primary">
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="ms-3">
+              <div class="stat-value">{{ formatNumber(totalUsers) }}</div>
+              <div class="stat-label">Total Users</div>
+            </div>
+          </div>
+          <div class="mt-3">
+            <small class="text-success">
+              <i class="fas fa-arrow-up me-1"></i>
+              +{{ formatNumber(newCustomersThisMonth) }} this month
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+        <div class="stat-card">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon success">
+              <i class="fas fa-shopping-bag"></i>
+            </div>
+            <div class="ms-3">
+              <div class="stat-value">{{ formatNumber(totalOrders) }}</div>
+              <div class="stat-label">Total Orders</div>
+            </div>
+          </div>
+          <div class="mt-3">
+            <small class="text-info">
+              <i class="fas fa-clock me-1"></i>
+              {{ formatNumber(todayOrders) }} today
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+        <div class="stat-card">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon warning">
+              <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="ms-3">
+              <div class="stat-value">{{ formatCurrency(totalRevenue) }}</div>
+              <div class="stat-label">Total Revenue</div>
+            </div>
+          </div>
+          <div class="mt-3">
+            <small class="text-success">
+              <i class="fas fa-trending-up me-1"></i>
+              +{{ revenueGrowthRate | number:'1.1-1' }}% growth
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+        <div class="stat-card">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon danger">
+              <i class="fas fa-hourglass-half"></i>
+            </div>
+            <div class="ms-3">
+              <div class="stat-value">{{ formatNumber(pendingOrders) }}</div>
+              <div class="stat-label">Pending Orders</div>
+            </div>
+          </div>
+          <div class="mt-3">
+            <small class="text-warning">
+              <i class="fas fa-exclamation-triangle me-1"></i>
+              Needs attention
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+      <!-- Revenue Chart -->
+      <div class="col-lg-8 mb-4">
+        <div class="chart-container">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Revenue Trends</h5>
+            <div class="btn-group btn-group-sm" role="group">
+              <input type="radio" class="btn-check" name="period" id="week" [checked]="selectedPeriod === 'week'" (change)="onPeriodChange('week')">
+              <label class="btn btn-outline-primary" for="week">7D</label>
+
+              <input type="radio" class="btn-check" name="period" id="month" [checked]="selectedPeriod === 'month'" (change)="onPeriodChange('month')">
+              <label class="btn btn-outline-primary" for="month">30D</label>
+
+              <input type="radio" class="btn-check" name="period" id="year" [checked]="selectedPeriod === 'year'" (change)="onPeriodChange('year')">
+              <label class="btn btn-outline-primary" for="year">1Y</label>
+            </div>
+          </div>
+
+          <!-- Revenue Chart Canvas -->
+          <div class="chart-wrapper" style="position: relative; height: 300px;">
+            <canvas #revenueChart id="revenueChart" width="400" height="200"></canvas>
+
+            <!-- Loading overlay for chart -->
+            <div *ngIf="chartLoading" class="chart-loading-overlay">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading chart...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chart Stats -->
+          <div class="row mt-3">
+            <div class="col-4 text-center">
+              <div class="chart-stat">
+                <div class="chart-stat-value text-success">{{ formatCurrency(currentPeriodRevenue) }}</div>
+                <div class="chart-stat-label">Current Period</div>
+              </div>
+            </div>
+            <div class="col-4 text-center">
+              <div class="chart-stat">
+                <div class="chart-stat-value text-muted">{{ formatCurrency(previousPeriodRevenue) }}</div>
+                <div class="chart-stat-label">Previous Period</div>
+              </div>
+            </div>
+            <div class="col-4 text-center">
+              <div class="chart-stat">
+                <div class="chart-stat-value" [ngClass]="revenueChangePercentage >= 0 ? 'text-success' : 'text-danger'">
+                  <i [class]="getTrendIcon(revenueChangePercentage)" class="me-1"></i>
+                  {{ revenueChangePercentage | number:'1.1-1' }}%
+                </div>
+                <div class="chart-stat-label">Change</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Status Distribution -->
+      <div class="col-lg-4 mb-4">
+        <div class="chart-container">
+          <h5 class="mb-3">Order Status Distribution</h5>
+
+          <!-- Status breakdown -->
+          <div class="status-breakdown">
+            <div *ngFor="let status of orderStatusDistribution" class="d-flex justify-content-between align-items-center mb-3">
+              <div class="d-flex align-items-center">
+                <div class="status-dot" [ngClass]="'bg-' + getStatusClass(status.status || '')" class="me-2"></div>
+                <span>{{ status.status }}</span>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold">{{ status.count }}</div>
+                <small class="text-muted">{{ getOrderStatusPercentage(status.status || '') | number:'1.0-0' }}%</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Donut chart -->
+          <div class="chart-wrapper mt-4" style="position: relative; height: 200px;">
+            <canvas #statusChart id="statusChart" width="200" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity Section -->
+    <div class="row">
+      <!-- Recent Orders -->
+      <div class="col-lg-8 mb-4">
+        <div class="table-container">
+          <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+            <h5 class="mb-0">Recent Orders</h5>
+            <a routerLink="/admin/orders" class="btn btn-sm btn-outline-primary">View All</a>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let order of recentOrders">
+                <td>
+                  <span class="fw-bold text-primary">#{{ order.orderId }}</span>
+                </td>
+                <td>
+                  <div>
+                    <div class="fw-semibold">{{ order.userName }}</div>
+                    <small class="text-muted">{{ order.userEmail }}</small>
+                  </div>
+                </td>
+                <td>
+                  <span class="text-muted">{{ order.orderDate | date:'MMM dd, yyyy' }}</span>
+                </td>
+                <td>
+                  <span class="fw-bold">{{ formatCurrency(order.orderTotal) }}</span>
+                </td>
+                <td>
+                    <span class="status-badge" [ngClass]="getStatusClass(order.status || '')">
+                      {{ order.status }}
+                    </span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button
+                      class="btn btn-sm btn-outline-primary action-btn"
+                      (click)="viewOrderDetails(order.orderId!)"
+                      title="View Details">
+                      <i class="fas fa-eye"></i>
+                    </button>
+
+                  </div>
+                </td>
+              </tr>
+
+              <!-- No data state -->
+              <tr *ngIf="recentOrders.length === 0">
+                <td colspan="6" class="text-center py-4">
+                  <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                  <p class="text-muted mb-0">No recent orders found</p>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Products -->
+      <div class="col-lg-4 mb-4">
+        <div class="table-container">
+          <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+            <h5 class="mb-0">Top Selling Products</h5>
+            <a href="/products" class="btn btn-sm btn-outline-primary">View All</a>
+          </div>
+
+          <div class="p-3">
+            <div class="product-item d-flex align-items-center mb-3" *ngFor="let product of topProducts; let i = index">
+              <div class="product-rank me-3">
+                <span class="badge bg-primary rounded-pill">{{ i + 1 }}</span>
+              </div>
+              <div class="product-info flex-grow-1">
+                <div class="fw-semibold">{{ product.productName }}</div>
+                <small class="text-muted">{{ formatNumber(product.totalQuantitySold) }} sold</small>
+              </div>
+              <div class="product-revenue text-end">
+                <div class="fw-bold text-success">{{ formatCurrency(product.totalRevenue) }}</div>
+              </div>
+            </div>
+
+            <!-- No data state -->
+            <div *ngIf="topProducts.length === 0" class="text-center py-4">
+              <i class="fas fa-box-open fa-2x text-muted mb-2"></i>
+              <p class="text-muted mb-0">No product data available</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+      <div class="col-12">
+        <div class="chart-container">
+          <h5 class="mb-3">Quick Actions</h5>
+          <div class="row">
+            <div class="col-lg-3 col-md-6 mb-3">
+              <div class="quick-action-card text-center p-3" (click)="openAddProductModal()">
+                <div class="quick-action-icon mb-2">
+                  <i class="fas fa-plus-circle fa-2x text-primary"></i>
+                </div>
+                <h6 class="mb-1">Add Product</h6>
+                <small class="text-muted">Create new product listing</small>
+              </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-3">
+              <div class="quick-action-card text-center p-3" (click)="navigateTo('/admin/orders')">
+                <div class="quick-action-icon mb-2">
+                  <i class="fas fa-list-alt fa-2x text-success"></i>
+                </div>
+                <h6 class="mb-1">Manage Orders</h6>
+                <small class="text-muted">Process pending orders</small>
+              </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-3">
+              <div class="quick-action-card text-center p-3" (click)="navigateTo('/admin/users')">
+                <div class="quick-action-icon mb-2">
+                  <i class="fas fa-users fa-2x text-warning"></i>
+                </div>
+                <h6 class="mb-1">User Management</h6>
+                <small class="text-muted">Manage customer accounts</small>
+              </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-3">
+              <div class="quick-action-card text-center p-3" (click)="navigateTo('/admin/analytics')">
+                <div class="quick-action-icon mb-2">
+                  <i class="fas fa-chart-bar fa-2x text-info"></i>
+                </div>
+                <h6 class="mb-1">View Analytics</h6>
+                <small class="text-muted">Detailed reports & insights</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Product Modal -->
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addProductModalLabel">
+          <i class="fas fa-plus-circle me-2"></i>Add New Product
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form [formGroup]="productForm" (ngSubmit)="onSubmitProduct()">
+        <div class="modal-body">
+          <!-- Product Name -->
+          <div class="mb-3">
+            <label for="productName" class="form-label">Product Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="productName" formControlName="productName"
+                   placeholder="Enter product name">
+            <div *ngIf="productForm.get('productName')?.invalid && productForm.get('productName')?.touched"
+                 class="text-danger small mt-1">
+              Product name is required
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="description" formControlName="description" rows="3"
+                      placeholder="Enter product description"></textarea>
+            <div *ngIf="productForm.get('description')?.invalid && productForm.get('description')?.touched"
+                 class="text-danger small mt-1">
+              Description is required
+            </div>
+          </div>
+
+          <!-- Price and Quantity Row -->
+          <div class="row">
+            <div class="col-md-6">
+              <label for="price" class="form-label">Price <span class="text-danger">*</span></label>
+              <div class="input-group mb-3">
+                <span class="input-group-text">$</span>
+                <input type="number" class="form-control" id="price" formControlName="price"
+                       placeholder="0.00" step="0.01" min="0">
+              </div>
+              <div *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched"
+                   class="text-danger small mt-1">
+                Valid price is required
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="quantity" class="form-label">Quantity <span class="text-danger">*</span></label>
+              <input type="number" class="form-control mb-3" id="quantity" formControlName="quantity"
+                     placeholder="0" min="0">
+              <div *ngIf="productForm.get('quantity')?.invalid && productForm.get('quantity')?.touched"
+                   class="text-danger small mt-1">
+                Valid quantity is required
+              </div>
+            </div>
+          </div>
+
+          <!-- Categories -->
+          <div class="mb-3">
+            <label class="form-label">Categories</label>
+            <div class="category-selection">
+              <div *ngIf="categoriesLoading" class="text-center py-3">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                  <span class="visually-hidden">Loading categories...</span>
+                </div>
+              </div>
+
+              <div *ngIf="!categoriesLoading" class="row">
+                <div class="col-md-6" *ngFor="let category of availableCategories">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox"
+                           [id]="'category-' + category.categoryId"
+                           [checked]="isSelectedCategory(category.categoryId)"
+                           (change)="onCategoryChange(category, $event)">
+                    <label class="form-check-label" [for]="'category-' + category.categoryId">
+                      {{ category.categoryName }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="!categoriesLoading && availableCategories.length === 0" class="text-muted text-center py-3">
+                <i class="fas fa-tags me-2"></i>No categories available. Please create categories first.
+              </div>
+            </div>
+          </div>
+
+          <!-- Image Upload -->
+          <div class="mb-3">
+            <label for="productImages" class="form-label">Product Images</label>
+            <input type="file" class="form-control" id="productImages"
+                   (change)="onImageSelect($event)" multiple accept="image/*">
+            <div class="form-text">Select multiple images (PNG, JPG, JPEG). Max 5 images.</div>
+
+            <!-- Image Preview -->
+            <div *ngIf="selectedImages.length > 0" class="image-preview-container mt-3">
+              <div class="row">
+                <div class="col-md-3 mb-2" *ngFor="let image of selectedImages; let i = index">
+                  <div class="image-preview-item">
+                    <img [src]="image.preview" class="img-thumbnail" alt="Product image">
+                    <button type="button" class="btn btn-sm btn-danger image-remove-btn"
+                            (click)="removeImage(i)" title="Remove image">
+                      <i class="fas fa-times"></i>
+                    </button>
+                    <div class="image-name text-center mt-1">
+                      <small class="text-muted">{{ image.file.name }}</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid || isSubmittingProduct">
+            <span *ngIf="isSubmittingProduct" class="spinner-border spinner-border-sm me-2" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </span>
+            <i *ngIf="!isSubmittingProduct" class="fas fa-plus me-2"></i>
+            {{ isSubmittingProduct ? 'Adding Product...' : 'Add Product' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="selectedOrder" class="modal fade show d-block order-modal" tabindex="-1" style="background: rgba(0,0,0,0.6);">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-shopping-bag me-2"></i>
+          Order Details - #{{ selectedOrder.orderId }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeOrderDetails()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="order-details-content">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="detail-section">
+                <h6 class="section-title">
+                  <i class="fas fa-info-circle me-2"></i>Order Information
+                </h6>
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <span class="detail-label">Order ID:</span>
+                    <span class="detail-value">#{{ selectedOrder.orderId }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Customer ID:</span>
+                    <span class="detail-value">{{ selectedOrder.userId }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Customer name:</span>
+                    <span class="detail-value">{{ selectedOrder.userName }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Order Date:</span>
+                    <span class="detail-value">{{ formatDate(selectedOrder.date) }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Status:</span>
+                    <span [class]="getStatusBadgeClass(selectedOrder.status)">
+                      <i class="status-icon fas me-1"
+                         [class.fa-clock]="selectedOrder.status === 'PROCESSING'"
+                         [class.fa-shipping-fast]="selectedOrder.status === 'SHIPPED'"
+                         [class.fa-check-circle]="selectedOrder.status === 'COMPLETED'"
+                         [class.fa-times-circle]="selectedOrder.status === 'CANCELED'"></i>
+                      {{ selectedOrder.status }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="detail-section">
+                <h6 class="section-title">
+                  <i class="fas fa-credit-card me-2"></i>Payment & Delivery
+                </h6>
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <span class="detail-label">Total Amount:</span>
+                    <span class="detail-value price-highlight">{{ formatCurrency(selectedOrder.price) }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Payment Type:</span>
+                    <span [class]="getPaymentTypeBadgeClass(selectedOrder.payType)">
+                      <i class="fas me-1"
+                         [class.fa-money-bill-wave]="selectedOrder.payType === 'CASH'"
+                         [class.fa-credit-card]="selectedOrder.payType === 'CREDIT'"></i>
+                      {{ selectedOrder.payType }}
+                    </span>
+                  </div>
+                  <div class="detail-item full-width">
+                    <span class="detail-label">Delivery Address:</span>
+                    <span class="detail-value address-detail">
+                      <i class="fas fa-map-marker-alt me-1"></i>
+                      {{ selectedOrder.address }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Items -->
+          <div *ngIf="selectedOrder.orderDetails && selectedOrder.orderDetails.length > 0" class="order-items-section">
+            <h6 class="section-title">
+              <i class="fas fa-list me-2"></i>Order Items
+            </h6>
+            <div class="table-responsive">
+              <table class="table table-sm order-items-table">
+                <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                  <th>Total</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let item of selectedOrder.orderDetails">
+                  <td>
+                    <div class="product-info">
+                      <i class="fas fa-box me-2"></i>
+                      {{ item.product?.productName || 'Product #' + item.product?.productId }}
+                    </div>
+                  </td>
+                  <td>
+                    <span class="quantity-badge">{{ item.quantity }}</span>
+                  </td>
+                  <td>{{ formatCurrency(item.price) }}</td>
+                  <td class="item-total">{{ formatCurrency((item.price || 0) * (item.quantity || 0)) }}</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeOrderDetails()">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <div class="dropdown">
+          <button class="btn btn-primary dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  [disabled]="getValidNextStatuses(selectedOrder.status).length === 0">
+            <i class="fas fa-edit me-2"></i>Update Status
+          </button>
+          <ul class="dropdown-menu">
+            <li *ngIf="getValidNextStatuses(selectedOrder.status).length === 0" class="dropdown-header">
+              <i class="fas fa-info-circle me-2"></i>No transitions available
+            </li>
+            <ng-container *ngFor="let status of statusList">
+              <li *ngIf="canTransitionTo(selectedOrder.status, status)">
+                <a class="dropdown-item"
+                   (click)="updateOrderStatus(selectedOrder.orderId!, status)">
+                  <i class="fas {{ getStatusTransitionInfo(status).icon }} {{ getStatusTransitionInfo(status).color }} me-2"></i>
+                  {{ getStatusTransitionInfo(status).label }}
+                </a>
+              </li>
+              <li *ngIf="!canTransitionTo(selectedOrder.status, status) && status !== selectedOrder.status">
+                <a class="dropdown-item disabled text-muted" style="pointer-events: none;">
+                  <i class="fas {{ getStatusTransitionInfo(status).icon }} me-2"></i>
+                  {{ getStatusTransitionInfo(status).label }}
+                  <small class="ms-2">(Not available)</small>
+                </a>
+              </li>
+            </ng-container>
+            <li *ngIf="getValidNextStatuses(selectedOrder.status).length > 0"><hr class="dropdown-divider"></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

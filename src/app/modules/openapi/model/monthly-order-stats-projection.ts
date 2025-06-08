@@ -12,7 +12,7 @@
 export interface MonthlyOrderStatsProjection { 
     year?: number;
     month?: number;
-    orderCount?: number;
     monthlyRevenue?: number;
+    orderCount?: number;
 }
 

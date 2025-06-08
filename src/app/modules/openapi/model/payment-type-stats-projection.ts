@@ -11,8 +11,8 @@
 
 export interface PaymentTypeStatsProjection { 
     count?: number;
+    paymentType?: string;
     percentage?: number;
     totalAmount?: number;
-    paymentType?: string;
 }
 

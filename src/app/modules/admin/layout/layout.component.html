@@ -1,0 +1,249 @@
+<!-- Main Layout Template for layout.component.html -->
+<div class="wrapper">
+  <!-- Header -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container-fluid">
+      <!-- Only show toggle button on mobile -->
+      <button
+        *ngIf="isMobile"
+        class="btn btn-outline-light me-3"
+        type="button"
+        (click)="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <a class="navbar-brand" href="#">
+        <i class="fas fa-shopping-cart me-2"></i>
+        Ecomus Admin
+      </a>
+
+      <div class="navbar-nav ms-auto">
+        <div class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+            <i class="fas fa-user-circle me-1"></i>
+            <span *ngIf="currentUser$ | async as user">
+            {{ user.name || 'Admin' }}
+          </span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Sidebar -->
+  <nav
+    class="sidebar"
+    [ngClass]="{'show': !sidebarCollapsed && isMobile}"
+    (mouseenter)="onSidebarMouseEnter()"
+    (mouseleave)="onSidebarMouseLeave()">
+
+    <div class="sidebar-header">
+      <h4>Navigation</h4>
+    </div>
+
+    <ul class="sidebar-menu">
+      <li class="sidebar-item" routerLinkActive="active">
+        <a
+          routerLink="/admin/dashboard"
+          class="sidebar-link"
+          data-tooltip="Dashboard">
+          <i class="fas fa-tachometer-alt"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+
+      <li class="sidebar-item" routerLinkActive="active">
+        <a
+          routerLink="/admin/orders"
+          class="sidebar-link"
+          data-tooltip="Orders">
+          <i class="fas fa-shopping-bag"></i>
+          <span>Orders</span>
+        </a>
+      </li>
+
+      <li class="sidebar-item" routerLinkActive="active">
+        <a
+          routerLink="/products"
+          class="sidebar-link"
+          data-tooltip="Products">
+          <i class="fas fa-box"></i>
+          <span>Products</span>
+        </a>
+      </li>
+
+      <li class="sidebar-item" routerLinkActive="active">
+        <a
+          routerLink="/categories"
+          class="sidebar-link"
+          data-tooltip="Categories">
+          <i class="fas fa-tags"></i>
+          <span>Categories</span>
+        </a>
+      </li>
+
+      <li class="sidebar-item" routerLinkActive="active">
+        <a
+          routerLink="/users"
+          class="sidebar-link"
+          data-tooltip="Users">
+          <i class="fas fa-users"></i>
+          <span>Users</span>
+        </a>
+      </li>
+
+      <li class="sidebar-item" routerLinkActive="active">
+        <a
+          routerLink="/analytics"
+          class="sidebar-link"
+          data-tooltip="Analytics">
+          <i class="fas fa-chart-bar"></i>
+          <span>Analytics</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="content-wrapper">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-6">
+          <span class="text-muted">© 2025 Ecomus Admin. All rights reserved.</span>
+        </div>
+        <div class="col-md-6 text-end">
+          <span class="text-muted">Version 1.0.0</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- Add Product Modal -->
+<div class="modal fade" id="addProductModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Product</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Product Name</label>
+                <input type="text" class="form-control" placeholder="Enter product name">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Category</label>
+                <select class="form-select">
+                  <option>Select Category</option>
+                  <option>Electronics</option>
+                  <option>Clothing</option>
+                  <option>Books</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Price</label>
+                <input type="number" class="form-control" placeholder="0.00">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Stock Quantity</label>
+                <input type="number" class="form-control" placeholder="0">
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" rows="3" placeholder="Product description"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Product Image</label>
+            <input type="file" class="form-control" accept="image/*">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary">Add Product</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="mb-3">
+            <label class="form-label">Category Name</label>
+            <input type="text" class="form-control" placeholder="Enter category name">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" rows="3" placeholder="Category description"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Category Icon</label>
+            <input type="text" class="form-control" placeholder="fas fa-tag">
+            <small class="form-text text-muted">FontAwesome icon class</small>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary">Add Category</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Add Floating Button -->
+<div class="floating-actions">
+  <div class="fab-container">
+    <button class="fab fab-main" data-bs-toggle="dropdown">
+      <i class="fas fa-plus"></i>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li>
+        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addProductModal">
+          <i class="fas fa-box me-2"></i>Add Product
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+          <i class="fas fa-tags me-2"></i>Add Category
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+<app-toast></app-toast>

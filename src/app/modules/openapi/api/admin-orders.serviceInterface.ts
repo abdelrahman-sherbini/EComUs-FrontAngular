@@ -44,11 +44,11 @@ export interface AdminOrdersServiceInterface {
      * @param orderIdMax Filter by order ID MAX
      * @param orderIdMin Filter by order ID MIN
      * @param address Filter by address
-     * @param orderStatus Filter by OrderStatus
+     * @param status Filter by OrderStatus
      * @param payType Filter by payment type
      * @param userId Filter by userId
      */
-    getOrders1(pageNum?: number, pageSize?: number, sortField?: 'address' | 'payType' | 'orderId' | 'price' | 'user' | 'status', sortDir?: 'asc' | 'desc', keyword?: any, priceMin?: any, priceMax?: any, orderIdMax?: any, orderIdMin?: any, address?: any, orderStatus?: 'CANCELED' | 'COMPLETED' | 'PROCESSING' | 'SHIPPED', payType?: 'CASH' | 'CREDIT', userId?: any, extraHttpRequestParams?: any): Observable<PagedResponseOrderDTO>;
+    getOrders1(pageNum?: number, pageSize?: number, sortField?: 'address' | 'payType' | 'orderId' | 'price' | 'user' | 'status', sortDir?: 'asc' | 'desc', keyword?: any, priceMin?: any, priceMax?: any, orderIdMax?: any, orderIdMin?: any, address?: any, status?: 'CANCELED' | 'COMPLETED' | 'PROCESSING' | 'SHIPPED', payType?: 'CASH' | 'CREDIT', userId?: any, extraHttpRequestParams?: any): Observable<PagedResponseOrderDTO>;
 
     /**
      * 
