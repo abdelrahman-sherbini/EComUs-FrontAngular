@@ -1,0 +1,129 @@
+<div class="container">
+  <div  class="row gy-4">
+    <ng-container *ngIf="products?.length; else noProducts">
+      <div
+        *ngFor="let product of products"
+        [ngClass]="getGridClasses(gridClass)">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative product-card">
+          <div class="position-relative overflow-hidden">
+            <img
+              [src]="product.image[0]"
+              alt="Product image"
+              class="w-100 object-fit-cover"/>
+
+            <!-- Hover actions -->
+            <div class="hover-actions position-absolute top-0 end-0 p-2 d-flex flex-column align-items-center gap-2">
+              <button class="btn btn-sm btn-light rounded-circle" title="Add to Wishlist">
+                <i class="bi bi-heart"></i>
+              </button>
+              <button (click)="onQuickView(product)" class="btn btn-sm btn-light rounded-circle" title="Quick View">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+
+            <!-- Quick Add -->
+            <div
+              (click)="onQuickAdd(product)"
+              class="quick-add text-center py-2 w-100 fw-bold bg-dark position-absolute bottom-0 start-0">
+              Quick Add
+            </div>
+          </div>
+
+        </div>
+        <!-- Product details -->
+        <div class="p-3">
+          <a
+            [routerLink]="['/product', product.id]"
+            class="fw-normal mb-1 text-decoration-none product-name-link">
+            {{ product.name }}
+          </a>
+          <div class="fw-bold">${{ product.price }}</div>
+        </div>
+      </div>
+    </ng-container>
+    <ng-template #noProducts>
+      <div class="col-12 text-center py-5">
+        No products available
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<!-- Filter Toolbar -->
+
+
+<!-- Bootstrap Offcanvas -->
+<div class="offcanvas offcanvas-start" id="filterSidebar" tabindex="-1" aria-labelledby="filterSidebarLabel">
+  <div class="offcanvas-header border-bottom">
+    <h6 class="offcanvas-title" id="filterSidebarLabel">
+      <i class="bi bi-filter me-2"></i>Filter
+    </h6>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+
+  <div class="offcanvas-body">
+    <form (ngSubmit)="applyFilter()">
+
+      <!-- Product Categories -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold d-flex justify-content-between" (click)="toggleSection('category')" style="cursor: pointer;">
+          Product categories
+          <i class="bi" [ngClass]="categoryOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+        </label>
+        <div *ngIf="categoryOpen">
+          <div *ngFor="let cat of categories" class="form-check">
+            <input [(ngModel)]="cat.checked" [name]="'cat_' + cat.name" class="form-check-input" type="checkbox" />
+            <label class="form-check-label">{{ cat.name }}</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Availability -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold d-flex justify-content-between" (click)="toggleSection('availability')" style="cursor: pointer;">
+          Availability
+          <i class="bi" [ngClass]="availabilityOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+        </label>
+        <div *ngIf="availabilityOpen">
+          <div class="form-check">
+            <input [(ngModel)]="filter.inStock" name="inStock" class="form-check-input" type="checkbox" />
+            <label class="form-check-label">In stock</label>
+          </div>
+          <div class="form-check">
+            <input [(ngModel)]="filter.outOfStock" name="outOfStock" class="form-check-input" type="checkbox" />
+            <label class="form-check-label">Out of stock</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Price -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold d-flex justify-content-between" (click)="toggleSection('price')" style="cursor: pointer;">
+          Price
+          <i class="bi" [ngClass]="priceOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+        </label>
+        <div *ngIf="priceOpen">
+          <div class="row">
+            <div class="col">
+              <label class="form-label small">start ($)</label>
+              <input [(ngModel)]="filter.minPrice" name="minPrice" class="form-control" type="number" />
+            </div>
+            <div class="col">
+              <label class="form-label small">end ($)</label>
+              <input [(ngModel)]="filter.maxPrice" name="maxPrice" class="form-control" type="number" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Action Buttons -->
+      <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-dark">Apply Filter</button>
+        <button type="button" class="btn btn-outline-dark" (click)="clearFilters()">Clear All Filters</button>
+      </div>
+
+    </form>
+  </div>
+</div>
+

@@ -1,0 +1,28 @@
+<app-header [cartSize]="cartSize"></app-header>
+
+<section class="page-title-banner d-flex justify-content-center align-items-center text-center">
+  <h1 class="fw-normal m-0">Home</h1>
+</section>
+
+<!-- Filter Sidebar -->
+<app-product-filter
+  (openFilter)="openFilterSidebar()"
+  (gridChanged)="onGridChange($event)"
+  (sortChanged)="handleSortChange($event)">
+</app-product-filter>
+
+<!-- Product Grid -->
+<app-product-grid [products]="products"
+                  [gridClass]="gridClass"
+                  (quickAdd)="openQuickAdd($event)"
+                  (quickView)="openQuickView($event)"
+>
+</app-product-grid>
+
+<!-- Footer -->
+<app-footer></app-footer>
+
+<app-quick-add-modal #quickAddModal></app-quick-add-modal>
+<app-quick-view-modal #quickViewModal></app-quick-view-modal>
+
+

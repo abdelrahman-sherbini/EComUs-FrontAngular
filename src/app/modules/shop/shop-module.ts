@@ -1,20 +1,34 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {ProductsComponent} from './products/products.component';
 import {RouterModule, Routes} from '@angular/router';
+
+import {HomeComponent} from './home/home.component';
+import {FormsModule} from '@angular/forms';
+import {HeaderComponent} from './header/header.component';
+import {ProductGridComponent} from './product-grid/product-grid.component';
+import {ProductFilterComponent} from './product-filter/product-filter.component';
+import {FooterComponent} from './footer/footer.component';
 
 const routes: Routes = [
   {
     path : '',
-    component:ProductsComponent
+    component:HomeComponent
   }
 
 ]
 
 @NgModule({
-  declarations: [],
+  declarations: [
+  ],
   imports: [
-    CommonModule,RouterModule.forChild(routes)
+    FormsModule,
+    CommonModule,
+    RouterModule.forChild(routes),
+    HomeComponent,
+    HeaderComponent,
+    ProductGridComponent,
+    ProductFilterComponent,
+    FooterComponent,
   ]
 })
 export class ShopModule { }

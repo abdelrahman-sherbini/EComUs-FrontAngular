@@ -1,0 +1,31 @@
+
+.layout-icon {
+  cursor: pointer;
+  line-height: 1.2;
+  font-size: 10px;
+  color: #aaa;
+  text-align: center;
+  transition: color 0.2s ease-in-out;
+
+  &.active {
+    color: #000;
+  }
+
+  &:hover {
+    color: #000;
+  }
+
+  .dots {
+    font-size: 10px;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+}
+
+.dropdown-menu .dropdown-item.active,
+.dropdown-menu .dropdown-item:active {
+  background-color: #f8f9fa;
+  color: #dc3545;
+  font-weight: 600;
+}
+

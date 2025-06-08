@@ -1,0 +1,58 @@
+<div class="container py-3">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+    <!-- FILTER BUTTON -->
+    <button class="btn border d-flex align-items-center gap-2" (click)="triggerFilter()">
+      <i class="bi bi-filter"></i>
+      <span class="fw-bold small text-uppercase">Filter</span>
+    </button>
+
+    <!-- GRID SWITCHER -->
+    <div class="d-flex align-items-center gap-3">
+      <div
+        *ngFor="let layout of [2, 3, 4, 6]; let i = index"
+        class="layout-icon"
+        [class.active]="activeGrid === layout"
+        (click)="setGrid(layout)">
+        <ng-container [ngSwitch]="layout">
+          <div *ngSwitchCase="2" class="dots">● ●<br />● ●</div>
+          <div *ngSwitchCase="3" class="dots">● ● ●<br />● ● ●</div>
+          <div *ngSwitchCase="4" class="dots">● ● ● ●<br />● ● ● ●</div>
+          <div *ngSwitchCase="6" class="dots">● ● ● ● ● ●<br />● ● ● ● ● ●</div>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- SORT DROPDOWN -->
+    <div class="dropdown" [class.show]="dropdownOpen">
+      <button
+        class="btn border bg-white px-3 py-2 d-flex align-items-center gap-2 dropdown-toggle"
+        type="button"
+        (click)="toggleDropdown($event)"
+        [attr.aria-expanded]="dropdownOpen"
+        aria-haspopup="true"
+        (keydown)="handleKeydown($event)">
+        <span>{{ selectedSort }}</span>
+
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end" [class.show]="dropdownOpen" role="menu">
+        <li *ngFor="let sort of sorts">
+          <a class="dropdown-item"
+             [class.active]="selectedSort === sort"
+             (click)="setSortAndClose(sort, $event)"
+             role="menuitem"
+             href="#">
+            {{ sort }}
+            <span *ngIf="selectedSort === sort" class="ms-2 text-success">&#10003;</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+
+  </div>
+</div>
+
+
+
+
