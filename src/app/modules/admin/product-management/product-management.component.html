@@ -13,7 +13,7 @@
           <i [class]="viewMode === 'table' ? 'fas fa-th-large' : 'fas fa-table'"></i>
           {{ viewMode === 'table' ? 'Card View' : 'Table View' }}
         </button>
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
           <i class="fas fa-plus me-2"></i>Add Product
         </button>
       </div>
@@ -38,9 +38,6 @@
         (click)="onCategoryFilter(category.categoryId)">
         <i class="fas fa-tag me-1"></i>{{ category.categoryName }}
       </button>
-      <div *ngIf="categoriesLoading" class="spinner-border spinner-border-sm text-primary" role="status">
-        <span class="visually-hidden">Loading categories...</span>
-      </div>
     </div>
   </div>
 
@@ -65,14 +62,16 @@
           type="number"
           class="form-control"
           placeholder="Min Price"
-          formControlName="priceMin">
+          formControlName="priceMin"
+          min="0">
       </div>
       <div class="col-md-2">
         <input
           type="number"
           class="form-control"
           placeholder="Max Price"
-          formControlName="priceMax">
+          formControlName="priceMax"
+          min="0">
       </div>
 
       <!-- Quantity Range -->
@@ -81,14 +80,16 @@
           type="number"
           class="form-control"
           placeholder="Min Qty"
-          formControlName="quantityMin">
+          formControlName="quantityMin"
+          min="0">
       </div>
       <div class="col-md-2">
         <input
           type="number"
           class="form-control"
           placeholder="Max Qty"
-          formControlName="quantityMax">
+          formControlName="quantityMax"
+          min="0">
       </div>
     </form>
 
@@ -96,10 +97,10 @@
     <div class="action-bar">
       <div class="d-flex justify-content-between align-items-center">
         <div class="results-info">
-          <span class="text-muted">
-            Showing {{ ((currentPage -1) * pageSize) + 1 }}-{{ Math.min((currentPage) * pageSize, pagedResponse.totalElements || 0) }}
-            of {{ pagedResponse.totalElements || 0 }} products
-          </span>
+<span class="text-muted">
+Showing {{ ((currentPage -1) * pageSize) + 1 }}-{{ Math.min((currentPage) * pageSize, pagedResponse.totalElements || 0) }}
+of {{ pagedResponse.totalElements || 0 }} products
+</span>
         </div>
 
         <div class="d-flex align-items-center gap-3">
@@ -136,17 +137,22 @@
   </div>
 
   <!-- Loading State -->
-  <div *ngIf="loading" class="loading-state">
-    <div class="text-center py-5">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading products...</span>
-      </div>
-      <p class="mt-3 text-muted">Loading products...</p>
+  <div *ngIf="loading" class="loading-state text-center p-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
     </div>
+    <p class="mt-3 text-muted">Loading products...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && products.length === 0" class="empty-state text-center p-5">
+    <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
+    <h4>No Products Found</h4>
+    <p class="text-muted">Try adjusting your filters or add a new product.</p>
   </div>
 
   <!-- Table View -->
-  <div *ngIf="!loading && viewMode === 'table'" class="table-container">
+  <div *ngIf="!loading && viewMode === 'table' && products.length > 0" class="table-container">
     <div class="table-responsive">
       <table class="table table-hover product-table">
         <thead class="table-header">
@@ -181,30 +187,33 @@
             <span class="price-tag">${{ product.price | number:'1.2-2' }}</span>
           </td>
           <td class="product-quantity">
-              <span class="quantity-badge"
-                    [class.low-stock]="(product.quantity || 0) < 10"
-                    [class.out-of-stock]="(product.quantity || 0) === 0">
-                {{ product.quantity || 0 }}
-              </span>
+  <span class="quantity-badge"
+        [class.low-stock]="(product.quantity || 0) < 10"
+        [class.out-of-stock]="(product.quantity || 0) === 0">
+    {{ product.quantity || 0 }}
+  </span>
           </td>
           <td class="product-categories">
             <div class="categories-tags">
-                <span *ngFor="let category of product.categories" class="category-tag">
-                  {{ category.categoryName }}
-                </span>
+    <span *ngFor="let category of product.categories" class="category-tag">
+      {{ category.categoryName }}
+    </span>
               <span *ngIf="!product.categories?.length" class="text-muted">No categories</span>
             </div>
           </td>
           <td class="text-center">
             <div class="action-buttons">
               <button class="btn btn-sm btn-outline-primary me-1"
+                      data-bs-toggle="modal" data-bs-target="#updateProductModal"
+                      (click)="openUpdateModal(product)"
                       title="Edit Product">
                 <i class="fas fa-edit"></i>
               </button>
-              <button class="btn btn-sm btn-outline-danger"
-                      (click)="deleteProduct(product.productId!)"
-                      title="Delete Product">
-                <i class="fas fa-trash"></i>
+              <button class="btn btn-sm btn-outline-info"
+                      data-bs-toggle="modal" data-bs-target="#viewProductModal"
+                      (click)="openDetailsModal(product)"
+                      title="View Product">
+                <i class="fas fa-eye"></i>
               </button>
             </div>
           </td>
@@ -215,7 +224,7 @@
   </div>
 
   <!-- Card View -->
-  <div *ngIf="!loading && viewMode === 'card'" class="cards-container">
+  <div *ngIf="!loading && viewMode === 'card' && products.length > 0" class="cards-container">
     <div class="row">
       <div class="col-lg-4 col-md-6 mb-4" *ngFor="let product of products">
         <div class="product-card">
@@ -227,6 +236,17 @@
           </div>
 
           <div class="card-body">
+            <!-- Product Image -->
+            <div class="product-image-container mb-3" *ngIf="product.productId && productImages[product.productId]?.length">
+              <img [src]="productImages[product.productId][0]" class="product-image" alt="{{ product.productName }}">
+            </div>
+            <div class="product-image-container mb-3" *ngIf="!product.productId || !productImages[product.productId]?.length">
+              <div class="no-image-placeholder">
+                <i class="fas fa-image"></i>
+                <span>No image available</span>
+              </div>
+            </div>
+
             <p class="card-description">{{ product.description }}</p>
 
             <div class="product-details">
@@ -240,46 +260,37 @@
                 <span class="quantity-text"
                       [class.text-warning]="(product.quantity || 0) < 10"
                       [class.text-danger]="(product.quantity || 0) === 0">
-                  {{ product.quantity || 0 }} in stock
-                </span>
+      {{ product.quantity || 0 }} in stock
+    </span>
               </div>
             </div>
 
             <div class="categories-section" *ngIf="product.categories?.length">
               <span class="categories-label">Categories:</span>
               <div class="categories-tags">
-                <span *ngFor="let category of product.categories" class="category-tag-card">
-                  {{ category.categoryName }}
-                </span>
+    <span *ngFor="let category of product.categories" class="category-tag-card">
+      {{ category.categoryName }}
+    </span>
               </div>
             </div>
           </div>
 
           <div class="card-footer">
             <div class="d-flex justify-content-between">
-              <button class="btn btn-outline-primary btn-sm">
+              <button class="btn btn-outline-primary btn-sm"
+                      data-bs-toggle="modal" data-bs-target="#updateProductModal"
+                      (click)="openUpdateModal(product)">
                 <i class="fas fa-edit me-1"></i>Edit
               </button>
-              <button class="btn btn-outline-danger btn-sm"
-                      (click)="deleteProduct(product.productId!)">
-                <i class="fas fa-trash me-1"></i>Delete
+              <button class="btn btn-outline-info btn-sm"
+                      data-bs-toggle="modal" data-bs-target="#viewProductModal"
+                      (click)="openDetailsModal(product)">
+                <i class="fas fa-eye me-1"></i>View
               </button>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- Empty State -->
-  <div *ngIf="!loading && products.length === 0" class="empty-state">
-    <div class="text-center py-5">
-      <i class="fas fa-box-open empty-icon"></i>
-      <h4 class="mt-3">No Products Found</h4>
-      <p class="text-muted">There are no products matching your current filters.</p>
-      <button class="btn btn-primary" (click)="clearFilters()">
-        <i class="fas fa-refresh me-2"></i>Clear Filters
-      </button>
     </div>
   </div>
 
@@ -289,7 +300,7 @@
       <ul class="pagination pagination-custom justify-content-center">
         <!-- Previous -->
         <li class="page-item" [class.disabled]="currentPage === 1">
-          <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 0">
+          <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1">
             <i class="fas fa-chevron-left"></i>
           </button>
         </li>
@@ -299,28 +310,152 @@
             [class.active]="page === currentPage"
             [class.disabled]="page === -1">
           <button *ngIf="page !== -1" class="page-link" (click)="onPageChange(page)">
-            {{ page  }}
+            {{ page }}
           </button>
           <span *ngIf="page === -1" class="page-link">...</span>
         </li>
 
         <!-- Next -->
-        <li class="page-item" [class.disabled]="currentPage >= (pagedResponse.totalPages || 1)">
-          <button class="page-link"
-                  (click)="onPageChange(currentPage + 1)"
-                  [disabled]="currentPage >= (pagedResponse.totalPages || 1) - 1">
+        <li class="page-item" [class.disabled]="currentPage === (pagedResponse.totalPages || 1)">
+          <button class="page-link" (click)="onPageChange(currentPage + 1)"
+                  [disabled]="currentPage === (pagedResponse.totalPages || 1)">
             <i class="fas fa-chevron-right"></i>
           </button>
         </li>
       </ul>
     </nav>
+  </div>
 
-    <!-- Pagination Info -->
-    <div class="pagination-info text-center mt-3">
-      <small class="text-muted">
-        Page {{ currentPage  }} of {{ pagedResponse.totalPages || 1 }}
-        ({{ pagedResponse.totalElements || 0 }} total items)
-      </small>
+  View Product Modal
+  <!-- Update Product Modal -->
+  <div class="modal fade" id="updateProductModal" tabindex="-1" aria-labelledby="updateProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="updateProductModalLabel">Update Product</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" *ngIf="selectedProduct">
+          <form [formGroup]="updateProductForm">
+            <input type="hidden" formControlName="productId">
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="productName" class="form-label">Product Name</label>
+                <input type="text" class="form-control" id="productName" formControlName="productName">
+                <div *ngIf="updateProductForm.get('productName')?.invalid && updateProductForm.get('productName')?.touched"
+                     class="text-danger mt-1">
+                  Product name is required
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <label for="price" class="form-label">Price</label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="number" class="form-control" id="price" formControlName="price" min="0.01" step="0.01">
+                </div>
+                <div *ngIf="updateProductForm.get('price')?.invalid && updateProductForm.get('price')?.touched"
+                     class="text-danger mt-1">
+                  Valid price is required
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <label for="quantity" class="form-label">Quantity</label>
+                <input type="number" class="form-control" id="quantity" formControlName="quantity" min="0">
+                <div *ngIf="updateProductForm.get('quantity')?.invalid && updateProductForm.get('quantity')?.touched"
+                     class="text-danger mt-1">
+                  Valid quantity is required
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea class="form-control" id="description" rows="3" formControlName="description"></textarea>
+              <div *ngIf="updateProductForm.get('description')?.invalid && updateProductForm.get('description')?.touched"
+                   class="text-danger mt-1">
+                Description is required
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Categories</label>
+              <div class="categories-selection">
+                <div class="row">
+                  <div class="col-md-4 mb-2" *ngFor="let category of categories">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox"
+                             [id]="'category-' + category.categoryId"
+                             [checked]="isCategorySelected(category.categoryId!)"
+                             (change)="toggleCategorySelection(category.categoryId!)">
+                      <label class="form-check-label" [for]="'category-' + category.categoryId">
+                        {{ category.categoryName }}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Current Images</label>
+              <div class="current-images-container">
+                <div class="row" *ngIf="selectedProductImages?.length">
+                  <div class="col-md-3 mb-3" *ngFor="let image of selectedProductImages; let i = index">
+                    <div class="current-image-item">
+                      <img [src]="image" class="img-thumbnail" alt="Product image">
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="!selectedProductImages?.length" class="text-muted">
+                  No images available for this product
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Add New Images</label>
+              <div class="image-upload-container">
+                <div class="image-upload-area">
+                  <input type="file" id="productImages" class="file-input"
+                         accept="image/*" multiple (change)="onFileSelected($event)">
+                  <label for="productImages" class="upload-label">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Click to upload or drag images here</span>
+                    <small class="text-muted d-block mt-1">Supported formats: JPG, PNG, GIF (Max 5 images)</small>
+                  </label>
+                </div>
+              </div>
+
+              <!-- New Images Preview -->
+              <div *ngIf="newImages.length > 0" class="new-images-preview mt-3">
+                <div class="row">
+                  <div class="col-md-3 mb-2" *ngFor="let image of newImages; let i = index">
+                    <div class="new-image-item">
+                      <img [src]="image.preview" class="img-thumbnail" alt="New product image">
+                      <button type="button" class="btn btn-sm btn-danger remove-image-btn"
+                              (click)="removeNewImage(i)" title="Remove image">
+                        <i class="fas fa-times"></i>
+                      </button>
+                      <div class="image-name">
+                        <small class="text-muted">{{ image.file.name }}</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" (click)="submitUpdateProduct()">
+            Update Product
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

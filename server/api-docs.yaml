@@ -2227,6 +2227,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/CategoryNoProductDTO"
+        images:
+          type: array
+          items:
+            type: string
       required:
       - description
       - productName
@@ -2610,18 +2614,18 @@ components:
     TopCustomersProjection:
       type: object
       properties:
+        email:
+          type: string
         userId:
           type: integer
           format: int64
-        email:
-          type: string
         totalOrders:
           type: integer
           format: int64
-        userName:
-          type: string
         totalSpent:
           type: number
+        userName:
+          type: string
     UserRoleDistributionProjection:
       type: object
       properties:
@@ -2633,23 +2637,23 @@ components:
     CustomerOrderStatsProjection:
       type: object
       properties:
+        email:
+          type: string
         userId:
           type: integer
           format: int64
-        email:
-          type: string
         totalOrders:
           type: integer
           format: int64
         averageOrderValue:
           type: number
-        userName:
-          type: string
         totalSpent:
           type: number
         lastOrderDate:
           type: string
           format: date
+        userName:
+          type: string
     TopSellingProductProjection:
       type: object
       properties:
@@ -2666,13 +2670,13 @@ components:
     RecentOrderProjection:
       type: object
       properties:
+        orderDate:
+          type: string
+          format: date
         userEmail:
           type: string
         orderTotal:
           type: number
-        orderDate:
-          type: string
-          format: date
         status:
           type: string
         orderId:
@@ -2689,25 +2693,28 @@ components:
         month:
           type: integer
           format: int32
-        monthlyRevenue:
-          type: number
         orderCount:
           type: integer
           format: int64
+        monthlyRevenue:
+          type: number
     DailyOrderStatsProjection:
       type: object
       properties:
-        orderDate:
-          type: string
-          format: date
-        dailyRevenue:
-          type: number
         orderCount:
           type: integer
           format: int64
+        dailyRevenue:
+          type: number
+        orderDate:
+          type: string
+          format: date
     ProductSalesStatsProjection:
       type: object
       properties:
+        orderCount:
+          type: integer
+          format: int64
         productId:
           type: integer
           format: int64
@@ -2718,9 +2725,6 @@ components:
           type: string
         totalRevenue:
           type: number
-        orderCount:
-          type: integer
-          format: int64
         averageOrderQuantity:
           type: number
     OrderDetailsStatsProjection:
@@ -2729,23 +2733,23 @@ components:
         totalItemsSold:
           type: integer
           format: int64
-        averageItemPrice:
-          type: number
         averageItemsPerOrder:
+          type: number
+        averageItemPrice:
           type: number
     OrderStatsProjection:
       type: object
       properties:
-        totalOrders:
-          type: integer
-          format: int64
-        pendingOrders:
+        completedOrders:
           type: integer
           format: int64
         cancelledOrders:
           type: integer
           format: int64
-        completedOrders:
+        totalOrders:
+          type: integer
+          format: int64
+        pendingOrders:
           type: integer
           format: int64
         totalRevenue:
@@ -2758,71 +2762,71 @@ components:
         count:
           type: integer
           format: int64
-        status:
-          type: string
         totalAmount:
           type: number
+        status:
+          type: string
     RevenueByPeriodProjection:
       type: object
       properties:
+        orderCount:
+          type: integer
+          format: int64
         periodDate:
           type: string
           format: date
         revenue:
           type: number
-        orderCount:
-          type: integer
-          format: int64
     PaymentTypeStatsProjection:
       type: object
       properties:
         count:
           type: integer
           format: int64
+        totalAmount:
+          type: number
         paymentType:
           type: string
         percentage:
           type: number
           format: double
-        totalAmount:
-          type: number
     OrdersByLocationProjection:
       type: object
       properties:
         state:
           type: string
+        orderCount:
+          type: integer
+          format: int64
         city:
           type: string
         totalRevenue:
           type: number
-        orderCount:
-          type: integer
-          format: int64
     DashboardSummaryProjection:
       type: object
       properties:
-        totalOrders:
-          type: integer
-          format: int64
-        todayOrders:
-          type: integer
-          format: int64
-        pendingOrders:
-          type: integer
-          format: int64
         todayRevenue:
           type: number
         totalUsers:
           type: integer
           format: int64
+        totalOrders:
+          type: integer
+          format: int64
+        pendingOrders:
+          type: integer
+          format: int64
+        todayOrders:
+          type: integer
+          format: int64
         totalRevenue:
           type: number
-        revenueGrowthRate:
-          type: number
-          format: double
         newCustomersThisMonth:
           type: integer
           format: int64
+        revenueGrowthRate:
+          type: number
+          format: double
   securitySchemes:
     BearerAuth:
       type: http
