@@ -6,6 +6,7 @@ import {ProfileComponent} from '../user/profile/profile.component';
 import {TestComponent} from './test/test.component';
 import {LayoutComponent} from './layout/layout.component';
 import {OrdersComponent} from './orders/orders.component';
+import {ProductManagementComponent} from './product-management/product-management.component';
 
 const routes:Routes = [
   // {
@@ -27,7 +28,7 @@ const routes:Routes = [
       // Add more admin routes here as needed
       { path: 'orders', component: OrdersComponent },
       {path :'test',component:TestComponent},
-      // { path: 'products', component: ProductsComponent },
+      {path :'products',component:ProductManagementComponent},
       // { path: 'users', component: UsersComponent },
       // { path: 'analytics', component: AnalyticsComponent },
       // { path: 'categories', component: CategoriesComponent },

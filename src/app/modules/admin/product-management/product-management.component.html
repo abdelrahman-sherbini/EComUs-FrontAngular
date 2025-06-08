@@ -1,0 +1,326 @@
+<div class="products-management">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h2 class="page-title">
+          <i class="fas fa-boxes me-2"></i>Products Management
+        </h2>
+        <p class="page-subtitle text-muted">Manage your product inventory with advanced filtering and sorting</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-outline-primary me-2" (click)="toggleViewMode()">
+          <i [class]="viewMode === 'table' ? 'fas fa-th-large' : 'fas fa-table'"></i>
+          {{ viewMode === 'table' ? 'Card View' : 'Table View' }}
+        </button>
+        <button class="btn btn-primary">
+          <i class="fas fa-plus me-2"></i>Add Product
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Categories Filter Pills -->
+  <div class="categories-filter mb-4">
+    <div class="d-flex align-items-center flex-wrap gap-2">
+      <span class="filter-label">Categories:</span>
+      <button
+        class="btn category-pill"
+        [class.active]="selectedCategoryId === null"
+        (click)="onCategoryFilter(null)">
+        <i class="fas fa-th-large me-1"></i>All Categories
+        <span class="badge bg-light text-dark ms-1">{{ pagedResponse.totalElements || 0 }}</span>
+      </button>
+      <button
+        *ngFor="let category of categories"
+        class="btn category-pill"
+        [class.active]="selectedCategoryId === category.categoryId"
+        (click)="onCategoryFilter(category.categoryId)">
+        <i class="fas fa-tag me-1"></i>{{ category.categoryName }}
+      </button>
+      <div *ngIf="categoriesLoading" class="spinner-border spinner-border-sm text-primary" role="status">
+        <span class="visually-hidden">Loading categories...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters & Search -->
+  <div class="filters-section">
+    <form [formGroup]="filterForm" class="row g-3">
+      <!-- Search -->
+      <div class="col-md-4">
+        <div class="search-box">
+          <i class="fas fa-search search-icon"></i>
+          <input
+            type="text"
+            class="form-control search-input"
+            placeholder="Search products..."
+            formControlName="keyword">
+        </div>
+      </div>
+
+      <!-- Price Range -->
+      <div class="col-md-2">
+        <input
+          type="number"
+          class="form-control"
+          placeholder="Min Price"
+          formControlName="priceMin">
+      </div>
+      <div class="col-md-2">
+        <input
+          type="number"
+          class="form-control"
+          placeholder="Max Price"
+          formControlName="priceMax">
+      </div>
+
+      <!-- Quantity Range -->
+      <div class="col-md-2">
+        <input
+          type="number"
+          class="form-control"
+          placeholder="Min Qty"
+          formControlName="quantityMin">
+      </div>
+      <div class="col-md-2">
+        <input
+          type="number"
+          class="form-control"
+          placeholder="Max Qty"
+          formControlName="quantityMax">
+      </div>
+    </form>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="results-info">
+          <span class="text-muted">
+            Showing {{ ((currentPage -1) * pageSize) + 1 }}-{{ Math.min((currentPage) * pageSize, pagedResponse.totalElements || 0) }}
+            of {{ pagedResponse.totalElements || 0 }} products
+          </span>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+          <!-- Sort Options -->
+          <div class="sort-controls">
+            <label class="form-label me-2 mb-0">Sort by:</label>
+            <select class="form-select form-select-sm" style="width: auto;"
+                    [value]="sortField" (change)="onSort($any($event.target).value)">
+              <option *ngFor="let option of sortOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+            <button class="btn btn-sm btn-outline-secondary ms-1" (click)="onSort(sortField)">
+              <i [class]="getSortIcon(sortField)"></i>
+            </button>
+          </div>
+
+          <!-- Page Size -->
+          <div class="page-size-controls">
+            <label class="form-label me-2 mb-0">Show:</label>
+            <select class="form-select form-select-sm" style="width: auto;"
+                    [value]="pageSize" (change)="onPageSizeChange(+$any($event.target).value)">
+              <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+            </select>
+          </div>
+
+          <!-- Clear Filters -->
+          <button class="btn btn-outline-secondary btn-sm" (click)="clearFilters()">
+            <i class="fas fa-times me-1"></i>Clear Filters
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading products...</span>
+      </div>
+      <p class="mt-3 text-muted">Loading products...</p>
+    </div>
+  </div>
+
+  <!-- Table View -->
+  <div *ngIf="!loading && viewMode === 'table'" class="table-container">
+    <div class="table-responsive">
+      <table class="table table-hover product-table">
+        <thead class="table-header">
+        <tr>
+          <th scope="col" class="sortable" (click)="onSort('productId')">
+            ID <i [class]="getSortIcon('productId')"></i>
+          </th>
+          <th scope="col" class="sortable" (click)="onSort('productName')">
+            Product Name <i [class]="getSortIcon('productName')"></i>
+          </th>
+          <th scope="col">Description</th>
+          <th scope="col" class="sortable" (click)="onSort('price')">
+            Price <i [class]="getSortIcon('price')"></i>
+          </th>
+          <th scope="col" class="sortable" (click)="onSort('quantity')">
+            Quantity <i [class]="getSortIcon('quantity')"></i>
+          </th>
+          <th scope="col">Categories</th>
+          <th scope="col" class="text-center">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let product of products" class="product-row">
+          <td class="product-id">#{{ product.productId }}</td>
+          <td class="product-name">
+            <strong>{{ product.productName }}</strong>
+          </td>
+          <td class="product-description">
+            <span class="description-text">{{ product.description }}</span>
+          </td>
+          <td class="product-price">
+            <span class="price-tag">${{ product.price | number:'1.2-2' }}</span>
+          </td>
+          <td class="product-quantity">
+              <span class="quantity-badge"
+                    [class.low-stock]="(product.quantity || 0) < 10"
+                    [class.out-of-stock]="(product.quantity || 0) === 0">
+                {{ product.quantity || 0 }}
+              </span>
+          </td>
+          <td class="product-categories">
+            <div class="categories-tags">
+                <span *ngFor="let category of product.categories" class="category-tag">
+                  {{ category.categoryName }}
+                </span>
+              <span *ngIf="!product.categories?.length" class="text-muted">No categories</span>
+            </div>
+          </td>
+          <td class="text-center">
+            <div class="action-buttons">
+              <button class="btn btn-sm btn-outline-primary me-1"
+                      title="Edit Product">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger"
+                      (click)="deleteProduct(product.productId!)"
+                      title="Delete Product">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Card View -->
+  <div *ngIf="!loading && viewMode === 'card'" class="cards-container">
+    <div class="row">
+      <div class="col-lg-4 col-md-6 mb-4" *ngFor="let product of products">
+        <div class="product-card">
+          <div class="card-header-custom">
+            <div class="d-flex justify-content-between align-items-start">
+              <h5 class="card-title">{{ product.productName }}</h5>
+              <span class="product-id-badge">#{{ product.productId }}</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <p class="card-description">{{ product.description }}</p>
+
+            <div class="product-details">
+              <div class="detail-item">
+                <i class="fas fa-dollar-sign text-success"></i>
+                <span class="price-large">${{ product.price | number:'1.2-2' }}</span>
+              </div>
+
+              <div class="detail-item">
+                <i class="fas fa-boxes text-info"></i>
+                <span class="quantity-text"
+                      [class.text-warning]="(product.quantity || 0) < 10"
+                      [class.text-danger]="(product.quantity || 0) === 0">
+                  {{ product.quantity || 0 }} in stock
+                </span>
+              </div>
+            </div>
+
+            <div class="categories-section" *ngIf="product.categories?.length">
+              <span class="categories-label">Categories:</span>
+              <div class="categories-tags">
+                <span *ngFor="let category of product.categories" class="category-tag-card">
+                  {{ category.categoryName }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <div class="d-flex justify-content-between">
+              <button class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-edit me-1"></i>Edit
+              </button>
+              <button class="btn btn-outline-danger btn-sm"
+                      (click)="deleteProduct(product.productId!)">
+                <i class="fas fa-trash me-1"></i>Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && products.length === 0" class="empty-state">
+    <div class="text-center py-5">
+      <i class="fas fa-box-open empty-icon"></i>
+      <h4 class="mt-3">No Products Found</h4>
+      <p class="text-muted">There are no products matching your current filters.</p>
+      <button class="btn btn-primary" (click)="clearFilters()">
+        <i class="fas fa-refresh me-2"></i>Clear Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!loading && products.length > 0" class="pagination-section">
+    <nav aria-label="Products pagination">
+      <ul class="pagination pagination-custom justify-content-center">
+        <!-- Previous -->
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 0">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+        </li>
+
+        <!-- Page Numbers -->
+        <li *ngFor="let page of getPaginationPages()" class="page-item"
+            [class.active]="page === currentPage"
+            [class.disabled]="page === -1">
+          <button *ngIf="page !== -1" class="page-link" (click)="onPageChange(page)">
+            {{ page  }}
+          </button>
+          <span *ngIf="page === -1" class="page-link">...</span>
+        </li>
+
+        <!-- Next -->
+        <li class="page-item" [class.disabled]="currentPage >= (pagedResponse.totalPages || 1)">
+          <button class="page-link"
+                  (click)="onPageChange(currentPage + 1)"
+                  [disabled]="currentPage >= (pagedResponse.totalPages || 1) - 1">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Pagination Info -->
+    <div class="pagination-info text-center mt-3">
+      <small class="text-muted">
+        Page {{ currentPage  }} of {{ pagedResponse.totalPages || 1 }}
+        ({{ pagedResponse.totalElements || 0 }} total items)
+      </small>
+    </div>
+  </div>
+</div>
