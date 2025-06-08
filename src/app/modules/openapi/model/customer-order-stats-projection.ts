@@ -10,12 +10,12 @@
 
 
 export interface CustomerOrderStatsProjection { 
-    userName?: string;
     userId?: number;
     email?: string;
-    averageOrderValue?: number;
     totalOrders?: number;
+    averageOrderValue?: number;
     lastOrderDate?: string;
     totalSpent?: number;
+    userName?: string;
 }
 

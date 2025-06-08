@@ -10,8 +10,8 @@
 
 
 export interface OrderDetailsStatsProjection { 
+    totalItemsSold?: number;
     averageItemPrice?: number;
     averageItemsPerOrder?: number;
-    totalItemsSold?: number;
 }
 

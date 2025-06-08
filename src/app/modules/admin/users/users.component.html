@@ -1,0 +1,642 @@
+<!-- users.component.html -->
+<div class="users-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">
+          <i class="fas fa-users me-3"></i>
+          User Management
+        </h1>
+        <p class="page-subtitle">Manage and track all system users</p>
+      </div>
+      <div class="header-right">
+        <div class="header-stats">
+          <div class="stat-item">
+            <span class="stat-label">Total Users</span>
+            <span class="stat-value">{{ pagedResponse?.totalElements || 0 }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Role Filter Pills -->
+  <div class="filter-pills-container">
+    <div class="filter-pills">
+      <button
+        class="filter-pill"
+        [class.active]="roleFilter === ''"
+        data-color="primary"
+        (click)="roleFilter = ''; applyAdvancedFilters()">
+        <i class="fas fa-users"></i>
+        <span class="pill-label">All Users</span>
+      </button>
+      <button
+        class="filter-pill"
+        [class.active]="roleFilter === 'ADMIN'"
+        data-color="danger"
+        (click)="roleFilter = 'ADMIN'; applyAdvancedFilters()">
+        <i class="fas fa-user-shield"></i>
+        <span class="pill-label">Admins</span>
+      </button>
+      <button
+        class="filter-pill"
+        [class.active]="roleFilter === 'USER'"
+        data-color="success"
+        (click)="roleFilter = 'USER'; applyAdvancedFilters()">
+        <i class="fas fa-user"></i>
+        <span class="pill-label">Regular Users</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Search and Controls -->
+  <div class="controls-section">
+    <div class="search-controls">
+      <div class="search-box">
+        <i class="fas fa-search search-icon"></i>
+        <input
+          type="text"
+          class="form-control search-input"
+          placeholder="Search users by name, email, job..."
+          [value]="searchKeyword"
+          (input)="onSearch($event)">
+      </div>
+
+      <button
+        class="btn btn-outline-primary advanced-btn"
+        (click)="toggleAdvancedFilters()">
+        <i class="fas fa-sliders-h me-2"></i>
+        Advanced Filters
+        <i class="fas fa-chevron-down ms-2 chevron-icon"
+           [class.rotated]="showAdvancedFilters"></i>
+      </button>
+    </div>
+
+    <!-- Advanced Filters Panel -->
+    <div class="advanced-filters" [class.show]="showAdvancedFilters">
+      <div class="filters-grid">
+        <div class="filter-group">
+          <label class="filter-label">User ID</label>
+          <input
+            type="number"
+            class="form-control"
+            placeholder="Filter by user ID"
+            [(ngModel)]="userIdFilter">
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Username</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Filter by username"
+            [(ngModel)]="userNameFilter">
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Email</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Filter by email"
+            [(ngModel)]="emailFilter">
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Role</label>
+          <select class="form-select" [(ngModel)]="roleFilter">
+            <option value="">All Roles</option>
+            <option value="ADMIN">Admin</option>
+            <option value="USER">User</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Job</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Filter by job"
+            [(ngModel)]="jobFilter">
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Phone</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Filter by phone"
+            [(ngModel)]="phoneFilter">
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Credit Limit Range</label>
+          <div class="price-range">
+            <input
+              type="number"
+              class="form-control"
+              placeholder="Min"
+              [(ngModel)]="creditLimitMin">
+            <span class="range-separator">to</span>
+            <input
+              type="number"
+              class="form-control"
+              placeholder="Max"
+              [(ngModel)]="creditLimitMax">
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn btn-outline-secondary" (click)="clearAdvancedFilters()">
+          <i class="fas fa-times me-2"></i>Clear
+        </button>
+        <button class="btn btn-primary" (click)="applyAdvancedFilters()">
+          <i class="fas fa-filter me-2"></i>Apply Filters
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner">
+      <div class="spinner-ring"></div>
+      <span class="loading-text">Loading users...</span>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="alert alert-danger error-alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    {{ error }}
+    <button class="btn btn-outline-danger btn-sm ms-3" (click)="loadUsers()">
+      <i class="fas fa-redo me-1"></i>Retry
+    </button>
+  </div>
+
+  <!-- Users Table -->
+  <div *ngIf="!loading && !error" class="table-container">
+    <div class="table-header">
+      <div class="table-controls">
+        <div class="page-size-control">
+          <label>Show:</label>
+          <select class="form-select form-select-sm"
+                  [value]="pageSize"
+                  (change)="onPageSizeChange($event)">
+            <option *ngFor="let size of pageSizeOptions" [value]="size">
+              {{ size }}
+            </option>
+          </select>
+          <span>entries</span>
+        </div>
+
+        <div class="table-info">
+          <span *ngIf="pagedResponse">
+            Showing {{ ((currentPage - 1) * pageSize) + 1 }} to
+            {{ Math.min(currentPage * pageSize, pagedResponse.totalElements || 0) }} of
+            {{ pagedResponse.totalElements }} entries
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table users-table">
+        <thead>
+        <tr>
+          <th class="sortable" (click)="onSort('userId')">
+            User ID
+            <i class="fas fa-sort sort-icon"
+               [class.fa-sort-up]="sortField === 'userId' && sortDirection === 'asc'"
+               [class.fa-sort-down]="sortField === 'userId' && sortDirection === 'desc'"></i>
+          </th>
+          <th class="sortable" (click)="onSort('userName')">
+            Username
+            <i class="fas fa-sort sort-icon"
+               [class.fa-sort-up]="sortField === 'userName' && sortDirection === 'asc'"
+               [class.fa-sort-down]="sortField === 'userName' && sortDirection === 'desc'"></i>
+          </th>
+          <th class="sortable" (click)="onSort('email')">
+            Email
+            <i class="fas fa-sort sort-icon"
+               [class.fa-sort-up]="sortField === 'email' && sortDirection === 'asc'"
+               [class.fa-sort-down]="sortField === 'email' && sortDirection === 'desc'"></i>
+          </th>
+          <th class="sortable" (click)="onSort('role')">
+            Role
+            <i class="fas fa-sort sort-icon"
+               [class.fa-sort-up]="sortField === 'role' && sortDirection === 'asc'"
+               [class.fa-sort-down]="sortField === 'role' && sortDirection === 'desc'"></i>
+          </th>
+          <th class="sortable" (click)="onSort('job')">
+            Job
+            <i class="fas fa-sort sort-icon"
+               [class.fa-sort-up]="sortField === 'job' && sortDirection === 'asc'"
+               [class.fa-sort-down]="sortField === 'job' && sortDirection === 'desc'"></i>
+          </th>
+          <th class="sortable" (click)="onSort('phone')">
+            Phone
+            <i class="fas fa-sort sort-icon"
+               [class.fa-sort-up]="sortField === 'phone' && sortDirection === 'asc'"
+               [class.fa-sort-down]="sortField === 'phone' && sortDirection === 'desc'"></i>
+          </th>
+          <th class="sortable" (click)="onSort('creditLimit')">
+            Credit Limit
+            <i class="fas fa-sort sort-icon"
+               [class.fa-sort-up]="sortField === 'creditLimit' && sortDirection === 'asc'"
+               [class.fa-sort-down]="sortField === 'creditLimit' && sortDirection === 'desc'"></i>
+          </th>
+          <th class="text-center">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let user of users; trackBy: trackByUserId" class="user-row">
+          <td class="user-id">
+            <span class="id-badge">#{{ user.userId }}</span>
+          </td>
+          <td class="username">
+            <div class="user-details">
+              <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+              </div>
+              <span class="user-name">{{ user.userName }}</span>
+            </div>
+          </td>
+          <td class="email">
+            <span class="email-text">{{ user.email }}</span>
+          </td>
+          <td class="role">
+            <span [class]="getRoleBadgeClass(user.role)">
+              <i class="fas"
+                 [class.fa-user-shield]="user.role === 'ADMIN'"
+                 [class.fa-user]="user.role === 'USER'"></i>
+              {{ user.role }}
+            </span>
+          </td>
+          <td class="job">
+            <span class="job-text">{{ user.job || 'N/A' }}</span>
+          </td>
+          <td class="phone">
+            <span class="phone-text">{{ user.phone || 'N/A' }}</span>
+          </td>
+          <td class="credit-limit">
+            <span class="credit-amount">{{ formatCurrency(user.creditLimit) }}</span>
+          </td>
+          <td class="actions text-center">
+            <div class="action-buttons">
+              <button
+                class="btn btn-sm btn-outline-primary action-btn"
+                (click)="viewUserDetails(user)"
+                title="View Details">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="users.length === 0" class="empty-state">
+      <div class="empty-content">
+        <div class="empty-icon-container">
+          <i class="fas fa-users empty-icon"></i>
+        </div>
+        <h3 class="empty-title">No Users Found</h3>
+        <p class="empty-description">No users match your current filters. Try adjusting your search criteria.</p>
+        <button class="btn btn-primary empty-action" (click)="clearAdvancedFilters()">
+          <i class="fas fa-refresh me-2"></i>Reset Filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="pagedResponse && pagedResponse.totalPages! > 1" class="pagination-container">
+      <nav aria-label="Users pagination">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="pagedResponse.first">
+            <a class="page-link" (click)="onPageChange(1)" aria-label="First">
+              <i class="fas fa-angle-double-left"></i>
+            </a>
+          </li>
+          <li class="page-item" [class.disabled]="pagedResponse.first">
+            <a class="page-link" (click)="onPageChange(currentPage - 1)" aria-label="Previous">
+              <i class="fas fa-angle-left"></i>
+            </a>
+          </li>
+
+          <li *ngFor="let page of getPaginationArray()"
+              class="page-item"
+              [class.active]="page === currentPage"
+              [class.disabled]="page === -1">
+            <a *ngIf="page !== -1" class="page-link" (click)="onPageChange(page)">{{ page }}</a>
+            <span *ngIf="page === -1" class="page-link">...</span>
+          </li>
+
+          <li class="page-item" [class.disabled]="pagedResponse.last">
+            <a class="page-link" (click)="onPageChange(currentPage + 1)" aria-label="Next">
+              <i class="fas fa-angle-right"></i>
+            </a>
+          </li>
+          <li class="page-item" [class.disabled]="pagedResponse.last">
+            <a class="page-link" (click)="onPageChange((pagedResponse.totalPages || 1))" aria-label="Last">
+              <i class="fas fa-angle-double-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<!-- User Details Modal -->
+<div *ngIf="selectedUser" class="modal fade show d-block user-modal" tabindex="-1" style="background: rgba(0,0,0,0.6);">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-user-circle me-2"></i>
+          User Details - {{ selectedUser.userName }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeUserDetails()"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-tabs mb-4">
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'info'" (click)="setActiveTab('info')">
+              <i class="fas fa-info-circle me-2"></i>User Information
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'orders'" (click)="setActiveTab('orders')">
+              <i class="fas fa-shopping-bag me-2"></i>Orders
+              <span class="badge bg-primary ms-2">{{ selectedUser.orders?.length || 0 }}</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'carts'" (click)="setActiveTab('carts')">
+              <i class="fas fa-shopping-cart me-2"></i>Cart Items
+              <span class="badge bg-primary ms-2">{{ selectedUser.carts?.length || 0 }}</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'addresses'" (click)="setActiveTab('addresses')">
+              <i class="fas fa-map-marker-alt me-2"></i>Addresses
+              <span class="badge bg-primary ms-2">{{ selectedUser.addresses?.length || 0 }}</span>
+            </a>
+          </li>
+        </ul>
+
+        <!-- User Info Tab -->
+        <div *ngIf="activeTab === 'info'" class="user-details-content">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="detail-section">
+                <h6 class="section-title">
+                  <i class="fas fa-user me-2"></i>Basic Information
+                </h6>
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <span class="detail-label">User ID:</span>
+                    <span class="detail-value">#{{ selectedUser.userId }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Username:</span>
+                    <span class="detail-value">{{ selectedUser.userName }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value">{{ selectedUser.email }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Role:</span>
+                    <span [class]="getRoleBadgeClass(selectedUser.role)">
+                      <i class="fas"
+                         [class.fa-user-shield]="selectedUser.role === 'ADMIN'"
+                         [class.fa-user]="selectedUser.role === 'USER'"></i>
+                      {{ selectedUser.role }}
+                    </span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Birth Date:</span>
+                    <span class="detail-value">{{ selectedUser.bd ? formatDate(selectedUser.bd) : 'N/A' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="detail-section">
+                <h6 class="section-title">
+                  <i class="fas fa-briefcase me-2"></i>Professional & Contact
+                </h6>
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <span class="detail-label">Job:</span>
+                    <span class="detail-value">{{ selectedUser.job || 'N/A' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Phone:</span>
+                    <span class="detail-value">{{ selectedUser.phone || 'N/A' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Credit Card:</span>
+                    <span class="detail-value">{{ selectedUser.creditNo ? '••••' + selectedUser.creditNo.slice(-4) : 'N/A' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Credit Limit:</span>
+                    <span class="detail-value price-highlight">{{ formatCurrency(selectedUser.creditLimit) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orders Tab -->
+        <div *ngIf="activeTab === 'orders'" class="orders-tab">
+          <div *ngIf="!selectedUser.orders || selectedUser.orders.length === 0" class="empty-tab-state">
+            <i class="fas fa-shopping-bag empty-icon"></i>
+            <h5>No Orders Found</h5>
+            <p>This user hasn't placed any orders yet.</p>
+          </div>
+
+          <div *ngIf="selectedUser.orders && selectedUser.orders.length > 0" class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Payment</th>
+                  <th>Amount</th>
+                  <th>Address</th>
+                  <th>Items</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let order of selectedUser.orders">
+                  <td><span class="id-badge">#{{ order.orderId }}</span></td>
+                  <td>{{ formatDate(order.date) }}</td>
+                  <td>
+                    <span class="badge"
+                          [class.bg-warning]="order.status === 'PROCESSING'"
+                          [class.bg-info]="order.status === 'SHIPPED'"
+                          [class.bg-success]="order.status === 'COMPLETED'"
+                          [class.bg-danger]="order.status === 'CANCELED'">
+                      <i class="fas me-1"
+                         [class.fa-clock]="order.status === 'PROCESSING'"
+                         [class.fa-shipping-fast]="order.status === 'SHIPPED'"
+                         [class.fa-check-circle]="order.status === 'COMPLETED'"
+                         [class.fa-times-circle]="order.status === 'CANCELED'"></i>
+                      {{ order.status }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge"
+                          [class.bg-success]="order.payType === 'CASH'"
+                          [class.bg-primary]="order.payType === 'CREDIT'">
+                      <i class="fas me-1"
+                         [class.fa-money-bill-wave]="order.payType === 'CASH'"
+                         [class.fa-credit-card]="order.payType === 'CREDIT'"></i>
+                      {{ order.payType }}
+                    </span>
+                  </td>
+                  <td>{{ formatCurrency(order.price) }}</td>
+                  <td>
+                    <div class="address-cell" [title]="order.address">
+                      <i class="fas fa-map-marker-alt me-1"></i>
+                      <span>{{ order.address | slice:0:30 }}{{ (order.address?.length || 0) > 30 ? '...' : '' }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary"
+                            data-bs-toggle="collapse"
+                            [attr.data-bs-target]="'#orderDetails' + order.orderId">
+                      <i class="fas fa-list me-1"></i>
+                      {{ order.orderDetails?.length || 0 }} items
+                    </button>
+                  </td>
+                </tr>
+                <!-- Order Details Expandable Rows -->
+                <ng-container *ngFor="let order of selectedUser.orders">
+                  <tr class="collapse" [id]="'orderDetails' + order.orderId">
+                    <td colspan="7" class="p-0">
+                      <div class="order-details-container p-3">
+                        <h6 class="mb-3">Order #{{ order.orderId }} Items</h6>
+                        <table class="table table-sm">
+                          <thead>
+                            <tr>
+                              <th>Product</th>
+                              <th>Quantity</th>
+                              <th>Price</th>
+                              <th>Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let item of order.orderDetails">
+                              <td>
+                                <div class="product-info">
+                                  <i class="fas fa-box me-2"></i>
+                                  {{ item.product?.productName || 'Product #' + item.product?.productId }}
+                                </div>
+                              </td>
+                              <td><span class="badge bg-secondary">{{ item.quantity }}</span></td>
+                              <td>{{ formatCurrency(item.price) }}</td>
+                              <td>{{ formatCurrency((item.price || 0) * (item.quantity || 0)) }}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Cart Items Tab -->
+        <div *ngIf="activeTab === 'carts'" class="carts-tab">
+          <div *ngIf="!selectedUser.carts || selectedUser.carts.length === 0" class="empty-tab-state">
+            <i class="fas fa-shopping-cart empty-icon"></i>
+            <h5>No Cart Items Found</h5>
+            <p>This user's shopping cart is empty.</p>
+          </div>
+
+          <div *ngIf="selectedUser.carts && selectedUser.carts.length > 0" class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Quantity</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cart of selectedUser.carts">
+                  <td>
+                    <div class="product-info">
+                      <i class="fas fa-box me-2"></i>
+                      {{ cart.product.productName || 'Product #' + cart.product.productId }}
+                    </div>
+                  </td>
+                  <td><span class="badge bg-secondary">{{ cart.quantity }}</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Addresses Tab -->
+        <div *ngIf="activeTab === 'addresses'" class="addresses-tab">
+          <div *ngIf="!selectedUser.addresses || selectedUser.addresses.length === 0" class="empty-tab-state">
+            <i class="fas fa-map-marker-alt empty-icon"></i>
+            <h5>No Addresses Found</h5>
+            <p>This user hasn't added any addresses yet.</p>
+          </div>
+
+          <div *ngIf="selectedUser.addresses && selectedUser.addresses.length > 0" class="addresses-grid">
+            <div class="row">
+              <div *ngFor="let address of selectedUser.addresses" class="col-md-6 col-lg-4 mb-4">
+                <div class="address-card">
+                  <div class="address-card-header">
+                    <i class="fas fa-map-marker-alt me-2"></i>
+                    <span>Address #{{ address.id }}</span>
+                  </div>
+                  <div class="address-card-body">
+                    <div class="address-line">
+                      <span class="address-label">City:</span>
+                      <span class="address-value">{{ address.city }}</span>
+                    </div>
+                    <div class="address-line">
+                      <span class="address-label">Area:</span>
+                      <span class="address-value">{{ address.area }}</span>
+                    </div>
+                    <div class="address-line">
+                      <span class="address-label">Street:</span>
+                      <span class="address-value">{{ address.street }}</span>
+                    </div>
+                    <div class="address-line">
+                      <span class="address-label">Building No:</span>
+                      <span class="address-value">{{ address.buildingNo }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeUserDetails()">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

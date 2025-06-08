@@ -10,9 +10,9 @@
 
 
 export interface TopSellingProductProjection { 
-    totalQuantitySold?: number;
-    productId?: number;
     productName?: string;
+    productId?: number;
     totalRevenue?: number;
+    totalQuantitySold?: number;
 }
 
