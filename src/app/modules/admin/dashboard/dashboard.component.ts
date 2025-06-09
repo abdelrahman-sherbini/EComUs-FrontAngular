@@ -15,7 +15,7 @@ import {
   CategoryDTO,
   CategoryNameDTO, OrderDTO, AdminOrdersService, OrderStatusDTO
 } from '../../openapi';
-import {catchError, forkJoin, Observable, of, Subject, takeUntil} from 'rxjs';
+import {catchError, forkJoin, Observable, of, Subject, takeUntil, finalize} from 'rxjs';
 import {ToastService} from '../../../services/toast';
 
 // Chart.js imports
@@ -73,6 +73,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   categoriesLoading = false;
   isSubmittingProduct = false;
 
+  // Add a property to track revenue chart loading specifically
+  revenueChartLoading = false;
+
   constructor(
     private router: Router,
     private adminStatsService: AdminStatisticsService,
@@ -91,28 +94,41 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Load data only once
     this.loadDashboardData();
-    this.loadCategories();
   }
 
   ngAfterViewInit(): void {
-    // Initialize charts after view is loaded
+    // Wait for view to be ready, then check if we need to initialize charts
     setTimeout(() => {
-      this.initializeCharts();
+      if (!this.revenueChart && this.revenueChartRef && this.revenueData.length > 0) {
+        this.createRevenueChart();
+      }
+
+      if (!this.statusChart && this.statusChartRef && this.orderStatusDistribution?.length > 0) {
+        this.createStatusChart();
+      }
     }, 100);
   }
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+
+    // Properly destroy chart instances to prevent memory leaks
+    if (this.revenueChart) {
+      this.revenueChart.destroy();
+    }
+
+    if (this.statusChart) {
+      this.statusChart.destroy();
+    }
   }
 
   loadDashboardData(): void {
-    setTimeout(() => {
-      this.initializeCharts();
-    }, 100);
     this.loadCategories();
     this.isLoading = true;
     this.error = null;
+    this.chartLoading = true; // Set chart loading state
 
     console.log("Loading dashboard data...");
 
@@ -144,20 +160,28 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     dashboardRequests.subscribe({
-      next: (data) => {
+      next: (data: {
+        summary: DashboardSummaryProjection | null,
+        recentOrders: RecentOrderProjection[],
+        topProducts: TopSellingProductProjection[],
+        orderStatus: OrderStatusDistributionProjection[]
+      }) => {
         console.log('Dashboard data loaded:', data);
         this.dashboardData = data.summary;
         this.recentOrders = data.recentOrders;
         this.topProducts = data.topProducts;
         this.orderStatusDistribution = data.orderStatus;
-        this.isLoading = false;
 
-        // Load chart data for the default period
+        // After all data is loaded, load chart data
         this.loadChartData(this.selectedPeriod);
+
+        // Set loading state to false after data is loaded
+        this.isLoading = false;
       },
       error: (error) => {
         this.toastService.showError('Error loading dashboard data:', error);
         this.error = 'Failed to load dashboard data. Please try again.';
+        this.chartLoading = false;
         this.isLoading = false;
       }
     });
@@ -201,9 +225,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         this.toastService.showError(`Error loading ${period} chart data:`, err);
         this.chartLoading = false;
         return of([]);
+      }),
+      finalize(() => {
+        this.chartLoading = false;
       })
     ).subscribe({
-      next: (data) => {
+      next: (data: any[]) => {
         console.log(`${period} chart data loaded:`, data);
 
         // Transform the API data to your RevenueDataPoint format
@@ -215,12 +242,21 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         // Load previous period data for comparison
         this.loadPreviousPeriodData(period);
 
-        this.updateRevenueChart();
-        this.chartLoading = false;
+        // Initialize or update charts
+        if (!this.revenueChart && this.revenueChartRef) {
+          this.createRevenueChart();
+        } else if (this.revenueChart) {
+          this.updateRevenueChart();
+        }
+
+        if (!this.statusChart && this.statusChartRef && this.orderStatusDistribution?.length > 0) {
+          this.createStatusChart();
+        } else if (this.statusChart) {
+          this.updateStatusChart();
+        }
       },
       error: (error) => {
         this.toastService.showError(`Error loading ${period} chart data:`, error);
-        this.chartLoading = false;
       }
     });
   }
@@ -228,24 +264,35 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 // Helper method to transform API data to chart format
   private transformApiDataToChartData(apiData: any[], period: string): RevenueDataPoint[] {
     if (!apiData || apiData.length === 0) {
+      console.warn('No API data to transform for chart');
       return [];
     }
 
+    console.log('Transforming API data for period:', period, apiData);
+
+    let result: RevenueDataPoint[] = [];
+
     if (period === 'year') {
       // For yearly data (MonthlyOrderStatsProjection)
-      return apiData.map(item => ({
+      result = apiData.map(item => ({
         date: `${item.year}-${String(item.month).padStart(2, '0')}-01`,
         revenue: Number(item.monthlyRevenue || 0),
         orders: Number(item.orderCount || 0)
       }));
     } else {
       // For week/month data (DailyOrderStatsProjection)
-      return apiData.map(item => ({
+      result = apiData.map(item => ({
         date: item.orderDate,
         revenue: Number(item.dailyRevenue || 0),
         orders: Number(item.orderCount || 0)
       }));
     }
+
+    // Sort by date to ensure proper order
+    result.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    console.log('Transformed chart data:', result);
+    return result;
   }
 
 // Load previous period data for comparison
@@ -336,22 +383,42 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   initializeCharts(): void {
-    if (this.revenueChartRef && this.statusChartRef) {
+    console.log('Initializing charts with refs:',
+      !!this.revenueChartRef,
+      !!this.statusChartRef,
+      'Status data length:', this.orderStatusDistribution?.length);
+
+    if (this.revenueChartRef) {
       this.createRevenueChart();
+    }
+
+    if (this.statusChartRef && this.orderStatusDistribution?.length > 0) {
       this.createStatusChart();
     }
   }
 
   createRevenueChart(): void {
-    const ctx = this.revenueChartRef.nativeElement.getContext('2d');
+    const ctx = this.revenueChartRef?.nativeElement?.getContext('2d');
+    if (!ctx) {
+      console.error('Could not get 2D context for revenue chart');
+      return;
+    }
+
+    // Log the data being used for the chart
+    console.log('Revenue chart data:', {
+      labels: this.revenueData.map(item => new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+      values: this.revenueData.map(item => item.revenue)
+    });
 
     this.revenueChart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: [],
+        labels: this.revenueData.map(item =>
+          new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        ),
         datasets: [{
           label: 'Revenue',
-          data: [],
+          data: this.revenueData.map(item => item.revenue),
           borderColor: '#0d6efd',
           backgroundColor: 'rgba(13, 110, 253, 0.1)',
           borderWidth: 3,
@@ -362,6 +429,20 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           pointBorderWidth: 2,
           pointRadius: 6,
           pointHoverRadius: 8
+        }, {
+          label: 'Orders',
+          data: this.revenueData.map(item => item.orders),
+          borderColor: '#198754',
+          backgroundColor: 'rgba(25, 135, 84, 0)',
+          borderWidth: 2,
+          fill: false,
+          tension: 0.4,
+          pointBackgroundColor: '#198754',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          yAxisID: 'y1'
         }]
       },
       options: {
@@ -369,7 +450,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            display: false
+            display: true,
+            position: 'top'
           },
           tooltip: {
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -380,10 +462,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
             callbacks: {
               label: (context: any) => {
                 const dataPoint = this.revenueData[context.dataIndex];
-                return [
-                  `Revenue: ${this.formatCurrency(context.parsed.y)}`,
-                  `Orders: ${dataPoint?.orders || 0}`
-                ];
+                if (context.dataset.label === 'Revenue') {
+                  return `Revenue: ${this.formatCurrency(context.parsed.y)}`;
+                } else {
+                  return `Orders: ${dataPoint?.orders || 0}`;
+                }
               }
             }
           }
@@ -398,6 +481,16 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
               callback: (value: any) => this.formatCurrency(value)
             }
           },
+          y1: {
+            position: 'right',
+            beginAtZero: true,
+            grid: {
+              display: false
+            },
+            ticks: {
+              color: '#198754'
+            }
+          },
           x: {
             grid: {
               color: 'rgba(0, 0, 0, 0.1)'
@@ -409,7 +502,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   createStatusChart(): void {
-    const ctx = this.statusChartRef.nativeElement.getContext('2d');
+    const ctx = this.statusChartRef?.nativeElement?.getContext('2d');
+    if (!ctx) {
+      console.error('Could not get 2D context for status chart');
+      return;
+    }
 
     this.statusChart = new Chart(ctx, {
       type: 'doughnut',
@@ -449,22 +546,134 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   updateRevenueChart(): void {
-    if (this.revenueChart) {
-      this.revenueChart.data.labels = this.revenueData.map(item =>
-        new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-      );
-      this.revenueChart.data.datasets[0].data = this.revenueData.map(item => item.revenue);
-      this.revenueChart.update();
+    if (!this.revenueChart) {
+      if (this.revenueChartRef && this.revenueData.length > 0) {
+        this.createRevenueChart();
+      }
+      return;
     }
+
+    if (this.revenueData.length === 0) {
+      console.warn('No revenue data to update chart');
+      return;
+    }
+
+    const labels = this.revenueData.map(item =>
+      new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    );
+
+    // Update chart data
+    this.revenueChart.data.labels = labels;
+    this.revenueChart.data.datasets[0].data = this.revenueData.map(item => item.revenue);
+    this.revenueChart.data.datasets[1].data = this.revenueData.map(item => item.orders);
+
+    // Use animation for smoother transitions
+    this.revenueChart.update({
+      duration: 600,
+      easing: 'easeOutQuad'
+    });
+
+    console.log('Revenue chart updated with data:', {
+      labels,
+      revenue: this.revenueData.map(item => item.revenue),
+      orders: this.revenueData.map(item => item.orders)
+    });
   }
 
-  // Event handlers
+  // Modify the onPeriodChange method for smoother transitions
   onPeriodChange(period: string): void {
+    if (this.selectedPeriod === period) return; // Don't reload if same period
+
     this.selectedPeriod = period;
-    this.loadChartData(period);
+    this.revenueChartLoading = true; // Only set loading for the revenue chart
+
+    // Only load the chart data for the selected period, not all dashboard data
+    let apiCall: Observable<any>;
+
+    switch (period) {
+      case 'week':
+        apiCall = this.adminStatsService.getLastWeekOrderStats();
+        break;
+      case 'month':
+        apiCall = this.adminStatsService.getLastMonthOrderStats();
+        break;
+      case 'year':
+        apiCall = this.adminStatsService.getLastYearOrderStats();
+        break;
+      default:
+        apiCall = this.adminStatsService.getLastWeekOrderStats();
+    }
+
+    // If we have a chart already, fade it out but keep it visible
+    if (this.revenueChart) {
+      // Reduce opacity of existing chart during loading
+      const canvas = this.revenueChartRef?.nativeElement;
+      if (canvas) {
+        canvas.style.opacity = '0.5';
+        canvas.style.transition = 'opacity 0.3s';
+      }
+    }
+
+    apiCall.pipe(
+      catchError(err => {
+        this.toastService.showError(`Error loading ${period} chart data:`, err);
+        this.revenueChartLoading = false;
+        // Restore opacity if there was an error
+        const canvas = this.revenueChartRef?.nativeElement;
+        if (canvas) canvas.style.opacity = '1';
+        return of([]);
+      }),
+      finalize(() => {
+        this.revenueChartLoading = false;
+      })
+    ).subscribe({
+      next: (data: any[]) => {
+        console.log(`${period} chart data loaded:`, data);
+
+        // Transform the API data to your RevenueDataPoint format
+        this.revenueData = this.transformApiDataToChartData(data, period);
+
+        // Calculate current and previous period revenue
+        this.currentPeriodRevenue = this.revenueData.reduce((sum, item) => sum + item.revenue, 0);
+
+        // Load previous period data for comparison
+        this.loadPreviousPeriodData(period);
+
+        // Only update the revenue chart, not all charts
+        this.updateRevenueChart();
+
+        // Restore opacity with a slight delay for smooth transition
+        setTimeout(() => {
+          const canvas = this.revenueChartRef?.nativeElement;
+          if (canvas) canvas.style.opacity = '1';
+        }, 100);
+      },
+      error: (error) => {
+        this.toastService.showError(`Error loading ${period} chart data:`, error);
+        // Restore opacity if there was an error
+        const canvas = this.revenueChartRef?.nativeElement;
+        if (canvas) canvas.style.opacity = '1';
+      }
+    });
   }
 
   refreshData(): void {
+    // Destroy existing charts to prevent duplicates
+    if (this.revenueChart) {
+      this.revenueChart.destroy();
+      this.revenueChart = null;
+    }
+
+    if (this.statusChart) {
+      this.statusChart.destroy();
+      this.statusChart = null;
+    }
+
+    // Set loading states
+    this.isLoading = true;
+    this.chartLoading = true;
+
+    // Load all dashboard data
     this.loadDashboardData();
   }
 
@@ -782,6 +991,29 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         this.error = 'Failed to update order status. Please try again.';
       }
     });
+  }
+
+  // Add a method to check if we have valid order status data
+  hasOrderStatusData(): boolean {
+    return this.orderStatusDistribution && this.orderStatusDistribution.length > 0;
+  }
+
+  // Add a separate method to update the status chart
+  updateStatusChart(): void {
+    if (!this.statusChart) {
+      if (this.statusChartRef && this.orderStatusDistribution && this.orderStatusDistribution.length > 0) {
+        this.createStatusChart();
+      }
+      return;
+    }
+
+    if (!this.orderStatusDistribution || this.orderStatusDistribution.length === 0) {
+      return;
+    }
+
+    this.statusChart.data.labels = this.orderStatusDistribution.map(item => item.status);
+    this.statusChart.data.datasets[0].data = this.orderStatusDistribution.map(item => item.count);
+    this.statusChart.update();
   }
 
 }

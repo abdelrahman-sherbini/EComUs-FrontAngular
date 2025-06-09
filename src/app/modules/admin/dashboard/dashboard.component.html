@@ -121,53 +121,39 @@
       <div class="col-lg-8 mb-4">
         <div class="chart-container">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">Revenue Trends</h5>
-            <div class="btn-group btn-group-sm" role="group">
-              <input type="radio" class="btn-check" name="period" id="week" [checked]="selectedPeriod === 'week'" (change)="onPeriodChange('week')">
-              <label class="btn btn-outline-primary" for="week">7D</label>
-
-              <input type="radio" class="btn-check" name="period" id="month" [checked]="selectedPeriod === 'month'" (change)="onPeriodChange('month')">
-              <label class="btn btn-outline-primary" for="month">30D</label>
-
-              <input type="radio" class="btn-check" name="period" id="year" [checked]="selectedPeriod === 'year'" (change)="onPeriodChange('year')">
-              <label class="btn btn-outline-primary" for="year">1Y</label>
+            <h5 class="mb-0">Revenue Overview</h5>
+            <div class="btn-group">
+              <button
+                *ngFor="let period of ['week', 'month', 'year']"
+                class="btn btn-sm"
+                [class.btn-primary]="selectedPeriod === period"
+                [class.btn-outline-primary]="selectedPeriod !== period"
+                (click)="onPeriodChange(period)"
+                [disabled]="revenueChartLoading">
+                <span *ngIf="revenueChartLoading && selectedPeriod === period" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                {{ period | titlecase }}
+              </button>
             </div>
           </div>
 
-          <!-- Revenue Chart Canvas -->
-          <div class="chart-wrapper" style="position: relative; height: 300px;">
-            <canvas #revenueChart id="revenueChart" width="400" height="200"></canvas>
-
-            <!-- Loading overlay for chart -->
-            <div *ngIf="chartLoading" class="chart-loading-overlay">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading chart...</span>
-              </div>
-            </div>
+          <!-- Chart container with fixed height -->
+          <div class="chart-wrapper" style="height: 300px; position: relative;">
+            <!-- Chart canvas - no loading overlay, we'll use opacity transitions instead -->
+            <canvas #revenueChart></canvas>
           </div>
 
-          <!-- Chart Stats -->
-          <div class="row mt-3">
-            <div class="col-4 text-center">
-              <div class="chart-stat">
-                <div class="chart-stat-value text-success">{{ formatCurrency(currentPeriodRevenue) }}</div>
-                <div class="chart-stat-label">Current Period</div>
-              </div>
+          <!-- Revenue comparison -->
+          <div class="d-flex justify-content-between mt-3">
+            <div>
+              <span class="text-muted">Current Period:</span>
+              <span class="ms-2 fw-bold">{{ formatCurrency(currentPeriodRevenue) }}</span>
             </div>
-            <div class="col-4 text-center">
-              <div class="chart-stat">
-                <div class="chart-stat-value text-muted">{{ formatCurrency(previousPeriodRevenue) }}</div>
-                <div class="chart-stat-label">Previous Period</div>
-              </div>
-            </div>
-            <div class="col-4 text-center">
-              <div class="chart-stat">
-                <div class="chart-stat-value" [ngClass]="revenueChangePercentage >= 0 ? 'text-success' : 'text-danger'">
-                  <i [class]="getTrendIcon(revenueChangePercentage)" class="me-1"></i>
-                  {{ revenueChangePercentage | number:'1.1-1' }}%
-                </div>
-                <div class="chart-stat-label">Change</div>
-              </div>
+            <div>
+              <span class="text-muted">vs Previous Period:</span>
+              <span class="ms-2" [ngClass]="revenueChangePercentage >= 0 ? 'text-success' : 'text-danger'">
+                <i class="fas" [ngClass]="revenueChangePercentage >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+                {{ revenueChangePercentage | number:'1.1-1' }}%
+              </span>
             </div>
           </div>
         </div>
@@ -178,23 +164,23 @@
         <div class="chart-container">
           <h5 class="mb-3">Order Status Distribution</h5>
 
-          <!-- Status breakdown -->
-          <div class="status-breakdown">
-            <div *ngFor="let status of orderStatusDistribution" class="d-flex justify-content-between align-items-center mb-3">
-              <div class="d-flex align-items-center">
-                <div class="status-dot" [ngClass]="'bg-' + getStatusClass(status.status || '')" class="me-2"></div>
-                <span>{{ status.status }}</span>
-              </div>
-              <div class="text-end">
-                <div class="fw-bold">{{ status.count }}</div>
-                <small class="text-muted">{{ getOrderStatusPercentage(status.status || '') | number:'1.0-0' }}%</small>
+          <!-- Chart container with fixed height -->
+          <div class="chart-wrapper" style="height: 250px; position: relative;">
+            <!-- Loading overlay -->
+            <div *ngIf="chartLoading" class="chart-loading-overlay">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
               </div>
             </div>
-          </div>
 
-          <!-- Donut chart -->
-          <div class="chart-wrapper mt-4" style="position: relative; height: 200px;">
-            <canvas #statusChart id="statusChart" width="200" height="200"></canvas>
+            <!-- No data message -->
+            <div *ngIf="!chartLoading && (!orderStatusDistribution || orderStatusDistribution.length === 0)"
+                 class="d-flex justify-content-center align-items-center h-100">
+              <p class="text-muted">No status data available</p>
+            </div>
+
+            <!-- Chart canvas -->
+            <canvas #statusChart *ngIf="orderStatusDistribution && orderStatusDistribution.length > 0"></canvas>
           </div>
         </div>
       </div>
@@ -275,7 +261,7 @@
         <div class="table-container">
           <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
             <h5 class="mb-0">Top Selling Products</h5>
-            <a href="/products" class="btn btn-sm btn-outline-primary">View All</a>
+            <a routerLink="/admin/products" class="btn btn-sm btn-outline-primary">View All</a>
           </div>
 
           <div class="p-3">
@@ -329,6 +315,16 @@
             </div>
 
             <div class="col-lg-3 col-md-6 mb-3">
+              <div class="quick-action-card text-center p-3" (click)="navigateTo('/admin/products')">
+                <div class="quick-action-icon mb-2">
+                  <i class="fas fa-boxes fa-2x text-info"></i>
+                </div>
+                <h6 class="mb-1">Product Management</h6>
+                <small class="text-muted">Manage product inventory</small>
+              </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-3">
               <div class="quick-action-card text-center p-3" (click)="navigateTo('/admin/users')">
                 <div class="quick-action-icon mb-2">
                   <i class="fas fa-users fa-2x text-warning"></i>
@@ -338,15 +334,6 @@
               </div>
             </div>
 
-            <div class="col-lg-3 col-md-6 mb-3">
-              <div class="quick-action-card text-center p-3" (click)="navigateTo('/admin/analytics')">
-                <div class="quick-action-icon mb-2">
-                  <i class="fas fa-chart-bar fa-2x text-info"></i>
-                </div>
-                <h6 class="mb-1">View Analytics</h6>
-                <small class="text-muted">Detailed reports & insights</small>
-              </div>
-            </div>
           </div>
         </div>
       </div>

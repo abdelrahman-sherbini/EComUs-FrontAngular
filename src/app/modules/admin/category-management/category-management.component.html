@@ -1,0 +1,148 @@
+<div class="categories-management">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h2 class="page-title">
+          <i class="fas fa-tags me-2"></i>Categories Management
+        </h2>
+        <p class="page-subtitle text-muted">Manage product categories for your store</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" (click)="openAddModal()">
+          <i class="fas fa-plus me-2"></i>Add Category
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state text-center p-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3 text-muted">Loading categories...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && categories.length === 0" class="empty-state text-center p-5">
+    <i class="fas fa-tags fa-4x text-muted mb-3"></i>
+    <h4>No Categories Found</h4>
+    <p class="text-muted">Add your first category to organize your products.</p>
+    <button class="btn btn-primary mt-3" (click)="openAddModal()">
+      <i class="fas fa-plus me-2"></i>Add Category
+    </button>
+  </div>
+
+  <!-- Categories Grid -->
+  <div *ngIf="!loading && categories.length > 0" class="categories-grid">
+    <div class="row">
+      <div class="col-lg-4 col-md-6 mb-4" *ngFor="let category of categories; let i = index">
+        <div class="category-card" [ngClass]="'category-card-' + getCategoryColor(i)">
+          <div class="category-card-header">
+            <div class="category-icon">
+              <i class="fas fa-tag"></i>
+            </div>
+            <div class="category-info">
+              <h4 class="category-name">{{ category.categoryName }}</h4>
+              <span class="category-id">#{{ category.categoryId }}</span>
+            </div>
+          </div>
+          <div class="category-card-body">
+            <div class="category-stats">
+              <div class="stat-item">
+                <i class="fas fa-box"></i>
+                <span>{{ category.products?.length || 0 }} Products</span>
+              </div>
+            </div>
+
+            <!-- Products list preview -->
+            <div class="product-list mt-3" *ngIf="category.products && category.products.length > 0">
+              <h6 class="product-list-title">Products in this category:</h6>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item" *ngFor="let product of category.products.slice(0, 3)">
+                  {{ product.productName }}
+                </li>
+                <li class="list-group-item text-muted" *ngIf="category.products.length > 3">
+                  + {{ category.products.length - 3 }} more products
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="category-card-footer">
+            <button class="btn btn-sm btn-outline-primary" (click)="openUpdateModal(category)">
+              <i class="fas fa-edit me-1"></i>Edit
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="deleteCategory(category.categoryId!)">
+              <i class="fas fa-trash-alt me-1"></i>Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Category Modal -->
+  <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addCategoryModalLabel">
+            <i class="fas fa-plus-circle me-2"></i>Add New Category
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="categoryForm">
+            <div class="mb-3">
+              <label for="categoryName" class="form-label">Category Name</label>
+              <input type="text" class="form-control" id="categoryName" formControlName="categoryName" placeholder="Enter category name">
+              <div *ngIf="categoryForm.get('categoryName')?.invalid && categoryForm.get('categoryName')?.touched" class="text-danger mt-1">
+                Category name is required (min 2 characters)
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" [disabled]="categoryForm.invalid" (click)="addCategory()">
+            <i class="fas fa-plus me-1"></i>Add Category
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Update Category Modal -->
+  <div class="modal fade" id="updateCategoryModal" tabindex="-1" aria-labelledby="updateCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="updateCategoryModalLabel">
+            <i class="fas fa-edit me-2"></i>Update Category
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" *ngIf="selectedCategory">
+          <form [formGroup]="updateCategoryForm">
+            <input type="hidden" formControlName="categoryId">
+
+            <div class="mb-3">
+              <label for="updateCategoryName" class="form-label">Category Name</label>
+              <input type="text" class="form-control" id="updateCategoryName" formControlName="categoryName">
+              <div *ngIf="updateCategoryForm.get('categoryName')?.invalid && updateCategoryForm.get('categoryName')?.touched" class="text-danger mt-1">
+                Category name is required (min 2 characters)
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" [disabled]="updateCategoryForm.invalid" (click)="updateCategory()">
+            <i class="fas fa-save me-1"></i>Update Category
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

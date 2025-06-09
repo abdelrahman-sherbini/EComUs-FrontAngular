@@ -17,6 +17,7 @@ export interface ProductDTO {
     quantity?: number;
     price?: number;
     categories?: Array<CategoryNoProductDTO>;
-    images: Array<string>;
+    images?: Array<string>;
+    purchaseCount?: number;
 }
 

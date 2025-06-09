@@ -924,9 +924,14 @@ paths:
         description: Filter by phone number
         required: false
         schema: {}
-      - name: creditLimit
+      - name: creditLimitMin
         in: query
-        description: Filter by credit limit
+        description: Filter by credit minim limit
+        required: false
+        schema: {}
+      - name: creditLimitMax
+        in: query
+        description: Filter by credit maximum limit
         required: false
         schema: {}
       responses:
@@ -1445,9 +1450,14 @@ paths:
         description: Filter by phone number
         required: false
         schema: {}
-      - name: creditLimit
+      - name: creditLimitMin
         in: query
-        description: Filter by credit limit
+        description: Filter by credit minim limit
+        required: false
+        schema: {}
+      - name: creditLimitMax
+        in: query
+        description: Filter by credit maximum limit
         required: false
         schema: {}
       responses:
@@ -2231,6 +2241,9 @@ components:
           type: array
           items:
             type: string
+        purchaseCount:
+          type: integer
+          format: int64
       required:
       - description
       - productName
@@ -2614,11 +2627,11 @@ components:
     TopCustomersProjection:
       type: object
       properties:
-        email:
-          type: string
         userId:
           type: integer
           format: int64
+        email:
+          type: string
         totalOrders:
           type: integer
           format: int64
@@ -2637,31 +2650,31 @@ components:
     CustomerOrderStatsProjection:
       type: object
       properties:
-        email:
-          type: string
         userId:
           type: integer
           format: int64
+        email:
+          type: string
         totalOrders:
           type: integer
           format: int64
         averageOrderValue:
           type: number
-        totalSpent:
-          type: number
         lastOrderDate:
           type: string
           format: date
+        totalSpent:
+          type: number
         userName:
           type: string
     TopSellingProductProjection:
       type: object
       properties:
+        productName:
+          type: string
         productId:
           type: integer
           format: int64
-        productName:
-          type: string
         totalRevenue:
           type: number
         totalQuantitySold:
@@ -2670,18 +2683,18 @@ components:
     RecentOrderProjection:
       type: object
       properties:
-        orderDate:
+        orderId:
+          type: integer
+          format: int64
+        status:
           type: string
-          format: date
         userEmail:
           type: string
         orderTotal:
           type: number
-        status:
+        orderDate:
           type: string
-        orderId:
-          type: integer
-          format: int64
+          format: date
         userName:
           type: string
     MonthlyOrderStatsProjection:
@@ -2704,27 +2717,27 @@ components:
         orderCount:
           type: integer
           format: int64
-        dailyRevenue:
-          type: number
         orderDate:
           type: string
           format: date
+        dailyRevenue:
+          type: number
     ProductSalesStatsProjection:
       type: object
       properties:
-        orderCount:
-          type: integer
-          format: int64
+        productName:
+          type: string
         productId:
           type: integer
           format: int64
         totalQuantity:
           type: integer
           format: int64
-        productName:
-          type: string
         totalRevenue:
           type: number
+        orderCount:
+          type: integer
+          format: int64
         averageOrderQuantity:
           type: number
     OrderDetailsStatsProjection:
@@ -2733,27 +2746,27 @@ components:
         totalItemsSold:
           type: integer
           format: int64
-        averageItemsPerOrder:
-          type: number
         averageItemPrice:
+          type: number
+        averageItemsPerOrder:
           type: number
     OrderStatsProjection:
       type: object
       properties:
-        completedOrders:
+        cancelledOrders:
           type: integer
           format: int64
-        cancelledOrders:
+        totalRevenue:
+          type: number
+        pendingOrders:
           type: integer
           format: int64
         totalOrders:
           type: integer
           format: int64
-        pendingOrders:
+        completedOrders:
           type: integer
           format: int64
-        totalRevenue:
-          type: number
         averageOrderValue:
           type: number
     OrderStatusDistributionProjection:
@@ -2762,71 +2775,71 @@ components:
         count:
           type: integer
           format: int64
-        totalAmount:
-          type: number
         status:
           type: string
+        totalAmount:
+          type: number
     RevenueByPeriodProjection:
       type: object
       properties:
-        orderCount:
-          type: integer
-          format: int64
+        revenue:
+          type: number
         periodDate:
           type: string
           format: date
-        revenue:
-          type: number
+        orderCount:
+          type: integer
+          format: int64
     PaymentTypeStatsProjection:
       type: object
       properties:
         count:
           type: integer
           format: int64
-        totalAmount:
-          type: number
         paymentType:
           type: string
         percentage:
           type: number
           format: double
+        totalAmount:
+          type: number
     OrdersByLocationProjection:
       type: object
       properties:
         state:
           type: string
-        orderCount:
-          type: integer
-          format: int64
         city:
           type: string
         totalRevenue:
           type: number
+        orderCount:
+          type: integer
+          format: int64
     DashboardSummaryProjection:
       type: object
       properties:
-        todayRevenue:
+        totalRevenue:
           type: number
-        totalUsers:
+        pendingOrders:
           type: integer
           format: int64
         totalOrders:
           type: integer
           format: int64
-        pendingOrders:
+        totalUsers:
           type: integer
           format: int64
         todayOrders:
           type: integer
           format: int64
-        totalRevenue:
+        todayRevenue:
           type: number
-        newCustomersThisMonth:
-          type: integer
-          format: int64
         revenueGrowthRate:
           type: number
           format: double
+        newCustomersThisMonth:
+          type: integer
+          format: int64
   securitySchemes:
     BearerAuth:
       type: http

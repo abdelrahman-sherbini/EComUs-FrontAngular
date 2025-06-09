@@ -37,9 +37,10 @@ export interface AdminUsersServiceInterface {
      * @param role Filter by user role
      * @param job Filter by job
      * @param phone Filter by phone number
-     * @param creditLimit Filter by credit limit
+     * @param creditLimitMin Filter by credit minim limit
+     * @param creditLimitMax Filter by credit maximum limit
      */
-    getAllUsers(pageNum?: number, pageSize?: number, sortField?: 'BD' | 'role' | 'phone' | 'creditLimit' | 'userName' | 'job' | 'userId' | 'email', sortDir?: 'asc' | 'desc', keyword?: any, userId?: any, userName?: any, email?: any, role?: 'USER' | 'ADMIN', job?: any, phone?: any, creditLimit?: any, extraHttpRequestParams?: any): Observable<PagedResponseUserDTO>;
+    getAllUsers(pageNum?: number, pageSize?: number, sortField?: 'BD' | 'role' | 'phone' | 'creditLimit' | 'userName' | 'job' | 'userId' | 'email', sortDir?: 'asc' | 'desc', keyword?: any, userId?: any, userName?: any, email?: any, role?: 'USER' | 'ADMIN', job?: any, phone?: any, creditLimitMin?: any, creditLimitMax?: any, extraHttpRequestParams?: any): Observable<PagedResponseUserDTO>;
 
     /**
      * 

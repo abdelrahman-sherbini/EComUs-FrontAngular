@@ -10,13 +10,13 @@
 
 
 export interface DashboardSummaryProjection { 
-    todayRevenue?: number;
-    totalUsers?: number;
-    totalOrders?: number;
-    pendingOrders?: number;
-    todayOrders?: number;
     totalRevenue?: number;
-    newCustomersThisMonth?: number;
+    pendingOrders?: number;
+    totalOrders?: number;
+    totalUsers?: number;
+    todayOrders?: number;
+    todayRevenue?: number;
     revenueGrowthRate?: number;
+    newCustomersThisMonth?: number;
 }
 
