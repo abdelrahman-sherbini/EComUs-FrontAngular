@@ -51,7 +51,7 @@ export class QuickAddModalComponent {
       this.modal.hide();
     }
     this.cartService.addToCart(
-      { productId: this.product.productId!, quantity: this.product.quantity! },
+      { productId: this.product.productId!, quantity: this.product.quantity!, name: this.product.productName! },
       this.quantity
     ).subscribe();
   }

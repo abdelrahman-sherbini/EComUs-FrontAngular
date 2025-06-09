@@ -1,71 +1,120 @@
-<div class="product-details-page py-5" *ngIf="!loading && product; else loadingOrError">
-  <div class="container">
-    <div class="row">
-      <!-- Product Images -->
-      <div class="col-lg-5 col-md-6 text-center">
+<app-toast></app-toast>
+<app-popup></app-popup>
+<div class="container py-5 product-details-page" *ngIf="!loading && product as prod; else loadingOrError">
+  <div class="row gx-5 gy-4">
+    <!-- Images -->
+    <div class="col-lg-7 d-flex flex-row">
+      <div class="d-flex flex-column align-items-center me-3 thumbnails">
         <img
-          [src]="mainImage"
-          class="main-img img-fluid rounded shadow mb-3"
-          [alt]="product.productName"
+          *ngFor="let img of prod.images ?? ['assets/img/no-image.png']"
+          [src]="img"
+          class="thumb-img mb-2"
+          [ngClass]="{selected: mainImage === img}"
+          (click)="setMainImage(img)"
+          [alt]="prod.productName || ''"
         />
-        <div class="thumbnails-row d-flex justify-content-center gap-2 mt-3" *ngIf="(product.images ?? []).length > 1">
-          <img
-            *ngFor="let img of product.images"
-            [src]="img"
-            class="img-thumbnail thumb"
-            [class.selected]="img === mainImage"
-            (click)="setMainImage(img)"
-            [alt]="product.productName"
-          />
+      </div>
+      <div class="flex-fill d-flex align-items-center justify-content-center main-image-wrapper position-relative">
+        <img [src]="mainImage" class="main-img rounded-3 shadow" [alt]="prod.productName || ''" />
+      </div>
+    </div>
+    <!-- Info/Actions -->
+    <div class="col-lg-5">
+      <h2 class="fw-semibold mb-2">{{ prod.productName }}</h2>
+      <div class="fs-3 fw-bold text-dark mb-2">${{ prod.price }}</div>
+      <div class="d-flex align-items-center mb-3 gap-2 action-row">
+        <span class="me-2">Quantity</span>
+        <div class="qty-group">
+          <button class="btn btn-outline-secondary btn-sm" (click)="changeQty(-1)" [disabled]="selectedQty <= 1">-</button>
+          <input type="text" [value]="selectedQty" class="form-control d-inline mx-2 qty-input" readonly>
+          <button class="btn btn-outline-secondary btn-sm" (click)="changeQty(1)" [disabled]="selectedQty >= (prod.quantity || 1)">+</button>
+        </div>
+        <button class="btn btn-outline-secondary rounded-circle wishlist-btn ms-auto" type="button" title="Add to wishlist" (click)="addToWishlist()">
+          <i class="bi bi-heart fs-5"></i>
+        </button>
+      </div>
+      <button
+        class="btn btn-dark btn-lg w-100 mb-2"
+        [disabled]="!prod.quantity || selectedQty > prod.quantity"
+        (click)="addToCart()">
+        Add to cart – ${{ totalPrice }}
+      </button>
+      <!-- Info cards and payment icons -->
+      <div class="row mt-3 gy-3">
+        <div class="col-12 col-md-6">
+          <div class="info-card h-100 d-flex flex-column justify-content-center align-items-center text-center p-3">
+            <i class="bi bi-truck fs-2 mb-2"></i>
+            <div>
+              Estimate delivery times:
+              <span class="fw-bold">12–26 days</span>
+              (International),
+              <span class="fw-bold">3–6 days</span> (United States).
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="info-card h-100 d-flex flex-column justify-content-center align-items-center text-center p-3">
+            <i class="bi bi-arrow-counterclockwise fs-2 mb-2"></i>
+            <div>
+              Return within <span class="fw-bold">30 days</span> of purchase.<br>
+              Duties &amp; taxes are non-refundable.
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="d-flex align-items-center gap-2 mt-3 small flex-wrap">
+            <i class="bi bi-shield-check me-1"></i>
+            Guarantee Safe Checkout
+            <img src="/assets/visa.png" alt="Visa" class="pay-icon" />
+            <img src="/assets/paypal.png" alt="PayPal" class="pay-icon" />
+            <img src="/assets/mastercard.png" alt="Mastercard" class="pay-icon" />
+            <img src="/assets/amex.png" alt="Amex" class="pay-icon" />
+          </div>
         </div>
       </div>
-      <!-- Product Info -->
-      <div class="col-lg-7 col-md-6">
-        <h1 class="product-title">{{ product.productName }}</h1>
-        <p class="product-desc">{{ product.description }}</p>
-        <div class="mb-3 d-flex align-items-center gap-3 flex-wrap">
-          <span class="product-price">${{ product.price }}</span>
-          <span
-            class="badge"
-            [ngClass]="{
-              'bg-success': product.quantity && product.quantity > 0,
-              'bg-danger': !product.quantity || product.quantity < 1
-            }"
-          >
-            {{ product.quantity && product.quantity > 0 ? 'In Stock' : 'Out of Stock' }}
-          </span>
+    </div>
+  </div>
+
+  <div class="container product-extra-details mt-5">
+    <div class="row">
+      <div class="col-12">
+        <hr>
+        <h5 class="section-title mb-3">Description</h5>
+        <div class="section-content mb-5">
+          {{ prod.description }}
         </div>
-        <!-- Quantity and Add to Cart -->
-        <div class="add-to-cart-group d-flex align-items-center gap-3 mb-4">
-          <label class="fw-semibold me-2" for="qtyInput">Quantity:</label>
-          <input
-            id="qtyInput"
-            type="number"
-            class="form-control"
-            style="width: 80px;"
-            min="1"
-            [max]="product.quantity || 1"
-            [(ngModel)]="selectedQty"
-            [disabled]="!product.quantity || product.quantity < 1"
-          />
-          <button
-            class="btn btn-primary"
-            [disabled]="!product.quantity || selectedQty < 1 || selectedQty > (product.quantity || 1)"
-            (click)="addToCart()"
-          >
-            <i class="bi bi-cart-plus"></i>
-            Add to Cart
-          </button>
+      </div>
+      <div class="col-12">
+        <hr>
+        <h5 class="section-title mb-3">Return Policies</h5>
+        <div class="section-content mb-3">
+          <h3 class="policy-title mb-3">The Company Private Limited Policy</h3>
+          <div class="policy-text">
+            The Company Private Limited and each of their respective subsidiaries, parents and affiliated companies is deemed to operate this Website (“we” or “us”) recognizes that we care how information about you is used and shared.
+            We have crafted this Privacy Policy to inform you what information we collect on the Website, how we use your information and the choices you have about the way your information is collected and used.
+            Please read this Privacy Policy carefully. Your use of the Website indicates that you have read and accepted our privacy practices, as outlined in this Privacy Policy.
+            <br><br>
+            Please be advised that the practices described in this Privacy Policy apply to information gathered by us or our subsidiaries, affiliates or agent: (i) through this Website, (ii) where applicable, through our Customer Service Department in connection with this Website, (iii) through information provided to us in conjunction with marketing promotions and sweepstakes.
+            <br><br>
+            We are not responsible for the content or privacy practices on any websites.
+            <br><br>
+            We reserve the right, at our sole discretion, to modify, update, add to, discontinue, remove or otherwise change any portion of this Privacy Policy, in whole or in part, at any time. When we amend this Privacy Policy, we will revise the “last updated” date located at the top of the Privacy Policy.
+            <br><br>
+            If you provide information to us or access or use the Website in any way after this Privacy Policy has been changed, you will be deemed to have unconditionally consented and agreed to such changes. The most current version of this Privacy Policy will be available on the Website and will supersede all previous versions of the Privacy Policy.
+            <br><br>
+            If you have any questions regarding this Privacy Policy, you should contact our Customer Service Department by email at marketing&#64;company.com
+          </div>
         </div>
-        <!-- Optionally show more product details, categories, etc. -->
       </div>
     </div>
   </div>
 </div>
 
+
+
 <ng-template #loadingOrError>
   <div class="container py-5 text-center">
-    <div *ngIf="loading" class="spinner-border text-primary mb-2" style="width: 3rem; height: 3rem;" role="status">
+    <div *ngIf="loading" class="spinner-border text-primary" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
     <div *ngIf="error" class="alert alert-danger mt-3">

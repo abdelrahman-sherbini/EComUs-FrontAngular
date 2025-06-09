@@ -1,6 +1,4 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {FooterComponent} from '../footer/footer.component';
-import {HeaderComponent} from '../header/header.component';
 import {ProductFilterComponent} from '../product-filter/product-filter.component';
 import {ProductGridComponent} from '../product-grid/product-grid.component';
 import {QuickAddModalComponent} from '../quick-add-modal/quick-add-modal.component';
@@ -20,8 +18,6 @@ import {PopupComponent} from "../../../components/popup/popup.component";
 @Component({
   selector: 'app-home',
   imports: [
-    FooterComponent,
-    HeaderComponent,
     ProductFilterComponent,
     ProductGridComponent,
     QuickAddModalComponent,
