@@ -1,0 +1,71 @@
+.product-card {
+  transition: transform 0.2s ease-in-out;
+
+  .hover-actions,
+  .quick-add {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    color: white;
+  }
+
+  &:hover {
+    transform: translateY(-5px);
+    .hover-actions,
+    .quick-add {
+      opacity: 1;
+    }
+  }
+
+  /* Ensures card image area always keeps a consistent aspect ratio (e.g., 3:4) */
+  .position-relative {
+    aspect-ratio: 3 / 4;       /* Keeps height proportional to width */
+    width: 100%;
+    background: #f7f7f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;       /* Keeps full image visible, no cropping */
+    background: #f7f7f7;
+    display: block;
+  }
+
+  .hover-actions {
+    z-index: 2;
+  }
+
+  .quick-add {
+    z-index: 1;
+    font-size: 0.9rem;
+  }
+}
+
+.quick-add {
+  &:hover {
+    color: black !important;
+    background-color: white !important;
+  }
+}
+
+.product-name-link {
+  color: #000;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+
+  &:hover {
+    color: #dc3545;
+  }
+}
+.badge.bg-light.text-secondary {
+  background: #f5f7fa !important;
+  color: #4F8EFF !important;
+  border: 1px solid #dde6f7 !important;
+  font-size: 0.80rem;
+  letter-spacing: 0.02em;
+  box-shadow: 0 1px 4px 0 rgba(79,142,255,0.07);
+}
