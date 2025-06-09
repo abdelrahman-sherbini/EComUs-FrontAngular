@@ -6,8 +6,6 @@ import { AsyncPipe, CommonModule, CurrencyPipe, DatePipe } from '@angular/common
 @Component({
   selector: 'app-cart',
   imports: [ CurrencyPipe,
-    DatePipe,
-    AsyncPipe,
     CommonModule],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.css'
@@ -31,7 +29,7 @@ export class CartComponent implements OnInit {
   Math = Math;
 
   constructor(
-    private cartService: CustomerCartService, 
+    private cartService: CustomerCartService,
     private router: Router,
     private route: ActivatedRoute
   ) { }
@@ -53,17 +51,17 @@ export class CartComponent implements OnInit {
       if (params['pageNum']) {
         this.currentPage = +params['pageNum'];
       }
-      
+
       // Read pageSize
       if (params['pageSize']) {
         this.pageSize = +params['pageSize'];
       }
-      
+
       // Read sortField
       if (params['sortField'] && ['quantity', 'productId', 'userId'].includes(params['sortField'])) {
         this.sortField = params['sortField'] as 'quantity' | 'productId' | 'userId';
       }
-      
+
       // Read sortDir
       if (params['sortDir'] && ['asc', 'desc'].includes(params['sortDir'])) {
         this.sortDir = params['sortDir'] as 'asc' | 'desc';
@@ -90,11 +88,11 @@ export class CartComponent implements OnInit {
   loadCartItems(): void {
     this.loading = true;
     this.error = '';
-    
+
     this.cartService.getCartItems(
-      this.currentPage, 
-      this.pageSize, 
-      this.sortField as 'quantity' | 'productId' | 'userId', 
+      this.currentPage,
+      this.pageSize,
+      this.sortField as 'quantity' | 'productId' | 'userId',
       this.sortDir as 'asc' | 'desc'
     ).subscribe({
       next: (response: PagedResponseCartDTO) => {
@@ -200,7 +198,7 @@ export class CartComponent implements OnInit {
     const pages: number[] = [];
     const startPage = Math.max(1, this.currentPage - 2);
     const endPage = Math.min(this.totalPages, this.currentPage + 2);
-    
+
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
@@ -238,12 +236,12 @@ export class CartComponent implements OnInit {
     this.cartService.removeCartItem(productId).subscribe({
       next: () => {
         this.cartItems = this.cartItems.filter(item => item.product?.productId !== productId);
-        
+
         if (this.cartItems.length === 0 && this.currentPage > 1) {
           this.currentPage--;
           this.updateUrlParams();
         }
-        
+
         this.loadCartItems();
         this.loadTotalPrice();
         this.loadTotalQuantity();
@@ -319,16 +317,16 @@ decreaseQuantity(productId: number, currentQuantity: number): void {
   // Update the proceedToCheckout method
   proceedToCheckout(): void {
     this.checkoutAttempted = true;
-    
+
     // Check if terms are agreed to
     const termsCheckbox = document.getElementById('terms') as HTMLInputElement;
-    
+
     if (!termsCheckbox?.checked) {
       // Don't proceed if terms not checked
       return;
     }
- 
-    
+
+
     // Reset the flag and proceed
     this.checkoutAttempted = false;
     console.log('Proceeding to checkout...');

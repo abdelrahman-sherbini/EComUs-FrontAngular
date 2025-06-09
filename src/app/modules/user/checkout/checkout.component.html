@@ -36,22 +36,22 @@
     <div class="customer-section">
       <div class="section-card">
         <h2>Customer Information</h2>
-        
+
         <!-- Address Type Selection -->
         <div class="address-type-selection" *ngIf="savedAddresses.length > 0">
           <div class="radio-group">
             <label class="radio-option">
-              <input type="radio" 
-                     name="addressType" 
-                     [value]="false" 
+              <input type="radio"
+                     name="addressType"
+                     [value]="false"
                      [(ngModel)]="useExistingAddress"
                      (change)="onAddressTypeChange()">
               <span>Enter new address</span>
             </label>
             <label class="radio-option">
-              <input type="radio" 
-                     name="addressType" 
-                     [value]="true" 
+              <input type="radio"
+                     name="addressType"
+                     [value]="true"
                      [(ngModel)]="useExistingAddress"
                      (change)="onAddressTypeChange()">
               <span>Use saved address</span>
@@ -63,8 +63,8 @@
         <!-- <div class="existing-address-section" *ngIf="useExistingAddress && savedAddresses.length > 0">
           <div class="form-group">
             <label for="existingAddress">Select Address:</label>
-            <select id="existingAddress" 
-                    [(ngModel)]="selectedAddressId" 
+            <select id="existingAddress"
+                    [(ngModel)]="selectedAddressId"
                     (change)="onExistingAddressChange()"
                     class="form-control">
               <option *ngFor="let address of savedAddresses" [value]="address.id">
@@ -79,11 +79,11 @@
           <!-- Name (Disabled - from user profile) -->
           <div class="form-group">
             <label for="name">Name*</label>
-            <input type="text" 
-                   id="name" 
-                   [(ngModel)]="customerInfo.name" 
+            <input type="text"
+                   id="name"
+                   [(ngModel)]="customerInfo.name"
                    name="name"
-                   class="form-control" 
+                   class="form-control"
                    placeholder="Enter your full name"
                    [class.error]="orderAttempted && !customerInfo.name.trim()"
                    disabled
@@ -93,11 +93,11 @@
           <!-- Phone Number (Disabled - from user profile) -->
           <div class="form-group">
             <label for="phoneNumber">Phone Number*</label>
-            <input type="tel" 
-                   id="phoneNumber" 
-                   [(ngModel)]="customerInfo.phoneNumber" 
+            <input type="tel"
+                   id="phoneNumber"
+                   [(ngModel)]="customerInfo.phoneNumber"
                    name="phoneNumber"
-                   class="form-control" 
+                   class="form-control"
                    placeholder="01234567890"
                    [class.error]="orderAttempted && !customerInfo.phoneNumber.trim()"
                    disabled
@@ -107,11 +107,11 @@
           <!-- Town/City -->
           <div class="form-group">
             <label for="townCity">Town/City*</label>
-            <input type="text" 
-                   id="townCity" 
-                   [(ngModel)]="customerInfo.townCity" 
+            <input type="text"
+                   id="townCity"
+                   [(ngModel)]="customerInfo.townCity"
                    name="townCity"
-                   class="form-control" 
+                   class="form-control"
                    placeholder="Enter your city"
                    [class.error]="orderAttempted && !customerInfo.townCity.trim()"
                    [disabled]="useExistingAddress">
@@ -121,22 +121,22 @@
           <div class="form-row">
             <div class="form-group half">
               <label for="area">Area*</label>
-              <input type="text" 
-                     id="area" 
-                     [(ngModel)]="customerInfo.area" 
+              <input type="text"
+                     id="area"
+                     [(ngModel)]="customerInfo.area"
                      name="area"
-                     class="form-control" 
+                     class="form-control"
                      placeholder="Area"
                      [class.error]="orderAttempted && !customerInfo.area.trim()"
                      [disabled]="useExistingAddress">
             </div>
             <div class="form-group half">
               <label for="street">Street*</label>
-              <input type="text" 
-                     id="street" 
-                     [(ngModel)]="customerInfo.street" 
+              <input type="text"
+                     id="street"
+                     [(ngModel)]="customerInfo.street"
                      name="street"
-                     class="form-control" 
+                     class="form-control"
                      placeholder="Street"
                      [class.error]="orderAttempted && !customerInfo.street.trim()"
                      [disabled]="useExistingAddress">
@@ -146,11 +146,11 @@
           <!-- Building Number -->
           <div class="form-group">
             <label for="buildingNumber">Building Number*</label>
-            <input type="text" 
-                   id="buildingNumber" 
-                   [(ngModel)]="customerInfo.buildingNumber" 
+            <input type="text"
+                   id="buildingNumber"
+                   [(ngModel)]="customerInfo.buildingNumber"
                    name="buildingNumber"
-                   class="form-control" 
+                   class="form-control"
                    placeholder="Building number"
                    [class.error]="orderAttempted && !customerInfo.buildingNumber.trim()"
                    [disabled]="useExistingAddress">
@@ -163,17 +163,17 @@
     <div class="order-summary-section">
       <div class="section-card">
         <h2>Order Summary</h2>
-        
+
         <!-- Cart Items -->
         <div class="order-items">
           <div class="order-item" *ngFor="let item of cartItems">
             <div class="item-image">
-              <img src="https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=60&h=60&fit=crop&crop=center" 
+              <img [src]="item.product.images && item.product.images.length ? item.product.images[0] : '/placeholder.jpg'"
                    alt="Product Image">
               <span class="item-quantity">{{ item.quantity }}</span>
             </div>
             <div class="item-details">
-              <h4>{{ item.product?.productName }}</h4>
+              <h4>{{ item.product.productName }}</h4>
             </div>
             <div class="item-price">
               {{ getItemTotal(item) | currency }}
@@ -194,16 +194,16 @@
           <h3>Pay on delivery*</h3>
           <div class="payment-options">
             <label class="payment-option">
-              <input type="radio" 
-                     name="paymentType" 
+              <input type="radio"
+                     name="paymentType"
                      value="CREDIT"
                      [(ngModel)]="selectedPaymentType">
               <span class="payment-icon credit-card">💳</span>
               <span>Credit Card</span>
             </label>
             <label class="payment-option">
-              <input type="radio" 
-                     name="paymentType" 
+              <input type="radio"
+                     name="paymentType"
                      value="CASH"
                      [(ngModel)]="selectedPaymentType">
               <span class="payment-icon cash">💵</span>
@@ -220,7 +220,7 @@
         <!-- Terms and Conditions -->
         <div class="terms-section">
           <label class="terms-checkbox">
-            <input type="checkbox" 
+            <input type="checkbox"
                    [(ngModel)]="termsAccepted"
                    [class.error]="orderAttempted && !termsAccepted">
             <span>I have read and agree to the website <a href="#">terms and conditions</a>*</span>
@@ -228,7 +228,7 @@
         </div>
 
         <!-- Confirm Order Button -->
-        <button class="confirm-order-btn" 
+        <button class="confirm-order-btn"
                 (click)="confirmOrder()"
                 [disabled]="loading"
                 [class.disabled]="loading">
@@ -236,7 +236,7 @@
         </button>
 
         <!-- Back to Cart -->
-        <button class="back-to-cart-btn" 
+        <button class="back-to-cart-btn"
                 (click)="goBackToCart()"
                 [disabled]="loading">
           Back to Cart
