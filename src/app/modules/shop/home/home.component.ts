@@ -13,6 +13,7 @@ import {
   ProductDTO
 } from '../../openapi';
 import {NgForOf, NgIf} from '@angular/common';
+import {ToastComponent} from '../../../components/toast/toast.component';
 
 
 @Component({
@@ -26,6 +27,7 @@ import {NgForOf, NgIf} from '@angular/common';
     QuickViewModalComponent,
     NgIf,
     NgForOf,
+    ToastComponent,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
@@ -86,7 +88,7 @@ export class HomeComponent implements OnInit  {
       this.priceMin,
       this.priceMax,
       this.quantityMin, // quantityMin
-      undefined, // quantityMax
+      this.quantityMax, // quantityMax
       undefined, // categoryId
       this.categoryName[0] // categoryName
     ).subscribe((res: PagedResponseProductDTO) => {

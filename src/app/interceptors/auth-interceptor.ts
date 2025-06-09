@@ -27,7 +27,7 @@ export class AuthInterceptor implements HttpInterceptor {
     // Add auth header if user is authenticated
     const authReq = this.addAuthHeader(req);
 
-    console.log("AuthReq is a sop "+ authReq);
+    // console.log("AuthReq is a sop "+ authReq);
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401 && this.authService.isAuthenticated()) {
@@ -46,7 +46,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
   private addAuthHeader(req: HttpRequest<any>): HttpRequest<any> {
     const token = this.authService.getAccessToken();
-    console.log('Adding Authorization header:', token);
+    // console.log('Adding Authorization header:', token);
     if (token) {
       return req.clone({
         setHeaders: {
