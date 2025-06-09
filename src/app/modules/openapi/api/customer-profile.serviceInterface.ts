@@ -35,7 +35,7 @@ export interface CustomerProfileServiceInterface {
      * 
      * @param changePasswordDTO 
      */
-    updatePassword(changePasswordDTO: ChangePasswordDTO, extraHttpRequestParams?: any): Observable<string>;
+    updatePassword(changePasswordDTO: ChangePasswordDTO, extraHttpRequestParams?: any): Observable<{}>;
 
     /**
      * 

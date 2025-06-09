@@ -27,6 +27,13 @@ export interface CustomerOrdersServiceInterface {
     /**
      * 
      * 
+     * @param id 
+     */
+    cancelOrder(id: number, extraHttpRequestParams?: any): Observable<OrderDTO>;
+
+    /**
+     * 
+     * 
      * @param checkOutOrderDTO 
      */
     createOrder(checkOutOrderDTO: CheckOutOrderDTO, extraHttpRequestParams?: any): Observable<OrderDTO>;
