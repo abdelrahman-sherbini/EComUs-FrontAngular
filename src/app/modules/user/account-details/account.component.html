@@ -146,15 +146,15 @@
               <h3>Account Statistics</h3>
               <div class="stats-grid">
                 <div class="stat-card">
-                  <div class="stat-number">{{ user.orders?.length || 0 }}</div>
+                  <div class="stat-number">{{ user.orders.length || 0 }}</div>
                   <div class="stat-label">Total Orders</div>
                 </div>
                 <div class="stat-card">
-                  <div class="stat-number">{{ user.carts?.length || 0 }}</div>
+                  <div class="stat-number">{{ user.carts.length || 0 }}</div>
                   <div class="stat-label">Active Carts</div>
                 </div>
                 <div class="stat-card">
-                  <div class="stat-number">{{ user.addresses?.length || 0 }}</div>
+                  <div class="stat-number">{{ user.addresses.length || 0 }}</div>
                   <div class="stat-label">Saved Addresses</div>
                 </div>
               </div>
@@ -175,11 +175,7 @@
 
       <!-- Wishlist Tab -->
       @if (activeTab === 'wishlist') {
-        <div class="tab-content">
-          <h2>My Wishlist</h2>
-          <p>Wishlist functionality will be implemented here.</p>
-          <!-- Add your wishlist component here -->
-        </div>
+        <app-wishlist></app-wishlist>
       }
     </div>
   </div>

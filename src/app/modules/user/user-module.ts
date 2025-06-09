@@ -14,10 +14,10 @@ const routes:Routes = [
   {
       path :'profile',component:ProfileComponent,
   },
-  {
-    path: 'wishlist',
-    component: WishlistComponent,
-  },
+  // {
+  //   path: 'wishlist',
+  //   component: WishlistComponent,
+  // },
   {
     path: 'account',
     component: AccountComponent,

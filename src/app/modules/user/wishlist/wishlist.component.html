@@ -1,20 +1,20 @@
 <div class="wishlist-container">
   <!-- Header -->
-  <div class="header">
-    <h1>Wishlist</h1>
-  </div>
+<!--  <div class="header">-->
+<!--    <h1>Wishlist</h1>-->
+<!--  </div>-->
 
   <!-- Sidebar Navigation -->
   <div class="main-content">
-    <div class="sidebar">
-      <nav class="nav-menu">
-        <a href="#" class="nav-item">Account Details</a>
-        <a href="#" class="nav-item">Orders</a>
-        <a href="#" class="nav-item">Account Update</a>
-        <a href="#" class="nav-item active">Wishlist</a>
-        <a href="#" class="nav-item">Logout</a>
-      </nav>
-    </div>
+<!--    <div class="sidebar">-->
+<!--      <nav class="nav-menu">-->
+<!--        <a href="#" class="nav-item">Account Details</a>-->
+<!--        <a href="#" class="nav-item">Orders</a>-->
+<!--        <a href="#" class="nav-item">Account Update</a>-->
+<!--        <a href="#" class="nav-item active">Wishlist</a>-->
+<!--        <a href="#" class="nav-item">Logout</a>-->
+<!--      </nav>-->
+<!--    </div>-->
 
     <!-- Main Content -->
     <div class="content">
@@ -83,7 +83,7 @@
 
           <!-- Product Image -->
           <div class="product-image">
-            <img [src]="'/assets/products/' + (product.productId || 'placeholder') + '.jpg'"
+            <img [src]="product.images && product.images.length ? product.images[0] : '/placeholder.jpg'"
                  [alt]="product.productName"
                  onerror="this.src='/assets/placeholder.jpg'">
           </div>
@@ -166,16 +166,16 @@
     </div>
   </div>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-content">
-      <p>© 2024 Ecomus Store. All Rights Reserved.</p>
-      <div class="payment-icons">
-        <img src="/assets/visa.png" alt="Visa">
-        <img src="/assets/paypal.png" alt="PayPal">
-        <img src="/assets/mastercard.png" alt="Mastercard">
-        <img src="/assets/amex.png" alt="American Express">
-      </div>
-    </div>
-  </footer>
+<!--  &lt;!&ndash; Footer &ndash;&gt;-->
+<!--  <footer class="footer">-->
+<!--    <div class="footer-content">-->
+<!--      <p>© 2024 Ecomus Store. All Rights Reserved.</p>-->
+<!--      <div class="payment-icons">-->
+<!--        <img src="/assets/visa.png" alt="Visa">-->
+<!--        <img src="/assets/paypal.png" alt="PayPal">-->
+<!--        <img src="/assets/mastercard.png" alt="Mastercard">-->
+<!--        <img src="/assets/amex.png" alt="American Express">-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </footer>-->
 </div>

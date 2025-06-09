@@ -4,6 +4,7 @@ import { NgClass, CommonModule } from '@angular/common';
 import { OrdersComponent } from './orders/orders.component';
 import { UpdateAccountComponent } from './update-account/update-account.component';
 import { AddressDTO } from '../../openapi/model/address-dto';
+import {WishlistComponent} from '../wishlist/wishlist.component';
 
 interface UserProfile {
   userId: number;
@@ -26,7 +27,8 @@ interface UserProfile {
   imports: [
     CommonModule,
     OrdersComponent,
-    UpdateAccountComponent
+    UpdateAccountComponent,
+    WishlistComponent
   ],
   templateUrl: './account.component.html',
   styleUrls: ['./account.component.css']
