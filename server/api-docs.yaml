@@ -497,6 +497,28 @@ paths:
                 $ref: "#/components/schemas/OrderDTO"
       security:
       - BearerAuth: []
+  /api/public/orders/{id}/cancel:
+    post:
+      tags:
+      - Customer - Orders
+      operationId: cancelOrder
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderDTO"
+      security:
+      - BearerAuth: []
   /api/public/cart:
     get:
       tags:
