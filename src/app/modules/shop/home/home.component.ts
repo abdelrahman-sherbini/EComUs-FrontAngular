@@ -55,7 +55,7 @@ export class HomeComponent implements OnInit  {
   @ViewChild(QuickViewModalComponent) quickViewModal!: QuickViewModalComponent;
   @ViewChild(ProductGridComponent) productGrid!: ProductGridComponent;
   private priceMax: undefined;
-  private categoryName:string[] = [];
+  private categoryName:string|undefined;
   private quantityMin: number | undefined;
   private quantityMax: number | undefined;
 
@@ -90,7 +90,7 @@ export class HomeComponent implements OnInit  {
       this.quantityMin, // quantityMin
       this.quantityMax, // quantityMax
       undefined, // categoryId
-      this.categoryName[0] // categoryName
+      this.categoryName // categoryName
     ).subscribe((res: PagedResponseProductDTO) => {
       this.products = res.content || [];
       this.originalProducts = res.content || [];
@@ -176,7 +176,7 @@ export class HomeComponent implements OnInit  {
     this.pageSize= 10;
     this.priceMin= filter.minPrice || undefined;
     this.priceMax= filter.maxPrice || undefined;
-    this.categoryName= filter.categories || undefined;
+    this.categoryName= filter.categories.join(',') || undefined;
     this.quantityMin = filter.stockStatus === 'inStock' ? 1 :undefined;
     this.quantityMax = filter.stockStatus === 'outOfStock'? 0:undefined;
     this.loadProducts();

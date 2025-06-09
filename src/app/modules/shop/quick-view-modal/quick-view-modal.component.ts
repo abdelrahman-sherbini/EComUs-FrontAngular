@@ -47,6 +47,5 @@ export class QuickViewModalComponent {
   }
 
   addToCart() {
-    console.log('Added to cart:', this.product, this.quantity);
   }
 }

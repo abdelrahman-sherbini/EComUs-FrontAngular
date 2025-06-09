@@ -1,6 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { Modal } from 'bootstrap';
-import {ProductDTO} from '../../openapi';
+import {CustomerCartService, ProductDTO, ShoppingCartDTO} from '../../openapi';
+import {AuthService} from '../../../services/auth-service';
+import {ShoppingService} from '../../../services/shopping.service';
+import {ToastService} from '../../../services/toast';
+import {CartService} from '../cart-service';
+
 
 @Component({
   selector: 'app-quick-add-modal',
@@ -13,9 +18,17 @@ export class QuickAddModalComponent {
     productName: '',
     description: '',
     images: [],
-    price:0
+    price:0,
+    quantity:0
   };
+
   quantity = 1;
+
+  constructor(
+    private cartService: CartService
+  ) {}
+
+
 
   get total(): number {
     return this.quantity * (this.product?.price ?? 0);
@@ -38,6 +51,9 @@ export class QuickAddModalComponent {
   }
 
   addToCart() {
-    console.log('Add to cart:', this.product, 'Qty:', this.quantity);
+    this.cartService.addToCart(
+      { productId: this.product.productId!, quantity: this.product.quantity! },
+      this.quantity
+    ).subscribe();
   }
 }

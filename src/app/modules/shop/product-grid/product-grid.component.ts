@@ -48,7 +48,6 @@ export class ProductGridComponent {
   }
 
   addToCart(product: any) {
-    this.addProduct.emit(product);
   }
 
   onQuickAdd(product: ProductDTO) {
