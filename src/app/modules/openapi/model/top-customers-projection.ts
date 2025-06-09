@@ -13,7 +13,7 @@ export interface TopCustomersProjection {
     userId?: number;
     email?: string;
     totalOrders?: number;
-    userName?: string;
     totalSpent?: number;
+    userName?: string;
 }
 

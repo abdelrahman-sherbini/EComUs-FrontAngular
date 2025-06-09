@@ -99,10 +99,10 @@ export class CustomerProfileService extends BaseService implements CustomerProfi
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public updatePassword(changePasswordDTO: ChangePasswordDTO, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public updatePassword(changePasswordDTO: ChangePasswordDTO, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public updatePassword(changePasswordDTO: ChangePasswordDTO, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public updatePassword(changePasswordDTO: ChangePasswordDTO, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public updatePassword(changePasswordDTO: ChangePasswordDTO, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public updatePassword(changePasswordDTO: ChangePasswordDTO, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public updatePassword(changePasswordDTO: ChangePasswordDTO, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public updatePassword(changePasswordDTO: ChangePasswordDTO, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (changePasswordDTO === null || changePasswordDTO === undefined) {
             throw new Error('Required parameter changePasswordDTO was null or undefined when calling updatePassword.');
         }
@@ -117,7 +117,6 @@ export class CustomerProfileService extends BaseService implements CustomerProfi
         localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -141,7 +140,7 @@ export class CustomerProfileService extends BaseService implements CustomerProfi
 
         let localVarPath = `/api/public/users/profile/password`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<string>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<any>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters,

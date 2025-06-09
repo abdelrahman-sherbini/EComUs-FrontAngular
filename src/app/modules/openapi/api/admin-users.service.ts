@@ -52,14 +52,15 @@ export class AdminUsersService extends BaseService implements AdminUsersServiceI
      * @param role Filter by user role
      * @param job Filter by job
      * @param phone Filter by phone number
-     * @param creditLimit Filter by credit limit
+     * @param creditLimitMin Filter by credit minim limit
+     * @param creditLimitMax Filter by credit maximum limit
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getAllUsers(pageNum?: number, pageSize?: number, sortField?: 'BD' | 'role' | 'phone' | 'creditLimit' | 'userName' | 'job' | 'userId' | 'email', sortDir?: 'asc' | 'desc', keyword?: any, userId?: any, userName?: any, email?: any, role?: 'USER' | 'ADMIN', job?: any, phone?: any, creditLimit?: any, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PagedResponseUserDTO>;
-    public getAllUsers(pageNum?: number, pageSize?: number, sortField?: 'BD' | 'role' | 'phone' | 'creditLimit' | 'userName' | 'job' | 'userId' | 'email', sortDir?: 'asc' | 'desc', keyword?: any, userId?: any, userName?: any, email?: any, role?: 'USER' | 'ADMIN', job?: any, phone?: any, creditLimit?: any, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PagedResponseUserDTO>>;
-    public getAllUsers(pageNum?: number, pageSize?: number, sortField?: 'BD' | 'role' | 'phone' | 'creditLimit' | 'userName' | 'job' | 'userId' | 'email', sortDir?: 'asc' | 'desc', keyword?: any, userId?: any, userName?: any, email?: any, role?: 'USER' | 'ADMIN', job?: any, phone?: any, creditLimit?: any, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PagedResponseUserDTO>>;
-    public getAllUsers(pageNum?: number, pageSize?: number, sortField?: 'BD' | 'role' | 'phone' | 'creditLimit' | 'userName' | 'job' | 'userId' | 'email', sortDir?: 'asc' | 'desc', keyword?: any, userId?: any, userName?: any, email?: any, role?: 'USER' | 'ADMIN', job?: any, phone?: any, creditLimit?: any, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getAllUsers(pageNum?: number, pageSize?: number, sortField?: 'BD' | 'role' | 'phone' | 'creditLimit' | 'userName' | 'job' | 'userId' | 'email', sortDir?: 'asc' | 'desc', keyword?: any, userId?: any, userName?: any, email?: any, role?: 'USER' | 'ADMIN', job?: any, phone?: any, creditLimitMin?: any, creditLimitMax?: any, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PagedResponseUserDTO>;
+    public getAllUsers(pageNum?: number, pageSize?: number, sortField?: 'BD' | 'role' | 'phone' | 'creditLimit' | 'userName' | 'job' | 'userId' | 'email', sortDir?: 'asc' | 'desc', keyword?: any, userId?: any, userName?: any, email?: any, role?: 'USER' | 'ADMIN', job?: any, phone?: any, creditLimitMin?: any, creditLimitMax?: any, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PagedResponseUserDTO>>;
+    public getAllUsers(pageNum?: number, pageSize?: number, sortField?: 'BD' | 'role' | 'phone' | 'creditLimit' | 'userName' | 'job' | 'userId' | 'email', sortDir?: 'asc' | 'desc', keyword?: any, userId?: any, userName?: any, email?: any, role?: 'USER' | 'ADMIN', job?: any, phone?: any, creditLimitMin?: any, creditLimitMax?: any, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PagedResponseUserDTO>>;
+    public getAllUsers(pageNum?: number, pageSize?: number, sortField?: 'BD' | 'role' | 'phone' | 'creditLimit' | 'userName' | 'job' | 'userId' | 'email', sortDir?: 'asc' | 'desc', keyword?: any, userId?: any, userName?: any, email?: any, role?: 'USER' | 'ADMIN', job?: any, phone?: any, creditLimitMin?: any, creditLimitMax?: any, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
@@ -85,7 +86,9 @@ export class AdminUsersService extends BaseService implements AdminUsersServiceI
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>phone, 'phone');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>creditLimit, 'creditLimit');
+          <any>creditLimitMin, 'creditLimitMin');
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>creditLimitMax, 'creditLimitMax');
 
         let localVarHeaders = this.defaultHeaders;
 

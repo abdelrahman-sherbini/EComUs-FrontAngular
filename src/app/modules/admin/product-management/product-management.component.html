@@ -1,0 +1,545 @@
+<div class="products-management">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h2 class="page-title">
+          <i class="fas fa-boxes me-2"></i>Products Management
+        </h2>
+        <p class="page-subtitle text-muted">Manage your product inventory with advanced filtering and sorting</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-outline-primary me-2" (click)="toggleViewMode()">
+          <i [class]="viewMode === 'table' ? 'fas fa-th-large' : 'fas fa-table'"></i>
+          {{ viewMode === 'table' ? 'Card View' : 'Table View' }}
+        </button>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
+          <i class="fas fa-plus me-2"></i>Add Product
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Categories Filter Pills -->
+  <div class="categories-filter mb-4">
+    <div class="d-flex align-items-center flex-wrap gap-2">
+      <span class="filter-label">Categories:</span>
+      <button
+        class="btn category-pill"
+        [class.active]="selectedCategoryId === null"
+        (click)="onCategoryFilter(null)">
+        <i class="fas fa-th-large me-1"></i>All Categories
+        <span class="badge bg-light text-dark ms-1">{{ pagedResponse.totalElements || 0 }}</span>
+      </button>
+      <button
+        *ngFor="let category of categories"
+        class="btn category-pill"
+        [class.active]="selectedCategoryId === category.categoryId"
+        (click)="onCategoryFilter(category.categoryId)">
+        <i class="fas fa-tag me-1"></i>{{ category.categoryName }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters & Search -->
+  <div class="filters-section">
+    <form [formGroup]="filterForm" class="row g-3">
+      <!-- Search -->
+      <div class="col-md-4">
+        <div class="search-box">
+          <i class="fas fa-search search-icon"></i>
+          <input
+            type="text"
+            class="form-control search-input"
+            placeholder="Search products..."
+            formControlName="keyword">
+        </div>
+      </div>
+
+      <!-- Price Range -->
+      <div class="col-md-2">
+        <input
+          type="number"
+          class="form-control"
+          placeholder="Min Price"
+          formControlName="priceMin"
+          min="0">
+      </div>
+      <div class="col-md-2">
+        <input
+          type="number"
+          class="form-control"
+          placeholder="Max Price"
+          formControlName="priceMax"
+          min="0">
+      </div>
+
+      <!-- Quantity Range -->
+      <div class="col-md-2">
+        <input
+          type="number"
+          class="form-control"
+          placeholder="Min Qty"
+          formControlName="quantityMin"
+          min="0">
+      </div>
+      <div class="col-md-2">
+        <input
+          type="number"
+          class="form-control"
+          placeholder="Max Qty"
+          formControlName="quantityMax"
+          min="0">
+      </div>
+    </form>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="results-info">
+<span class="text-muted">
+Showing {{ ((currentPage -1) * pageSize) + 1 }}-{{ Math.min((currentPage) * pageSize, pagedResponse.totalElements || 0) }}
+of {{ pagedResponse.totalElements || 0 }} products
+</span>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+          <!-- Sort Options -->
+          <div class="sort-controls">
+            <label class="form-label me-2 mb-0">Sort by:</label>
+            <select class="form-select form-select-sm" style="width: auto;"
+                    [value]="sortField" (change)="onSort($any($event.target).value)">
+              <option *ngFor="let option of sortOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+            <button class="btn btn-sm btn-outline-secondary ms-1" (click)="onSort(sortField)">
+              <i [class]="getSortIcon(sortField)"></i>
+            </button>
+          </div>
+
+          <!-- Page Size -->
+          <div class="page-size-controls">
+            <label class="form-label me-2 mb-0">Show:</label>
+            <select class="form-select form-select-sm" style="width: auto;"
+                    [value]="pageSize" (change)="onPageSizeChange(+$any($event.target).value)">
+              <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+            </select>
+          </div>
+
+          <!-- Clear Filters -->
+          <button class="btn btn-outline-secondary btn-sm" (click)="clearFilters()">
+            <i class="fas fa-times me-1"></i>Clear Filters
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state text-center p-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3 text-muted">Loading products...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && products.length === 0" class="empty-state text-center p-5">
+    <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
+    <h4>No Products Found</h4>
+    <p class="text-muted">Try adjusting your filters or add a new product.</p>
+  </div>
+
+  <!-- Table View -->
+  <div *ngIf="!loading && viewMode === 'table' && products.length > 0" class="table-container">
+    <div class="table-responsive">
+      <table class="table table-hover product-table">
+        <thead class="table-header">
+        <tr>
+          <th scope="col" class="sortable" (click)="onSort('productId')">
+            ID <i [class]="getSortIcon('productId')"></i>
+          </th>
+          <th scope="col" class="sortable" (click)="onSort('productName')">
+            Product Name <i [class]="getSortIcon('productName')"></i>
+          </th>
+          <th scope="col">Description</th>
+          <th scope="col" class="sortable" (click)="onSort('price')">
+            Price <i [class]="getSortIcon('price')"></i>
+          </th>
+          <th scope="col" class="sortable" (click)="onSort('quantity')">
+            Quantity <i [class]="getSortIcon('quantity')"></i>
+          </th>
+          <th scope="col">Categories</th>
+          <th scope="col" class="text-center">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let product of products" class="product-row">
+          <td class="product-id">#{{ product.productId }}</td>
+          <td class="product-name">
+            <strong>{{ product.productName }}</strong>
+          </td>
+          <td class="product-description">
+            <span class="description-text">{{ product.description }}</span>
+          </td>
+          <td class="product-price">
+            <span class="price-tag">${{ product.price | number:'1.2-2' }}</span>
+          </td>
+          <td class="product-quantity">
+  <span class="quantity-badge"
+        [class.low-stock]="(product.quantity || 0) < 10"
+        [class.out-of-stock]="(product.quantity || 0) === 0">
+    {{ product.quantity || 0 }}
+  </span>
+          </td>
+          <td class="product-categories">
+            <div class="categories-tags">
+    <span *ngFor="let category of product.categories" class="category-tag">
+      {{ category.categoryName }}
+    </span>
+              <span *ngIf="!product.categories?.length" class="text-muted">No categories</span>
+            </div>
+          </td>
+          <td class="text-center">
+            <div class="action-buttons">
+              <button class="btn btn-sm btn-outline-primary me-1"
+                      data-bs-toggle="modal" data-bs-target="#updateProductModal"
+                      (click)="openUpdateModal(product)"
+                      title="Edit Product">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-info"
+                      data-bs-toggle="modal" data-bs-target="#viewProductModal"
+                      (click)="openDetailsModal(product)"
+                      title="View Product">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Card View -->
+  <div *ngIf="!loading && viewMode === 'card' && products.length > 0" class="cards-container">
+    <div class="row">
+      <div class="col-lg-4 col-md-6 mb-4" *ngFor="let product of products">
+        <div class="product-card">
+          <div class="card-header-custom">
+            <div class="d-flex justify-content-between align-items-start">
+              <h5 class="card-title">{{ product.productName }}</h5>
+              <span class="product-id-badge">#{{ product.productId }}</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <!-- Product Image -->
+            <div class="product-image-container mb-3" *ngIf="product.productId && productImages[product.productId]?.length">
+              <img [src]="productImages[product.productId][0]" class="product-image" alt="{{ product.productName }}">
+            </div>
+            <div class="product-image-container mb-3" *ngIf="!product.productId || !productImages[product.productId]?.length">
+              <div class="no-image-placeholder">
+                <i class="fas fa-image"></i>
+                <span>No image available</span>
+              </div>
+            </div>
+
+            <p class="card-description">{{ product.description }}</p>
+
+            <div class="product-details">
+              <div class="detail-item">
+                <i class="fas fa-dollar-sign text-success"></i>
+                <span class="price-large">{{ product.price | number:'1.2-2' }}</span>
+              </div>
+
+              <div class="detail-item">
+                <i class="fas fa-boxes text-info"></i>
+                <span class="quantity-text"
+                      [class.text-warning]="(product.quantity || 0) < 10"
+                      [class.text-danger]="(product.quantity || 0) === 0">
+      {{ product.quantity || 0 }} in stock
+    </span>
+              </div>
+            </div>
+
+            <div class="categories-section" *ngIf="product.categories?.length">
+              <span class="categories-label">Categories:</span>
+              <div class="categories-tags">
+    <span *ngFor="let category of product.categories" class="category-tag-card">
+      {{ category.categoryName }}
+    </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <div class="d-flex justify-content-between">
+              <button class="btn btn-outline-primary btn-sm"
+                      data-bs-toggle="modal" data-bs-target="#updateProductModal"
+                      (click)="openUpdateModal(product)">
+                <i class="fas fa-edit me-1"></i>Edit
+              </button>
+              <button class="btn btn-outline-info btn-sm"
+                      data-bs-toggle="modal" data-bs-target="#viewProductModal"
+                      (click)="openDetailsModal(product)">
+                <i class="fas fa-eye me-1"></i>View
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!loading && products.length > 0" class="pagination-section">
+    <nav aria-label="Products pagination">
+      <ul class="pagination pagination-custom justify-content-center">
+        <!-- Previous -->
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+        </li>
+
+        <!-- Page Numbers -->
+        <li *ngFor="let page of getPaginationPages()" class="page-item"
+            [class.active]="page === currentPage"
+            [class.disabled]="page === -1">
+          <button *ngIf="page !== -1" class="page-link" (click)="onPageChange(page)">
+            {{ page }}
+          </button>
+          <span *ngIf="page === -1" class="page-link">...</span>
+        </li>
+
+        <!-- Next -->
+        <li class="page-item" [class.disabled]="currentPage === (pagedResponse.totalPages || 1)">
+          <button class="page-link" (click)="onPageChange(currentPage + 1)"
+                  [disabled]="currentPage === (pagedResponse.totalPages || 1)">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <!-- View Product Modal -->
+  <div class="modal fade" id="viewProductModal" tabindex="-1" aria-labelledby="viewProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="viewProductModalLabel">Product Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" *ngIf="selectedProduct">
+          <div class="product-details-container">
+            <h3 class="product-title">{{ selectedProduct.productName }}</h3>
+            <p class="product-id-detail">Product ID: #{{ selectedProduct.productId }}</p>
+
+            <!-- Product Images -->
+            <div class="product-images-section">
+              <h5 class="section-title">Product Images</h5>
+              <div class="product-images-gallery">
+                <div class="row" *ngIf="selectedProductImages?.length">
+                  <div class="col-md-3 mb-3" *ngFor="let image of selectedProductImages">
+                    <div class="image-thumbnail">
+                      <img [src]="image" alt="Product image">
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="!selectedProductImages?.length" class="no-images-message">
+                  <i class="fas fa-image fa-3x text-muted mb-2"></i>
+                  <p>No images available for this product</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Product Description -->
+            <div class="product-info-section">
+              <h5 class="section-title">Description</h5>
+              <p class="product-description">{{ selectedProduct.description }}</p>
+            </div>
+
+            <!-- Product Details -->
+            <div class="product-info-section">
+              <h5 class="section-title">Details</h5>
+              <div class="info-item">
+                <span class="info-label">Price:</span>
+                <span class="info-value price-value">${{ selectedProduct.price | number:'1.2-2' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Quantity in Stock:</span>
+                <span class="info-value stock-value"
+                      [class.text-warning]="(selectedProduct.quantity || 0) < 10"
+                      [class.text-danger]="(selectedProduct.quantity || 0) === 0">
+                  {{ selectedProduct.quantity || 0 }}
+                </span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Purchase Count:</span>
+                <span class="info-value">{{ selectedProduct.purchaseCount || 0 }}</span>
+              </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="product-info-section" *ngIf="selectedProduct.categories?.length">
+              <h5 class="section-title">Categories</h5>
+              <div class="categories-container">
+                <span *ngFor="let category of selectedProduct.categories" class="category-badge">
+                  {{ category.categoryName }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary"
+                  data-bs-toggle="modal" data-bs-target="#updateProductModal"
+                  (click)="selectedProduct && openUpdateModal(selectedProduct)" data-bs-dismiss="modal">
+            <i class="fas fa-edit me-1"></i>Edit Product
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Update Product Modal -->
+  <div class="modal fade" id="updateProductModal" tabindex="-1" aria-labelledby="updateProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="updateProductModalLabel">Update Product</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" *ngIf="selectedProduct">
+          <form [formGroup]="updateProductForm">
+            <input type="hidden" formControlName="productId">
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="productName" class="form-label">Product Name</label>
+                <input type="text" class="form-control" id="productName" formControlName="productName">
+                <div *ngIf="updateProductForm.get('productName')?.invalid && updateProductForm.get('productName')?.touched"
+                     class="text-danger mt-1">
+                  Product name is required
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <label for="price" class="form-label">Price</label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="number" class="form-control" id="price" formControlName="price" min="0.01" step="0.01">
+                </div>
+                <div *ngIf="updateProductForm.get('price')?.invalid && updateProductForm.get('price')?.touched"
+                     class="text-danger mt-1">
+                  Valid price is required
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <label for="quantity" class="form-label">Quantity</label>
+                <input type="number" class="form-control" id="quantity" formControlName="quantity" min="0">
+                <div *ngIf="updateProductForm.get('quantity')?.invalid && updateProductForm.get('quantity')?.touched"
+                     class="text-danger mt-1">
+                  Valid quantity is required
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea class="form-control" id="description" rows="3" formControlName="description"></textarea>
+              <div *ngIf="updateProductForm.get('description')?.invalid && updateProductForm.get('description')?.touched"
+                   class="text-danger mt-1">
+                Description is required
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Categories</label>
+              <div class="categories-selection">
+                <div class="row">
+                  <div class="col-md-4 mb-2" *ngFor="let category of categories">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox"
+                             [id]="'category-' + category.categoryId"
+                             [checked]="isCategorySelected(category.categoryId!)"
+                             (change)="toggleCategorySelection(category.categoryId!)">
+                      <label class="form-check-label" [for]="'category-' + category.categoryId">
+                        {{ category.categoryName }}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Current Images</label>
+              <div class="current-images-container">
+                <div class="row" *ngIf="selectedProductImages?.length">
+                  <div class="col-md-3 mb-3" *ngFor="let image of selectedProductImages; let i = index">
+                    <div class="current-image-item position-relative">
+                      <img [src]="image" class="img-thumbnail" alt="Product image">
+                      <button type="button" class="btn btn-sm btn-danger remove-image-btn"
+                              (click)="deleteProductImage(i)" title="Delete image">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="!selectedProductImages?.length" class="text-muted">
+                  No images available for this product
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Add New Images</label>
+              <div class="image-upload-container">
+                <div class="image-upload-area">
+                  <input type="file" id="productImages" class="file-input"
+                         accept="image/*" multiple (change)="onFileSelected($event)">
+                  <label for="productImages" class="upload-label">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Click to upload or drag images here</span>
+                    <small class="text-muted d-block mt-1">Supported formats: JPG, PNG, GIF (Max 5 images)</small>
+                  </label>
+                </div>
+              </div>
+
+              <!-- New Images Preview -->
+              <div *ngIf="newImages.length > 0" class="new-images-preview mt-3">
+                <div class="row">
+                  <div class="col-md-3 mb-2" *ngFor="let image of newImages; let i = index">
+                    <div class="new-image-item">
+                      <img [src]="image.preview" class="img-thumbnail" alt="New product image">
+                      <button type="button" class="btn btn-sm btn-danger remove-image-btn"
+                              (click)="removeNewImage(i)" title="Remove image">
+                        <i class="fas fa-times"></i>
+                      </button>
+                      <div class="image-name">
+                        <small class="text-muted">{{ image.file.name }}</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" (click)="submitUpdateProduct()">
+            Update Product
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,8 +1,8 @@
-import {Component, HostListener, OnInit} from '@angular/core';
+import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, RouterModule, RouterOutlet} from '@angular/router';
 import {AuthService} from '../../../services/auth-service';
-import {Observable} from 'rxjs';
+import {Observable, Subject, takeUntil} from 'rxjs';
 import {ToastComponent} from "../../../components/toast/toast.component";
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AdminCategoriesService, AdminProductsService, CategoryDTO, NewProductDTO} from '../../openapi';
@@ -20,9 +20,28 @@ interface ImagePreview {
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css'
 })
-export class LayoutComponent implements OnInit {
+export class LayoutComponent implements OnInit , OnDestroy {
+
+  // Destroy subject for cleanup
+  private destroy$ = new Subject<void>();
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+  logout(): void {
+    this.authService.logout().subscribe(() => {
+      // Navigation is handled in the auth service
+    });
+  }
+
   currentUser$: Observable<any>;
-  constructor( private adminCategoriesService: AdminCategoriesService, private toastService: ToastService,private adminProductsService: AdminProductsService,private authService: AuthService,private router: Router,private formBuilder: FormBuilder,) {
+  categoryForm: FormGroup;
+  constructor(private categoriesService: AdminCategoriesService, private adminCategoriesService: AdminCategoriesService, private toastService: ToastService,private adminProductsService: AdminProductsService,private authService: AuthService,private router: Router,private formBuilder: FormBuilder,) {
+    this.categoryForm = this.formBuilder.group({
+      categoryName: ['', [Validators.required, Validators.minLength(2)]]
+    });
+
     this.productForm = this.formBuilder.group({
       productName: ['', [Validators.required, Validators.minLength(2)]],
       description: ['', [Validators.required, Validators.minLength(10)]],
@@ -225,6 +244,48 @@ export class LayoutComponent implements OnInit {
       }
     });
   }
+  openAddModal(): void {
+    this.categoryForm.reset();
 
+    // Open Bootstrap modal
+    const modal = new (window as any).bootstrap.Modal(document.getElementById('addCategoryModal'));
+    modal.show();
+  }
+
+  // Add new category
+  addCategory(): void {
+    if (this.categoryForm.invalid) {
+      this.categoryForm.markAllAsTouched();
+      return;
+    }
+
+    const categoryData: CategoryDTO = {
+      categoryId: 0, // Will be assigned by the server
+      categoryName: this.categoryForm.get('categoryName')?.value,
+      products: [] // Empty products array
+    };
+
+    this.categoriesService.createCategory(categoryData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.toastService.showSuccess('Category added successfully');
+          this.loadCategories();
+
+          // Close modal
+          const modal = (window as any).bootstrap.Modal.getInstance(document.getElementById('addCategoryModal'));
+          if (modal) {
+            modal.hide();
+          }
+
+          // Reset form
+          this.categoryForm.reset();
+        },
+        error: (error) => {
+          console.error('Error adding category:', error);
+          this.toastService.showError('Failed to add category');
+        }
+      });
+  }
 
 }

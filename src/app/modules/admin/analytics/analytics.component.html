@@ -1,0 +1,248 @@
+<div class="analytics-container">
+  <!-- Header Section -->
+  <div class="analytics-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h1 class="h3 mb-0 text-gray-800">Analytics Dashboard</h1>
+        <p class="text-muted">Comprehensive view of your business performance</p>
+      </div>
+      <div class="d-flex">
+        <div class="btn-group me-3" role="group" aria-label="Time period">
+          <input type="radio" class="btn-check" name="period" id="period-week" [formControl]="periodControl" value="week" autocomplete="off">
+          <label class="btn btn-outline-primary" for="period-week">Week</label>
+
+          <input type="radio" class="btn-check" name="period" id="period-month" [formControl]="periodControl" value="month" autocomplete="off">
+          <label class="btn btn-outline-primary" for="period-month">Month</label>
+
+          <input type="radio" class="btn-check" name="period" id="period-year" [formControl]="periodControl" value="year" autocomplete="off">
+          <label class="btn btn-outline-primary" for="period-year">Year</label>
+        </div>
+        <button class="btn btn-primary" (click)="refreshData()">
+          <i class="fas fa-sync-alt me-1"></i> Refresh
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2 text-muted">Loading analytics data...</p>
+  </div>
+
+  <div *ngIf="!isLoading">
+    <!-- Key Metrics Cards -->
+    <div class="row mb-4">
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+          <div class="card-body">
+            <div class="row no-gutters align-items-center">
+              <div class="col mr-2">
+                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Revenue</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ formatCurrency(orderStats.totalRevenue) }}</div>
+              </div>
+              <div class="col-auto">
+                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+          <div class="card-body">
+            <div class="row no-gutters align-items-center">
+              <div class="col mr-2">
+                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Orders</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ formatNumber(orderStats.totalOrders) }}</div>
+              </div>
+              <div class="col-auto">
+                <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+          <div class="card-body">
+            <div class="row no-gutters align-items-center">
+              <div class="col mr-2">
+                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Average Order Value</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ formatCurrency(orderStats.averageOrderValue) }}</div>
+              </div>
+              <div class="col-auto">
+                <i class="fas fa-tags fa-2x text-gray-300"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+          <div class="card-body">
+            <div class="row no-gutters align-items-center">
+              <div class="col mr-2">
+                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Orders</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ formatNumber(orderStats.pendingOrders) }}</div>
+              </div>
+              <div class="col-auto">
+                <i class="fas fa-clock fa-2x text-gray-300"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Revenue Chart -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card shadow mb-4">
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Revenue & Orders Overview</h6>
+          </div>
+          <div class="card-body">
+            <div class="chart-area" style="height: 300px;">
+              <canvas #revenueChart></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Status & Product Sales -->
+    <div class="row mb-4">
+      <div class="col-lg-4 mb-4">
+        <div class="card shadow h-100">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Order Status Distribution</h6>
+          </div>
+          <div class="card-body">
+            <div class="chart-pie pt-4 pb-2">
+              <canvas #orderStatusChart></canvas>
+            </div>
+            <div class="mt-4 text-center small">
+              <div class="row">
+                <div *ngFor="let status of orderStatusDistribution" class="col-6 mb-2">
+                  <span class="me-2">
+                    <i class="fas fa-circle" [ngClass]="'text-' + getStatusColor(status.status || '')"></i>
+                  </span>
+                  <span>{{ status.status }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-8 mb-4">
+        <div class="card shadow h-100">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Top Selling Products</h6>
+          </div>
+          <div class="card-body">
+            <div class="chart-bar">
+              <canvas #productSalesChart></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Customers & Monthly Trends -->
+    <div class="row">
+      <div class="col-lg-8 mb-4">
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Top Customers</h6>
+          </div>
+          <div class="card-body">
+            <div class="chart-bar">
+              <canvas #customerSpendingChart></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 mb-4">
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Monthly Revenue Trends</h6>
+          </div>
+          <div class="card-body">
+            <div class="chart-radar">
+              <canvas #monthlyTrendsChart></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Tables Section -->
+    <div class="row">
+      <!-- Top Products Table -->
+      <div class="col-lg-6 mb-4">
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Top Selling Products</h6>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>Product</th>
+                    <th>Quantity Sold</th>
+                    <th>Revenue</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let product of topSellingProducts.slice(0, 5)">
+                    <td>{{ product.productName }}</td>
+                    <td>{{ formatNumber(product.totalQuantitySold) }}</td>
+                    <td>{{ formatCurrency(product.totalRevenue) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Customers Table -->
+      <div class="col-lg-6 mb-4">
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Top Customers</h6>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>Customer</th>
+                    <th>Orders</th>
+                    <th>Total Spent</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let customer of topCustomers.slice(0, 5)">
+                    <td>{{ customer.userName || customer.email }}</td>
+                    <td>{{ formatNumber(customer.totalOrders) }}</td>
+                    <td>{{ formatCurrency(customer.totalSpent) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

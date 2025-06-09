@@ -109,10 +109,6 @@ paths:
       responses:
         "200":
           description: OK
-          content:
-            application/json:
-              schema:
-                type: string
       security:
       - BearerAuth: []
   /api/public/address:
@@ -488,6 +484,28 @@ paths:
             schema:
               $ref: "#/components/schemas/CheckOutOrderDTO"
         required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderDTO"
+      security:
+      - BearerAuth: []
+  /api/public/orders/{id}/cancel:
+    post:
+      tags:
+      - Customer - Orders
+      operationId: cancelOrder
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
       responses:
         "200":
           description: OK
@@ -924,9 +942,14 @@ paths:
         description: Filter by phone number
         required: false
         schema: {}
-      - name: creditLimit
+      - name: creditLimitMin
         in: query
-        description: Filter by credit limit
+        description: Filter by credit minim limit
+        required: false
+        schema: {}
+      - name: creditLimitMax
+        in: query
+        description: Filter by credit maximum limit
         required: false
         schema: {}
       responses:
@@ -1445,9 +1468,14 @@ paths:
         description: Filter by phone number
         required: false
         schema: {}
-      - name: creditLimit
+      - name: creditLimitMin
         in: query
-        description: Filter by credit limit
+        description: Filter by credit minim limit
+        required: false
+        schema: {}
+      - name: creditLimitMax
+        in: query
+        description: Filter by credit maximum limit
         required: false
         schema: {}
       responses:
@@ -2227,6 +2255,13 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/CategoryNoProductDTO"
+        images:
+          type: array
+          items:
+            type: string
+        purchaseCount:
+          type: integer
+          format: int64
       required:
       - description
       - productName
@@ -2618,10 +2653,10 @@ components:
         totalOrders:
           type: integer
           format: int64
-        userName:
-          type: string
         totalSpent:
           type: number
+        userName:
+          type: string
     UserRoleDistributionProjection:
       type: object
       properties:
@@ -2643,21 +2678,21 @@ components:
           format: int64
         averageOrderValue:
           type: number
-        userName:
-          type: string
-        totalSpent:
-          type: number
         lastOrderDate:
           type: string
           format: date
+        totalSpent:
+          type: number
+        userName:
+          type: string
     TopSellingProductProjection:
       type: object
       properties:
+        productName:
+          type: string
         productId:
           type: integer
           format: int64
-        productName:
-          type: string
         totalRevenue:
           type: number
         totalQuantitySold:
@@ -2666,6 +2701,11 @@ components:
     RecentOrderProjection:
       type: object
       properties:
+        orderId:
+          type: integer
+          format: int64
+        status:
+          type: string
         userEmail:
           type: string
         orderTotal:
@@ -2673,11 +2713,6 @@ components:
         orderDate:
           type: string
           format: date
-        status:
-          type: string
-        orderId:
-          type: integer
-          format: int64
         userName:
           type: string
     MonthlyOrderStatsProjection:
@@ -2689,33 +2724,33 @@ components:
         month:
           type: integer
           format: int32
-        monthlyRevenue:
-          type: number
         orderCount:
           type: integer
           format: int64
+        monthlyRevenue:
+          type: number
     DailyOrderStatsProjection:
       type: object
       properties:
+        orderCount:
+          type: integer
+          format: int64
         orderDate:
           type: string
           format: date
         dailyRevenue:
           type: number
-        orderCount:
-          type: integer
-          format: int64
     ProductSalesStatsProjection:
       type: object
       properties:
+        productName:
+          type: string
         productId:
           type: integer
           format: int64
         totalQuantity:
           type: integer
           format: int64
-        productName:
-          type: string
         totalRevenue:
           type: number
         orderCount:
@@ -2736,20 +2771,20 @@ components:
     OrderStatsProjection:
       type: object
       properties:
-        totalOrders:
+        cancelledOrders:
           type: integer
           format: int64
+        totalRevenue:
+          type: number
         pendingOrders:
           type: integer
           format: int64
-        cancelledOrders:
+        totalOrders:
           type: integer
           format: int64
         completedOrders:
           type: integer
           format: int64
-        totalRevenue:
-          type: number
         averageOrderValue:
           type: number
     OrderStatusDistributionProjection:
@@ -2765,11 +2800,11 @@ components:
     RevenueByPeriodProjection:
       type: object
       properties:
+        revenue:
+          type: number
         periodDate:
           type: string
           format: date
-        revenue:
-          type: number
         orderCount:
           type: integer
           format: int64
@@ -2801,21 +2836,21 @@ components:
     DashboardSummaryProjection:
       type: object
       properties:
+        totalRevenue:
+          type: number
+        pendingOrders:
+          type: integer
+          format: int64
         totalOrders:
+          type: integer
+          format: int64
+        totalUsers:
           type: integer
           format: int64
         todayOrders:
           type: integer
           format: int64
-        pendingOrders:
-          type: integer
-          format: int64
         todayRevenue:
-          type: number
-        totalUsers:
-          type: integer
-          format: int64
-        totalRevenue:
           type: number
         revenueGrowthRate:
           type: number

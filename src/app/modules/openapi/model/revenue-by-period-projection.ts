@@ -10,8 +10,8 @@
 
 
 export interface RevenueByPeriodProjection { 
-    periodDate?: string;
     revenue?: number;
+    periodDate?: string;
     orderCount?: number;
 }
 

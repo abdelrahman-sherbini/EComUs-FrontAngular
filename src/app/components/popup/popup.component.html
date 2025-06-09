@@ -1,0 +1,50 @@
+<div class="popup-container" *ngIf="popups.length > 0">
+  <div class="popup-overlay" (click)="closePopup(popups[popups.length - 1])"></div>
+  
+  <div *ngFor="let popup of popups" class="popup-wrapper">
+    <div class="popup" 
+         [ngClass]="[popup.customClass || '', 'popup-' + (popup.size || 'md')]"
+         (click)="stopPropagation($event)">
+      
+      <!-- Header -->
+      <div class="popup-header" *ngIf="popup.title">
+        <h5 class="popup-title">{{ popup.title }}</h5>
+        <button *ngIf="popup.showClose" type="button" class="popup-close" (click)="closePopup(popup)">
+          <span>&times;</span>
+        </button>
+      </div>
+      
+      <!-- Body -->
+      <div class="popup-body">
+        <!-- Alert/Confirm/Prompt -->
+        <ng-container *ngIf="popup.type !== 'custom'">
+          <p class="popup-message">{{ popup.message }}</p>
+          
+          <!-- Prompt input -->
+          <div *ngIf="popup.type === 'prompt'" class="popup-input-container">
+            <input [type]="popup.inputType || 'text'" 
+                   [(ngModel)]="popup.inputValue" 
+                   [placeholder]="popup.inputPlaceholder || ''" 
+                   class="popup-input">
+          </div>
+        </ng-container>
+        
+        <!-- Custom component container -->
+        <ng-container *ngIf="popup.type === 'custom'">
+          <div #customContainer></div>
+        </ng-container>
+      </div>
+      
+      <!-- Footer with options -->
+      <div class="popup-footer" *ngIf="popup.options && popup.options.length > 0">
+        <button *ngFor="let option of popup.options" 
+                type="button" 
+                class="popup-btn" 
+                [ngClass]="'popup-btn-' + (option.style || 'primary')"
+                (click)="selectOption(popup, option)">
+          {{ option.text }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

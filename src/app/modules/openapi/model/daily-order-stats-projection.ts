@@ -10,8 +10,8 @@
 
 
 export interface DailyOrderStatsProjection { 
+    orderCount?: number;
     orderDate?: string;
     dailyRevenue?: number;
-    orderCount?: number;
 }
 

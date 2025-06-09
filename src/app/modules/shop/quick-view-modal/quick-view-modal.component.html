@@ -1,0 +1,84 @@
+<div class="modal fade" id="quickViewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content rounded-4">
+      <div class="modal-body p-4">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div class="w-100 d-flex gap-4 flex-column flex-lg-row">
+            <!-- Image Section -->
+            <!-- Left Column: Image(s) -->
+            <div class="text-center flex-shrink-0" style="max-width: 50%;">
+              <div class="text-center flex-shrink-0 w-100 w-lg-50">
+                <ng-container *ngIf="product.images.length > 1; else singleImage">
+                  <!-- Carousel for multiple images -->
+                  <div id="quickViewCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner rounded">
+                      <div
+                        class="carousel-item"
+                        *ngFor="let img of product.images; let i = index"
+                        [class.active]="i === 0">
+                        <img [src]="img" class="d-block w-100 " alt="Product image" />
+                      </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#quickViewCarousel" data-bs-slide="prev">
+                      <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#quickViewCarousel" data-bs-slide="next">
+                      <span class="carousel-control-next-icon"></span>
+                    </button>
+                  </div>
+                </ng-container>
+
+                <ng-template #singleImage>
+                  <img
+                    [src]="product.images && product.images.length ? product.images[0] : '/placeholder.jpg'"
+                    class="img-fluid rounded" alt="Product image" />
+                </ng-template>
+              </div>
+            </div>
+
+
+            <!-- Info Section -->
+            <div class="w-100">
+              <h5 class="mb-1">{{ product.productName }}</h5>
+              <div class="fw-bold mb-3">${{ product.price }}</div>
+              <p class="text-muted mb-4" style="max-width: 400px;">
+                {{ product.description || 'Add a touch of comfort and style to your wardrobe with LC Waikiki’s signature leggings. Designed with a flattering fit and stretch fabric, these leggings move with you—perfect for daily wear, workouts, or cozy lounging.' }}
+              </p>
+
+              <div class="mb-3">
+                <label class="fw-semibold">Quantity</label>
+                <div class="input-group w-50">
+                  <button class="btn btn-outline-secondary" (click)="decrease()">–</button>
+                  <input
+                    type="text"
+                    class="form-control text-center"
+                    [value]="quantity"
+                    readonly />
+                  <button class="btn btn-outline-secondary" (click)="increase()">+</button>
+                </div>
+              </div>
+
+              <div class="d-flex gap-2 align-items-center">
+                <button class="btn btn-dark flex-grow-1" (click)="addToCart()">
+                  Add to cart – ${{ total.toFixed(2) }}
+                </button>
+                <button class="btn btn-outline-secondary" title="Add to Wishlist">
+                  <i class="bi bi-heart"></i>
+                </button>
+              </div>
+
+              <div class="mt-4">
+                <a [routerLink]="['product/', product.productId]" class="text-decoration-none fw-medium">
+                  View full details <i class="bi bi-arrow-up-right"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Close Button -->
+          <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

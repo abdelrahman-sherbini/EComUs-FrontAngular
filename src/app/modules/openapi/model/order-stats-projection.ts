@@ -10,11 +10,11 @@
 
 
 export interface OrderStatsProjection { 
-    totalOrders?: number;
-    pendingOrders?: number;
     cancelledOrders?: number;
-    completedOrders?: number;
     totalRevenue?: number;
+    pendingOrders?: number;
+    totalOrders?: number;
+    completedOrders?: number;
     averageOrderValue?: number;
 }
 
