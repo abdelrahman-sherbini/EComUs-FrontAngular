@@ -14,6 +14,7 @@ import {
 } from '../../openapi';
 import {NgForOf, NgIf} from '@angular/common';
 import {ToastComponent} from '../../../components/toast/toast.component';
+import {PopupComponent} from "../../../components/popup/popup.component";
 
 
 @Component({
@@ -28,6 +29,7 @@ import {ToastComponent} from '../../../components/toast/toast.component';
     NgIf,
     NgForOf,
     ToastComponent,
+    PopupComponent,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'

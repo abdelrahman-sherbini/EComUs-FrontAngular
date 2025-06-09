@@ -3,6 +3,7 @@ import {Modal} from 'bootstrap';
 import {RouterLink} from '@angular/router';
 import {NgForOf, NgIf} from '@angular/common';
 import {ProductDTO} from '../../openapi';
+import {CartService} from '../cart-service';
 
 @Component({
   selector: 'app-quick-view-modal',
@@ -22,6 +23,9 @@ export class QuickViewModalComponent {
     price:0
   };
   quantity = 1;
+  private modal: Modal | undefined ;
+
+  constructor(private cartService: CartService) {}
 
   get total(): number {
     return this.quantity * (this.product?.price ?? 0);
@@ -33,8 +37,8 @@ export class QuickViewModalComponent {
 
     const modalEl = document.getElementById('quickViewModal');
     if (modalEl) {
-      const modal = new Modal(modalEl);
-      modal.show();
+      this.modal = new Modal(modalEl);
+      this.modal.show();
     }
   }
 
@@ -47,5 +51,12 @@ export class QuickViewModalComponent {
   }
 
   addToCart() {
+    if (this.modal) {
+      this.modal.hide();
+    }
+    this.cartService.addToCart(
+      { productId: this.product.productId!, quantity: this.product.quantity! },
+      this.quantity
+    ).subscribe();
   }
 }

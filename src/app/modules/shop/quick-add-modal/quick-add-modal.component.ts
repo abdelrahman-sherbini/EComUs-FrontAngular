@@ -1,10 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { Modal } from 'bootstrap';
-import {CustomerCartService, ProductDTO, ShoppingCartDTO} from '../../openapi';
-import {AuthService} from '../../../services/auth-service';
-import {ShoppingService} from '../../../services/shopping.service';
-import {ToastService} from '../../../services/toast';
 import {CartService} from '../cart-service';
+import {ProductDTO} from '../../openapi';
 
 
 @Component({
@@ -23,10 +20,9 @@ export class QuickAddModalComponent {
   };
 
   quantity = 1;
+  private modal: Modal | undefined ;
 
-  constructor(
-    private cartService: CartService
-  ) {}
+  constructor(private cartService: CartService) {}
 
 
 
@@ -46,11 +42,14 @@ export class QuickAddModalComponent {
     this.product = product;
     this.quantity = 1;
 
-    const modal = new Modal(document.getElementById('quickAddModal')!);
-    modal.show();
+    this.modal = new Modal(document.getElementById('quickAddModal')!);
+    this.modal.show();
   }
 
   addToCart() {
+    if (this.modal) {
+      this.modal.hide();
+    }
     this.cartService.addToCart(
       { productId: this.product.productId!, quantity: this.product.quantity! },
       this.quantity

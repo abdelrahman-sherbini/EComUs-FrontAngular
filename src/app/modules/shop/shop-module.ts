@@ -8,14 +8,20 @@ import {HeaderComponent} from './header/header.component';
 import {ProductGridComponent} from './product-grid/product-grid.component';
 import {ProductFilterComponent} from './product-filter/product-filter.component';
 import {FooterComponent} from './footer/footer.component';
+import {ProductDetailsComponent} from './product-details/product-details.component';
 
 const routes: Routes = [
   {
-    path : '',
-    component:HomeComponent
+    path: 'product/:id',
+    component: ProductDetailsComponent
+  },
+  {
+    path: '',
+    component: HomeComponent
   }
 
-]
+];
+
 
 @NgModule({
   declarations: [
@@ -29,6 +35,7 @@ const routes: Routes = [
     ProductGridComponent,
     ProductFilterComponent,
     FooterComponent,
+    ProductDetailsComponent
   ]
 })
 export class ShopModule { }

@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import {AuthService} from '../../services/auth-service';
 import {ToastService} from '../../services/toast';
 import {CustomerCartService, ShoppingCartDTO} from '../openapi';
-import {Router} from '@angular/router';
 import {catchError, EMPTY, Observable, tap} from 'rxjs';
+import {PopupService} from '../../services/popup.service';
+import {Router} from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -14,13 +15,31 @@ export class CartService {
     private auth: AuthService,
     private toast: ToastService,
     private customerCart: CustomerCartService,
-    private router: Router
-  ) {}
+    private popup: PopupService,
+    private router: Router,
+    ) {}
 
   addToCart(product: {productId: number, quantity: number}, requestedQuantity: number): Observable<any> {
     // 1. Auth check
     if (!this.auth.isAuthenticated()) {
-      this.toast.showWarning('You must login to add to cart.', 'add to cart');
+
+      this.popup.showConfirm(
+        'You must login to add to cart.',
+        [
+          {
+            text: 'Cancel',
+            value: 'cancel',
+            style: 'secondary'
+          },
+          {
+            text: 'Login',
+            value: 'login',
+            style: 'primary',
+            action: () => this.router.navigate(['/login'])
+          }
+        ],
+        'Login Required'
+      );
       return EMPTY;
     }
 
