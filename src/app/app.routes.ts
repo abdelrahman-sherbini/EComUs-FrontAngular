@@ -1,8 +1,9 @@
+// app.routes.ts
 import { Routes } from '@angular/router';
-import {LoginRedirectGuard} from './guards/login-redirect-guard';
-import {AuthGuard} from './guards/auth-guard';
-import {LoginComponent} from './components/login/login.component';
-import {AdminGuard} from './guards/admin-guard';
+import { LoginRedirectGuard } from './guards/login-redirect-guard';
+import { AuthGuard } from './guards/auth-guard';
+import { LoginComponent } from './components/login/login.component';
+import { AdminGuard } from './guards/admin-guard';
 
 export const routes: Routes = [
   {
@@ -16,15 +17,19 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path : 'admin',
+    path: 'admin',
     loadChildren: () => import('./modules/admin/admin-module').then(m => m.AdminModule),
-    canActivate: [AuthGuard,AdminGuard],
-  }
-  ,
+    canActivate: [AuthGuard, AdminGuard],
+  },
   {
     path: 'products',
     loadChildren: () => import('./modules/shop/shop-module').then(m => m.ShopModule),
   },
+  // Remove the standalone cart route since it's now handled by the shop module
+  // {
+  //   path: 'cart',
+  //   component: CartComponent,
+  // },
   { path: '', redirectTo: '/products', pathMatch: 'full' },
   { path: '**', redirectTo: '/products' }
 ];
