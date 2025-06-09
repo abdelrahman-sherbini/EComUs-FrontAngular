@@ -1,116 +1,109 @@
 <div class="wishlist-container">
   <!-- Header -->
-  <div class="header">
-    <h1>Wishlist</h1>
+  <div class="wishlist-header">
+    <div class="header-content">
+      <h1>My Wishlist</h1>
+      <p *ngIf="!loading && wishlistItems.length > 0">
+        Items you've saved for later
+      </p>
+    </div>
   </div>
 
-  <!-- Sidebar Navigation -->
+  <!-- Main Content -->
   <div class="main-content">
-    <div class="sidebar">
-      <nav class="nav-menu">
-        <a href="#" class="nav-item">Account Details</a>
-        <a href="#" class="nav-item">Orders</a>
-        <a href="#" class="nav-item">Account Update</a>
-        <a href="#" class="nav-item active">Wishlist</a>
-        <a href="#" class="nav-item">Logout</a>
-      </nav>
+    <!-- Search and Filters -->
+    <div class="filters-section">
+      <div class="search-bar">
+        <input
+          type="text"
+          [(ngModel)]="searchKeyword"
+          placeholder="Search products..."
+          class="search-input"
+          (keyup.enter)="onSearch()">
+        <button (click)="onSearch()" class="search-btn">Search</button>
+      </div>
+
+      <div class="filters">
+        <div class="filter-group">
+          <label>Category:</label>
+          <select [(ngModel)]="selectedCategory" (change)="onSearch()">
+            <option value="">All Categories</option>
+            <option value="clothing">Clothing</option>
+            <option value="accessories">Accessories</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Price Range:</label>
+          <input type="number" [(ngModel)]="priceMin" placeholder="Min" class="price-input">
+          <input type="number" [(ngModel)]="priceMax" placeholder="Max" class="price-input">
+        </div>
+
+        <div class="filter-group">
+          <label>Sort By:</label>
+          <select [(ngModel)]="sortField" (change)="onSortChange()">
+            <option value="productId">Product ID</option>
+            <option value="userId">User ID</option>
+          </select>
+          <select [(ngModel)]="sortDir" (change)="onSortChange()">
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+          </select>
+        </div>
+
+        <button (click)="clearFilters()" class="clear-btn">Clear Filters</button>
+      </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="content">
-      <!-- Search and Filters -->
-      <div class="filters-section">
-        <div class="search-bar">
-          <input
-            type="text"
-            [(ngModel)]="searchKeyword"
-            placeholder="Search products..."
-            class="search-input"
-            (keyup.enter)="onSearch()">
-          <button (click)="onSearch()" class="search-btn">Search</button>
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading">
+      <p>Loading your wishlist...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="error">
+      <p>{{ error }}</p>
+      <button (click)="loadWishlistItems()" class="retry-btn">Retry</button>
+    </div>
+
+    <!-- Products Grid -->
+    <div *ngIf="!loading && !error" class="products-grid">
+      <div *ngFor="let product of wishlistItems" class="product-card">
+        <!-- Sale Badge - Only show if needed -->
+        <div *ngIf="product.price && product.price < 100" class="sale-badge">
+          SALE
         </div>
 
-        <div class="filters">
-          <div class="filter-group">
-            <label>Category:</label>
-            <select [(ngModel)]="selectedCategory" (change)="onSearch()">
-              <option value="">All Categories</option>
-              <option value="clothing">Clothing</option>
-              <option value="accessories">Accessories</option>
-            </select>
-          </div>
-
-          <div class="filter-group">
-            <label>Price Range:</label>
-            <input type="number" [(ngModel)]="priceMin" placeholder="Min" class="price-input">
-            <input type="number" [(ngModel)]="priceMax" placeholder="Max" class="price-input">
-          </div>
-
-          <div class="filter-group">
-            <label>Sort By:</label>
-            <select [(ngModel)]="sortField" (change)="onSortChange()">
-              <option value="productId">Product ID</option>
-              <option value="userId">User ID</option>
-            </select>
-            <select [(ngModel)]="sortDir" (change)="onSortChange()">
-              <option value="asc">Ascending</option>
-              <option value="desc">Descending</option>
-            </select>
-          </div>
-
-          <button (click)="clearFilters()" class="clear-btn">Clear Filters</button>
+        <!-- Product Image -->
+        <div class="product-image">
+          <img [src]="product.images && product.images.length ? product.images[0] : '/placeholder.jpg'"
+               [alt]="product.productName"
+               onerror="this.src='/assets/placeholder.jpg'">
         </div>
-      </div>
 
-      <!-- Loading State -->
-      <div *ngIf="loading" class="loading">
-        <p>Loading your wishlist...</p>
-      </div>
+        <!-- Product Info -->
+        <div class="product-info">
+          <h3 class="product-name">{{ product.productName }}</h3>
 
-      <!-- Error State -->
-      <div *ngIf="error" class="error">
-        <p>{{ error }}</p>
-        <button (click)="loadWishlistItems()" class="retry-btn">Retry</button>
-      </div>
+          <!-- Product Description -->
+          <p class="product-description" *ngIf="product.description">
+            {{ product.description | slice:0:100 }}{{ product.description.length > 100 ? '...' : '' }}
+          </p>
 
-      <!-- Products Grid -->
-      <div *ngIf="!loading && !error" class="products-grid">
-        <div *ngFor="let product of wishlistItems" class="product-card">
-          <!-- Sale Badge - Only show if needed -->
-          <div *ngIf="product.price && product.price < 100" class="sale-badge">
-            SALE
+          <div class="product-price">
+            <span class="current-price" *ngIf="product.price">
+              {{ product.price | currency }}
+            </span>
           </div>
 
-          <!-- Product Image -->
-          <div class="product-image">
-            <img [src]="'/assets/products/' + (product.productId || 'placeholder') + '.jpg'"
-                 [alt]="product.productName"
-                 onerror="this.src='/assets/placeholder.jpg'">
+          <!-- Categories -->
+          <div *ngIf="product.categories && product.categories.length > 0" class="product-categories">
+            <span *ngFor="let category of product.categories; let last = last" class="category-tag">
+              {{ category.categoryName }}<span *ngIf="!last">, </span>
+            </span>
           </div>
 
-          <!-- Product Info -->
-          <div class="product-info">
-            <h3 class="product-name">{{ product.productName }}</h3>
-
-            <!-- Product Description -->
-            <p class="product-description" *ngIf="product.description">
-              {{ product.description | slice:0:100 }}{{ product.description.length > 100 ? '...' : '' }}
-            </p>
-
-            <div class="product-price">
-              <span class="current-price" *ngIf="product.price">
-                {{ product.price | currency }}
-              </span>
-            </div>
-
-            <!-- Categories -->
-            <div *ngIf="product.categories && product.categories.length > 0" class="product-categories">
-              <span *ngFor="let category of product.categories; let last = last" class="category-tag">
-                {{ category.categoryName }}<span *ngIf="!last">, </span>
-              </span>
-            </div>
-
-            <!-- Quantity Info -->
+          <!-- Quantity Info -->
 <!--            <div *ngIf="product.quantity !== undefined" class="quantity-info">-->
 <!--              <span class="quantity-label">Available: </span>-->
 <!--              <span [class]="'quantity-value ' + (product.quantity > 0 ? 'in-stock' : 'out-of-stock')">-->
@@ -128,54 +121,54 @@
           </button>
         </div>
       </div>
+    </div>
 
-      <!-- Empty State -->
-      <div *ngIf="!loading && !error && wishlistItems.length === 0" class="empty-state">
-        <p>Your wishlist is empty</p>
-        <a href="/products" class="shop-btn">Continue Shopping</a>
-      </div>
+    <!-- Empty State -->
+    <div *ngIf="!loading && !error && wishlistItems.length === 0" class="empty-state">
+      <p>Your wishlist is empty</p>
+      <a href="/products" class="shop-btn">Continue Shopping</a>
+    </div>
 
-      <!-- Pagination -->
-      <div *ngIf="totalPages > 1" class="pagination">
-        <button (click)="onPageChange(currentPage - 1)"
-                [disabled]="currentPage === 0"
-                class="page-btn">
-          Previous
-        </button>
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" class="pagination">
+      <button (click)="onPageChange(currentPage - 1)"
+              [disabled]="currentPage === 0"
+              class="page-btn">
+        Previous
+      </button>
 
-        <button *ngFor="let page of pages"
-                (click)="onPageChange(page)"
-                [class]="'page-btn ' + (page === currentPage ? 'active' : '')"
-                class="page-number">
-          {{ page + 1 }}
-        </button>
+      <button *ngFor="let page of pages"
+              (click)="onPageChange(page)"
+              [class]="'page-btn ' + (page === currentPage ? 'active' : '')"
+              class="page-number">
+        {{ page + 1 }}
+      </button>
 
-        <button (click)="onPageChange(currentPage + 1)"
-                [disabled]="currentPage === totalPages - 1"
-                class="page-btn">
-          Next
-        </button>
-      </div>
+      <button (click)="onPageChange(currentPage + 1)"
+              [disabled]="currentPage === totalPages - 1"
+              class="page-btn">
+        Next
+      </button>
+    </div>
 
-      <!-- Results Info -->
-      <div *ngIf="!loading && wishlistItems.length > 0" class="results-info">
-        Showing {{ currentPage * pageSize + 1 }} -
-        {{ Math.min((currentPage + 1) * pageSize, totalElements) }}
-        of {{ totalElements }} items
-      </div>
+    <!-- Results Info -->
+    <div *ngIf="!loading && wishlistItems.length > 0" class="results-info">
+      Showing {{ currentPage * pageSize + 1 }} -
+      {{ Math.min((currentPage + 1) * pageSize, totalElements) }}
+      of {{ totalElements }} items
     </div>
   </div>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-content">
-      <p>© 2024 Ecomus Store. All Rights Reserved.</p>
-      <div class="payment-icons">
-        <img src="/assets/visa.png" alt="Visa">
-        <img src="/assets/paypal.png" alt="PayPal">
-        <img src="/assets/mastercard.png" alt="Mastercard">
-        <img src="/assets/amex.png" alt="American Express">
-      </div>
-    </div>
-  </footer>
-</div>
+<!--  &lt;!&ndash; Footer &ndash;&gt;-->
+<!--  <footer class="footer">-->
+<!--    <div class="footer-content">-->
+<!--      <p>© 2024 Ecomus Store. All Rights Reserved.</p>-->
+<!--      <div class="payment-icons">-->
+<!--        <img src="/assets/visa.png" alt="Visa">-->
+<!--        <img src="/assets/paypal.png" alt="PayPal">-->
+<!--        <img src="/assets/mastercard.png" alt="Mastercard">-->
+<!--        <img src="/assets/amex.png" alt="American Express">-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </footer>-->
+<!--</div>-->

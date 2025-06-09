@@ -1,0 +1,253 @@
+<!--cart.component.html-->
+<div class="container">
+  <!-- Cart Header -->
+  <div class="cart-header">
+    <h1>Shopping Cart</h1>
+    <!-- <div class="cart-summary" *ngIf="!loading">
+      <span>{{ totalQuantity }} items</span>
+      <span>{{ totalPrice | currency }} total</span>
+    </div> -->
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="loading">
+    Loading cart items...
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <!-- Filter Controls - Enhanced Design -->
+  <div class="filter-controls" *ngIf="!loading && cartItems.length > 0">
+    <div class="filter-row">
+      <!-- Page Size Control -->
+      <div class="page-size-selector">
+        <label for="pageSize">Items per page:</label>
+        <select id="pageSize" [value]="pageSize" (change)="onPageSizeChange($event)">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </select>
+      </div>
+
+      <!-- Sort Controls -->
+      <div class="sort-controls">
+        <label for="sortField">Sort by:</label>
+        <select id="sortField" [value]="sortField" (change)="onSortFieldChange($event)">
+          <option value="productId">Product ID</option>
+          <option value="quantity">Quantity</option>
+          <option value="userId">User ID</option>
+        </select>
+
+        <select [value]="sortDir" (change)="onSortDirChange($event)">
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Control Row -->
+    <div class="control-row">
+      <div class="pagination-info">
+        Showing {{ (currentPage - 1) * pageSize + 1 }} to
+        {{ Math.min(currentPage * pageSize, totalElements) }} of
+        {{ totalElements }} items
+      </div>
+
+      <button class="continue-shopping-btn" (click)="continueShopping()">
+        Continue Shopping
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Cart Content -->
+  <div class="cart-main" *ngIf="!loading && cartItems.length > 0">
+    <!-- Cart Items Section -->
+    <div class="cart-items-section">
+      <div class="cart-table">
+        <!-- Table Header -->
+        <div class="cart-table-header">
+          <div class="cart-table-header-row">
+            <div class="header-cell">Product</div>
+            <div class="header-cell">Price</div>
+            <div class="header-cell">Quantity</div>
+            <div class="header-cell">Total</div>
+            <div class="header-cell">Actions</div>
+          </div>
+        </div>
+
+        <!-- Cart Items -->
+        <div class="cart-item" *ngFor="let item of cartItems; trackBy: trackByProductId">
+          <div class="cart-item-row">
+            <div class="product-info">
+              <img [src]="item.product.images && item.product.images.length ? item.product.images[0] : '/placeholder.jpg'"
+                   alt="Product Image" class="product-image">
+              <div class="product-details">
+                <h4>{{ item.product.productName }}</h4>
+                <!-- <p class="product-id">ID: {{ item.product?.productId }}</p> -->
+              </div>
+            </div>
+
+            <div class="price-cell">{{ item.product.price | currency }}</div>
+
+            <div class="quantity-controls">
+              <button class="quantity-btn"
+                      (click)="decreaseQuantity(item.product.productId!, item.quantity!)"
+                      [disabled]="loading">
+                −
+              </button>
+              <div class="quantity-display">{{ item.quantity }}</div>
+              <button class="quantity-btn"
+                      (click)="increaseQuantity(item.product.productId!, item.quantity!)"
+                      [disabled]="loading">
+                +
+              </button>
+            </div>
+
+            <div class="total-cell">{{ getItemTotal(item) | currency }}</div>
+
+            <div class="actions-cell">
+              <button class="remove-btn"
+                      (click)="removeItem(item.product.productId!)"
+                      [disabled]="loading">
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enhanced Checkout Sidebar -->
+    <div class="checkout-sidebar">
+      <div class="checkout-card">
+        <h3>Order Summary</h3>
+
+        <div class="summary-details">
+          <div class="summary-row">
+            <span>Items ({{ totalQuantity }})</span>
+            <span>{{ totalPrice | currency }}</span>
+          </div>
+
+          <div class="summary-row">
+            <span>Shipping</span>
+            <span>Free</span>
+          </div>
+
+          <div class="summary-row total-row">
+            <span>Subtotal</span>
+            <span class="total-amount">{{ totalPrice | currency }}</span>
+          </div>
+        </div>
+
+        <div class="tax-shipping-info">
+          Taxes and shipping calculated at checkout
+        </div>
+
+       <!-- Update this section in your cart.component.html -->
+<div class="terms-checkbox">
+  <input type="checkbox" id="terms" #termsCheckbox>
+  <label for="terms">I agree with the terms and conditions</label>
+</div>
+
+<!-- Updated condition: only show when checkout was attempted AND terms not checked -->
+<div class="agreement-text" *ngIf="checkoutAttempted && !termsCheckbox.checked">
+  You must agree before proceeding
+</div>
+
+<button class="checkout-btn"
+        (click)="proceedToCheckout()">
+  Proceed to Checkout
+</button>
+
+        <div class="payment-methods">
+          <p>Guarantee Safe Checkout</p>
+          <div class="payment-icons">
+            <div class="payment-icon visa">VISA</div>
+            <div class="payment-icon paypal">PP</div>
+            <div class="payment-icon mastercard">MC</div>
+            <div class="payment-icon amex">AMEX</div>
+            <div class="payment-icon amazon">A</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty Cart Message -->
+  <div *ngIf="!loading && cartItems.length === 0" class="empty-cart">
+    <h2>Your cart is empty</h2>
+    <p>Looks like you haven't added any items to your cart yet.</p>
+    <button class="continue-shopping-btn" (click)="continueShopping()">
+      Start Shopping
+    </button>
+  </div>
+
+  <!-- Enhanced Pagination Controls -->
+  <div class="pagination" *ngIf="!loading && totalPages > 1">
+    <div class="pagination-info">
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <span class="items-info">
+        ({{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, totalElements) }} of {{ totalElements }} items)
+      </span>
+    </div>
+
+    <div class="pagination-controls">
+      <!-- First Page -->
+      <button (click)="goToFirstPage()"
+              [disabled]="currentPage === 1"
+              class="page-btn"
+              title="First Page">
+        ⟪
+      </button>
+
+      <!-- Previous Page -->
+      <button (click)="goToPreviousPage()"
+              [disabled]="currentPage === 1"
+              class="page-btn"
+              title="Previous Page">
+        ‹
+      </button>
+
+      <!-- Page Numbers -->
+      <button *ngFor="let page of getPageNumbers()"
+              (click)="goToPage(page)"
+              [class.active]="page === currentPage"
+              class="page-btn page-number"
+              [title]="'Go to page ' + page">
+        {{ page }}
+      </button>
+
+      <!-- Next Page -->
+      <button (click)="goToNextPage()"
+              [disabled]="currentPage === totalPages"
+              class="page-btn"
+              title="Next Page">
+        ›
+      </button>
+
+      <!-- Last Page -->
+      <button (click)="goToLastPage()"
+              [disabled]="currentPage === totalPages"
+              class="page-btn"
+              title="Last Page">
+        ⟫
+      </button>
+    </div>
+
+    <!-- Jump to Page -->
+    <div class="jump-to-page" *ngIf="totalPages > 10">
+      <label for="jumpPage">Jump to:</label>
+      <input type="number"
+             id="jumpPage"
+             [value]="currentPage"
+             (keyup.enter)="jumpToPage($event)"
+             [min]="1"
+             [max]="totalPages"
+             class="jump-input">
+    </div>
+  </div>
+</div>

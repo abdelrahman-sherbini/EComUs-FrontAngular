@@ -5,6 +5,7 @@ import {CustomerCartService, ShoppingCartDTO} from '../openapi';
 import {catchError, EMPTY, Observable, tap} from 'rxjs';
 import {PopupService} from '../../services/popup.service';
 import {Router} from '@angular/router';
+import {ShoppingService} from '../../services/shopping.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,7 @@ import {Router} from '@angular/router';
 export class CartService {
 
   constructor(
+    private shoppingService: ShoppingService,
     private auth: AuthService,
     private toast: ToastService,
     private cartService: CustomerCartService,
@@ -60,7 +62,9 @@ export class CartService {
 
     return this.cartService.addOrUpdateCartItem(dto).pipe(
       tap(() => {
+        this.shoppingService.incrementCartCount(dto.quantity);
         // Optionally: call another service to refresh cart count
+
         this.toast.showSuccess(product.name, 'add to cart');
       }),
       catchError(() => {

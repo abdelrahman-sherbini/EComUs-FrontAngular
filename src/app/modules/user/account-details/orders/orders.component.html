@@ -1,0 +1,272 @@
+<!-- orders.component.html -->
+<div class="orders-container">
+  <!-- Professional Confirmation Dialog -->
+  <div *ngIf="confirmationDialog.isVisible" class="modal-overlay" (click)="hideConfirmationDialog()">
+    <div class="confirmation-dialog" (click)="$event.stopPropagation()">
+      <div class="dialog-header">
+        <h3>{{ confirmationDialog.title }}</h3>
+        <button class="close-button" (click)="hideConfirmationDialog()">×</button>
+      </div>
+      <div class="dialog-body">
+        <div class="warning-icon">⚠️</div>
+        <p>{{ confirmationDialog.message }}</p>
+      </div>
+      <div class="dialog-footer">
+        <button class="btn btn-secondary" (click)="confirmationDialog.onCancel()">
+          {{ confirmationDialog.cancelText }}
+        </button>
+        <button class="btn btn-danger" (click)="confirmationDialog.onConfirm()">
+          {{ confirmationDialog.confirmText }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification System -->
+  <div class="notifications-container" *ngIf="notifications.length > 0">
+    <div *ngFor="let notification of notifications"
+         class="notification"
+         [ngClass]="getNotificationClass(notification.type)">
+      <div class="notification-content">
+        <span class="notification-message">{{ notification.message }}</span>
+        <button class="notification-close" (click)="removeNotification(notification.id)">×</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-header">
+    <h1>Orders Management</h1>
+    <div class="page-info" *ngIf="!loading && orders.length > 0">
+      Showing {{ orders.length }} of {{ totalElements }} orders
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading orders...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+    <button (click)="loadOrders(currentPage, pageSize)" class="retry-button">Retry</button>
+  </div>
+
+  <!-- Orders Table -->
+  <div *ngIf="!loading && !error && orders.length > 0" class="orders-table-container">
+    <table class="orders-table">
+      <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Order Date</th>
+        <th>Status</th>
+        <th>Total Amount</th>
+        <th>Customer</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let order of orders">
+        <td>{{ getOrderId(order) || 'N/A' }}</td>
+        <td>{{ formatDate(getOrderDate(order)) }}</td>
+        <td>
+          <span class="status-badge" [ngClass]="getStatusClass(getOrderStatus(order))">
+            {{ getOrderStatus(order) || 'N/A' }}
+          </span>
+        </td>
+        <td>{{ formatCurrency(getTotalAmount(order)) }}</td>
+        <td>{{ getCustomerName(order) || 'N/A' }}</td>
+        <td>
+          <div class="actions">
+            <button
+              *ngIf="canCancelOrder(getOrderStatus(order))"
+              (click)="cancelOrder(order)"
+              class="btn btn-cancel"
+              [disabled]="isOrderCancelling(getOrderId(order)) || loading">
+              <span *ngIf="isOrderCancelling(getOrderId(order))" class="btn-spinner"></span>
+              {{ isOrderCancelling(getOrderId(order)) ? 'Cancelling...' : 'Cancel Order' }}
+            </button>
+            <span *ngIf="!canCancelOrder(getOrderStatus(order))" class="no-actions">
+              No actions available
+            </span>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && !error && orders.length === 0" class="empty-state">
+    <p>No orders found.</p>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!loading && !error && totalPages > 1" class="pagination-container">
+    <div class="pagination-info">
+      Page {{ currentPage }} of {{ totalPages }} ({{ totalElements }} total orders)
+    </div>
+    <div class="pagination-controls">
+      <button
+        (click)="previousPage()"
+        [disabled]="isFirstPage"
+        class="btn btn-pagination">
+        Previous
+      </button>
+
+      <div class="page-numbers">
+        <button
+          *ngFor="let page of [].constructor(totalPages); let i = index"
+          (click)="goToPage(i + 1)"
+          [class.active]="currentPage === i + 1"
+          class="btn btn-page-number">
+          {{ i + 1 }}
+        </button>
+      </div>
+
+      <button
+        (click)="nextPage()"
+        [disabled]="isLastPage"
+        class="btn btn-pagination">
+        Next
+      </button>
+    </div>
+  </div>
+</div>
+
+<!--&lt;!&ndash; orders.component.html &ndash;&gt;-->
+<!--<div class="orders-container">-->
+<!--  <div class="orders-header">-->
+<!--    <h2>My Orders</h2>-->
+<!--    <p class="orders-subtitle">Track and manage your order history</p>-->
+<!--  </div>-->
+
+<!--  &lt;!&ndash; Loading State &ndash;&gt;-->
+<!--  @if (loading) {-->
+<!--    <div class="loading-container">-->
+<!--      <div class="spinner"></div>-->
+<!--      <p>Loading your orders...</p>-->
+<!--    </div>-->
+<!--  }-->
+
+<!--  &lt;!&ndash; Error State &ndash;&gt;-->
+<!--  @if (error) {-->
+<!--    <div class="error-container">-->
+<!--      <div class="error-message">-->
+<!--        <i class="error-icon">⚠️</i>-->
+<!--        <p>{{ error }}</p>-->
+<!--        <button class="retry-btn" (click)="loadOrders()">Retry</button>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  }-->
+
+<!--  &lt;!&ndash; Orders Content &ndash;&gt;-->
+<!--  @if (!loading && !error) {-->
+<!--    @if (orders.length === 0) {-->
+<!--      &lt;!&ndash; Empty State &ndash;&gt;-->
+<!--      <div class="empty-state">-->
+<!--        <div class="empty-icon">📦</div>-->
+<!--        <h3>No Orders Yet</h3>-->
+<!--        <p>You haven't placed any orders yet. Start shopping to see your orders here!</p>-->
+<!--      </div>-->
+<!--    }-->
+<!--    @else {-->
+<!--      &lt;!&ndash; Orders Summary Info &ndash;&gt;-->
+<!--      <div class="orders-info">-->
+<!--        <p>Showing {{ orders.length }} of {{ totalElements }} orders</p>-->
+<!--      </div>-->
+
+<!--      &lt;!&ndash; Orders Table &ndash;&gt;-->
+<!--      <div class="orders-table-container">-->
+<!--        <div class="table-responsive">-->
+<!--          <table class="orders-table">-->
+<!--            <thead>-->
+<!--            <tr>-->
+<!--              <th>Order</th>-->
+<!--              <th>Date</th>-->
+<!--              <th>Status</th>-->
+<!--              <th>Total</th>-->
+<!--              <th>Address</th>-->
+<!--              <th>Payment</th>-->
+<!--              <th>Actions</th>-->
+<!--            </tr>-->
+<!--            </thead>-->
+<!--            <tbody>-->
+<!--              @for (order of orders; track order.orderId) {-->
+<!--                <tr class="order-row">-->
+<!--                  <td class="order-id">-->
+<!--                    <strong>#{{ order.orderId }}</strong>-->
+<!--                  </td>-->
+<!--                  <td class="order-date">-->
+<!--                    {{ formatDate(order.date) }}-->
+<!--                  </td>-->
+<!--                  <td class="order-status">-->
+<!--                    <span class="status-badge" [class]="getStatusClass(order.status || '')">-->
+<!--                      {{ order.status }}-->
+<!--                    </span>-->
+<!--                  </td>-->
+<!--                  <td class="order-total">-->
+<!--                    <strong>{{ formatCurrency(order.price) }}</strong>-->
+<!--                  </td>-->
+<!--                  <td class="order-address">-->
+<!--                    <div class="address-text">-->
+<!--                      {{ order.address || 'N/A' }}-->
+<!--                    </div>-->
+<!--                  </td>-->
+<!--                  <td class="order-payment">-->
+<!--                    <span class="payment-badge" [class]="order.payType === 'CREDIT' ? 'payment-credit' : 'payment-cash'">-->
+<!--                      {{ order.payType }}-->
+<!--                    </span>-->
+<!--                  </td>-->
+<!--                  <td class="order-actions">-->
+<!--                    <div class="action-buttons">-->
+<!--                      @if (canCancelOrder(order.status)) {-->
+<!--                        <button-->
+<!--                          class="btn-cancel"-->
+<!--                          title="Cancel Order"-->
+<!--                          (click)="cancelOrder(order.orderId)">-->
+<!--                          ❌-->
+<!--                        </button>-->
+<!--                      }-->
+<!--                    </div>-->
+<!--                  </td>-->
+<!--                </tr>-->
+<!--              }-->
+<!--            </tbody>-->
+<!--          </table>-->
+<!--        </div>-->
+<!--      </div>-->
+
+<!--      &lt;!&ndash; Pagination Controls &ndash;&gt;-->
+<!--      @if (totalPages > 1) {-->
+<!--        <div class="pagination-container">-->
+<!--          <div class="pagination">-->
+<!--            <button-->
+<!--              class="pagination-btn"-->
+<!--              [disabled]="isFirstPage"-->
+<!--              (click)="previousPage()">-->
+<!--              ‹ Previous-->
+<!--            </button>-->
+
+<!--            <div class="pagination-info">-->
+<!--              <span>Page {{ currentPage }} of {{ totalPages }}</span>-->
+<!--            </div>-->
+
+<!--            <button-->
+<!--              class="pagination-btn"-->
+<!--              [disabled]="isLastPage"-->
+<!--              (click)="nextPage()">-->
+<!--              Next ›-->
+<!--            </button>-->
+<!--          </div>-->
+
+<!--          <div class="pagination-summary">-->
+<!--            <span>Total: {{ totalElements }} orders</span>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      }-->
+<!--    }-->
+<!--  }-->
+<!--</div>-->
+

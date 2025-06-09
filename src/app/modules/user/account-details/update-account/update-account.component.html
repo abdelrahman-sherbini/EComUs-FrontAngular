@@ -1,0 +1,197 @@
+<div class="update-account-container">
+  <div class="update-header">
+    <h2>Update Account</h2>
+  </div>
+
+  <!-- Section Navigation -->
+  <div class="section-nav">
+    <button
+      class="nav-btn"
+      [class.active]="activeSection === 'personal-info'"
+      (click)="setActiveSection('personal-info')">
+      Personal Information
+    </button>
+    <button
+      class="nav-btn"
+      [class.active]="activeSection === 'password'"
+      (click)="setActiveSection('password')">
+      Change Password
+    </button>
+  </div>
+
+  <!-- Success/Error Messages -->
+  <div *ngIf="message" class="message" [class.success]="messageType === 'success'" [class.error]="messageType === 'error'">
+    {{ message }}
+  </div>
+
+  <!-- Personal Information Section -->
+  <div *ngIf="activeSection === 'personal-info'" class="form-section">
+    <h3>Personal Information</h3>
+    <form [formGroup]="updateForm" (ngSubmit)="onUpdatePersonalInfo()">
+      <div class="form-grid">
+        <!-- Username -->
+        <div class="form-group">
+          <label for="userName">Username *</label>
+          <input
+            type="text"
+            id="userName"
+            formControlName="userName"
+            class="form-control"
+            [class.invalid]="isFieldInvalid(updateForm, 'userName')">
+          <div *ngIf="isFieldInvalid(updateForm, 'userName')" class="error-text">
+            {{ getFieldError(updateForm, 'userName') }}
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            class="form-control"
+            [class.invalid]="isFieldInvalid(updateForm, 'email')">
+          <div *ngIf="isFieldInvalid(updateForm, 'email')" class="error-text">
+            {{ getFieldError(updateForm, 'email') }}
+          </div>
+        </div>
+
+        <!-- Phone -->
+        <div class="form-group">
+          <label for="phone">Phone</label>
+          <input
+            type="tel"
+            id="phone"
+            formControlName="phone"
+            class="form-control"
+            [class.invalid]="isFieldInvalid(updateForm, 'phone')">
+          <div *ngIf="isFieldInvalid(updateForm, 'phone')" class="error-text">
+            {{ getFieldError(updateForm, 'phone') }}
+          </div>
+        </div>
+
+        <!-- Job -->
+        <div class="form-group">
+          <label for="job">Job</label>
+          <input
+            type="text"
+            id="job"
+            formControlName="job"
+            class="form-control">
+        </div>
+
+        <!-- Birth Date -->
+        <div class="form-group">
+          <label for="bd">Birth Date</label>
+          <input
+            type="date"
+            id="bd"
+            formControlName="bd"
+            class="form-control">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="updateForm.invalid || loading">
+          <span *ngIf="loading" class="spinner"></span>
+          {{ loading ? 'Updating...' : 'Update Information' }}
+        </button>
+        <button type="button" class="btn-secondary" (click)="loadCurrentUserData()">
+          Reset
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Password Change Section -->
+  <div *ngIf="activeSection === 'password'" class="form-section">
+    <h3>Change Password</h3>
+    <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+      <div class="password-form">
+        <!-- Current Password -->
+        <div class="form-group">
+          <label for="currentPassword">Current Password *</label>
+          <input
+            type="password"
+            id="currentPassword"
+            formControlName="currentPassword"
+            class="form-control"
+            [class.invalid]="isFieldInvalid(passwordForm, 'currentPassword')"
+            placeholder="Enter your current password">
+          <div *ngIf="isFieldInvalid(passwordForm, 'currentPassword')" class="error-text">
+            {{ getFieldError(passwordForm, 'currentPassword') }}
+          </div>
+        </div>
+
+        <!-- New Password -->
+        <div class="form-group">
+          <label for="newPassword">New Password *</label>
+          <input
+            type="password"
+            id="newPassword"
+            formControlName="newPassword"
+            class="form-control"
+            [class.invalid]="isFieldInvalid(passwordForm, 'newPassword')"
+            placeholder="Enter your new password">
+          <div *ngIf="isFieldInvalid(passwordForm, 'newPassword')" class="error-text">
+            {{ getFieldError(passwordForm, 'newPassword') }}
+          </div>
+
+          <!-- Password Strength Indicator -->
+          <div *ngIf="passwordForm.get('newPassword')?.value" class="password-strength">
+            <div class="strength-item" [class.valid]="hasUppercase(passwordForm.get('newPassword')?.value)">
+              ✓ Uppercase letter
+            </div>
+            <div class="strength-item" [class.valid]="hasLowercase(passwordForm.get('newPassword')?.value)">
+              ✓ Lowercase letter
+            </div>
+            <div class="strength-item" [class.valid]="hasNumber(passwordForm.get('newPassword')?.value)">
+              ✓ Number
+            </div>
+            <div class="strength-item" [class.valid]="hasSpecialChar(passwordForm.get('newPassword')?.value)">
+              ✓ Special character
+            </div>
+            <div class="strength-item" [class.valid]="hasMinLength(passwordForm.get('newPassword')?.value)">
+              ✓ At least 8 characters
+            </div>
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password *</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            formControlName="confirmPassword"
+            class="form-control"
+            [class.invalid]="isFieldInvalid(passwordForm, 'confirmPassword') || getPasswordMatchError()"
+            placeholder="Confirm your new password">
+          <div *ngIf="isFieldInvalid(passwordForm, 'confirmPassword')" class="error-text">
+            {{ getFieldError(passwordForm, 'confirmPassword') }}
+          </div>
+          <div *ngIf="getPasswordMatchError()" class="error-text">
+            {{ getPasswordMatchError() }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="passwordForm.invalid || loading">
+          <span *ngIf="loading" class="spinner"></span>
+          {{ loading ? 'Changing...' : 'Change Password' }}
+        </button>
+        <button type="button" class="btn-secondary" (click)="passwordForm.reset()">
+          Clear Form
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

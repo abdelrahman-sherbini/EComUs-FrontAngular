@@ -14,4 +14,3 @@ export interface CartDTO {
     product: ProductDTO;
     quantity?: number;
 }
-
