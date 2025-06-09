@@ -5,6 +5,7 @@ import {DashboardComponent} from './dashboard/dashboard.component';
 import {ProfileComponent} from './profile/profile.component';
 import {WishlistComponent } from './wishlist/wishlist.component';
 import { FormsModule } from '@angular/forms';
+import { AccountComponent } from './account-details/account.component';
 
 const routes:Routes = [
   {
@@ -16,6 +17,10 @@ const routes:Routes = [
   {
     path: 'wishlist',
     component: WishlistComponent,
+  },
+  {
+    path: 'account',
+    component: AccountComponent,
   },
 ];
 
