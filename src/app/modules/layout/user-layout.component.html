@@ -5,7 +5,7 @@
       <div class="header-content">
         <!-- Logo -->
         <a routerLink="/" class="logo">
-          <h1>ecomus</h1>
+          <img src="/assets/ecomus.svg" alt="ecomus" class="logo-image">
         </a>
 
         <!-- Search -->
@@ -34,7 +34,7 @@
                          onerror="this.src='/assets/placeholder.jpg'">
                   </div>
                   <div class="product-info">
-                    <h4>{{ product.productName }}</h4>
+                    <h4 [title]="product.productName">{{ product.productName }}</h4>
                     <p class="price">${{ product.price?.toFixed(2) }}</p>
                   </div>
                 </div>

@@ -45,12 +45,12 @@ $border-radius: 4px;
 
   .logo {
     text-decoration: none;
+    display: flex;
+    align-items: center;
 
-    h1 {
-      font-size: 28px;
-      font-weight: 700;
-      color: $primary-color;
-      margin: 0;
+    .logo-image {
+      height: 32px;
+      width: auto;
     }
   }
 
@@ -99,17 +99,19 @@ $border-radius: 4px;
     }
 
     .search-results {
-      position: absolute;
-      top: 100%;
+      position: fixed; // Change to fixed positioning on mobile
+      top: auto; // Remove top positioning
       left: 0;
+      right: 0;
       width: 100%;
+      max-width: 100%;
       background-color: $white;
       border-radius: 0 0 $border-radius $border-radius;
       box-shadow: $box-shadow;
       z-index: 1000;
-      max-height: 400px;
+      max-height: 50vh; // Limit to half the viewport height
       overflow-y: auto;
-      margin-top: 5px;
+      margin-top: 0;
 
       ul {
         list-style: none;
@@ -169,11 +171,15 @@ $border-radius: 4px;
 
       .product-info {
         flex: 1;
+        min-width: 0; // Allow text to truncate
 
         h4 {
           margin: 0 0 5px;
           font-size: 14px;
           font-weight: 500;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .price {
@@ -494,16 +500,49 @@ $border-radius: 4px;
 
     .logo {
       margin-bottom: 10px;
+
+      .logo-image {
+        height: 28px; // Slightly smaller on mobile
+      }
     }
 
     .search-container {
       order: 3;
       max-width: 100%;
       margin: 10px 0 0;
+
+      .search-results {
+        position: fixed;
+        top: auto; // Will be set dynamically in JS
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        border-radius: 0;
+        max-height: 50vh;
+      }
     }
 
     .user-actions {
       margin-left: auto;
+
+      // Ensure dropdown stays in viewport on mobile
+      .user-dropdown .dropdown-menu {
+        right: -10px; // Adjust position to keep in viewport
+
+        @media (max-width: 400px) {
+          right: -50px; // Further adjust for very small screens
+        }
+
+        &::before {
+          right: 25px; // Adjust arrow position
+
+          @media (max-width: 400px) {
+            right: 65px; // Further adjust arrow for very small screens
+          }
+        }
+      }
     }
   }
 
@@ -520,12 +559,74 @@ $border-radius: 4px;
   .ecomus-header {
     .user-actions {
       gap: 10px;
+
+      .icon-button {
+        width: 36px; // Slightly smaller buttons on mobile
+        height: 36px;
+      }
+    }
+
+    // Ensure search results stay in viewport
+    .search-container .search-results {
+      max-height: 300px;
     }
   }
 
   .ecomus-footer {
     .footer-content {
       grid-template-columns: 1fr;
+    }
+  }
+}
+
+// Fix for very small screens
+@media (max-width: 360px) {
+  .ecomus-header {
+    .header-content {
+      justify-content: center;
+    }
+
+    .logo {
+      margin-right: auto;
+    }
+
+    .user-actions {
+      gap: 5px;
+
+      .icon-button {
+        width: 32px;
+        height: 32px;
+      }
+
+      // Further adjust dropdown position
+      .user-dropdown .dropdown-menu {
+        right: -70px;
+
+        &::before {
+          right: 85px;
+        }
+      }
+    }
+  }
+}
+
+// Additional fixes for very small screens
+@media (max-width: 480px) {
+  .ecomus-header {
+    .search-container {
+      .search-results {
+        .search-result-item {
+          .product-image {
+            width: 40px; // Smaller images on very small screens
+            height: 40px;
+          }
+
+          .product-info h4 {
+            font-size: 13px;
+            max-width: 150px; // Further limit width on very small screens
+          }
+        }
+      }
     }
   }
 }

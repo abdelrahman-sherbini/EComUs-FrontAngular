@@ -78,6 +78,20 @@ export class UserLayoutComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.setupIntersectionObserver();
+
+    // Add a mutation observer to detect when search results are shown
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList' && this.showSearchResults) {
+          this.adjustSearchResultsPosition();
+        }
+      });
+    });
+
+    const searchContainer = document.querySelector('.search-container');
+    if (searchContainer) {
+      observer.observe(searchContainer, { childList: true, subtree: true });
+    }
   }
 
   ngOnDestroy(): void {
@@ -108,6 +122,8 @@ export class UserLayoutComponent implements OnInit, AfterViewInit, OnDestroy {
   onSearch(): void {
     if (this.searchKeyword.trim()) {
       this.searchSubject.next(this.searchKeyword);
+      // After search completes, adjust position
+      setTimeout(() => this.adjustSearchResultsPosition(), 300);
     } else {
       this.clearSearch();
     }
@@ -180,6 +196,51 @@ export class UserLayoutComponent implements OnInit, AfterViewInit, OnDestroy {
     const userDropdown = document.querySelector('.user-dropdown');
     if (userDropdown && !userDropdown.contains(event.target as Node)) {
       this.showUserDropdown = false;
+    }
+  }
+
+  // Add this method to handle window resize events
+  @HostListener('window:resize')
+  onResize() {
+    // If search results are showing, check if we need to reposition them
+    if (this.showSearchResults) {
+      // Force a small delay to allow the DOM to update
+      setTimeout(() => this.adjustSearchResultsPosition(), 100);
+    }
+  }
+
+  // Add this method to adjust search results position
+  private adjustSearchResultsPosition(): void {
+    const searchContainer = document.querySelector('.search-container');
+    const searchInput = document.querySelector('.search-input');
+    const searchResults = document.querySelector('.search-results');
+
+    if (!searchContainer || !searchInput || !searchResults) return;
+
+    // Get the input's position
+    const inputRect = searchInput.getBoundingClientRect();
+    const isMobile = window.innerWidth <= 768;
+
+    if (isMobile) {
+      // On mobile, position the dropdown fixed below the search input
+      const searchResultsElement = searchResults as HTMLElement;
+      searchResultsElement.style.position = 'fixed';
+      searchResultsElement.style.top = `${inputRect.bottom + window.scrollY}px`;
+      searchResultsElement.style.left = '0';
+      searchResultsElement.style.right = '0';
+      searchResultsElement.style.width = '100%';
+      searchResultsElement.style.maxHeight = '50vh';
+      searchResultsElement.style.borderRadius = '0';
+    } else {
+      // On desktop, reset to default absolute positioning
+      const searchResultsElement = searchResults as HTMLElement;
+      searchResultsElement.style.position = 'absolute';
+      searchResultsElement.style.top = '100%';
+      searchResultsElement.style.left = '0';
+      searchResultsElement.style.right = 'auto';
+      searchResultsElement.style.width = '100%';
+      searchResultsElement.style.maxHeight = '400px';
+      searchResultsElement.style.borderRadius = '0 0 4px 4px';
     }
   }
 }
