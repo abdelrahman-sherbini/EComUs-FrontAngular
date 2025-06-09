@@ -166,11 +166,23 @@ export class UserLayoutComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   navigateToCart(): void {
-    this.router.navigate(['/cart']);
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/user/cart']);
+    } else {
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: '/cart' }
+      });
+    }
   }
 
   navigateToWishlist(): void {
-    this.router.navigate(['/wishlist']);
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/user/wishlist']);
+    } else {
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: '/wishlist' }
+      });
+    }
   }
 
   toggleUserDropdown(event: Event): void {
@@ -181,6 +193,7 @@ export class UserLayoutComponent implements OnInit, AfterViewInit, OnDestroy {
   logout(): void {
     this.authService.logout().subscribe(() => {
       // Navigation is handled in the auth service
+      this.showUserDropdown = false;
     });
   }
 

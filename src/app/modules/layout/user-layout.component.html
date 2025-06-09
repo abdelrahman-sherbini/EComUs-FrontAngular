@@ -82,7 +82,7 @@
           <!-- Wishlist -->
           <button class="icon-button" (click)="navigateToWishlist()">
             <i class="fas fa-heart"></i>
-            <ng-container *ngIf="wishlistCount$ | async as wishlistCount">
+            <ng-container *ngIf="(authService.isAuthenticated$ | async) && (wishlistCount$ | async) as wishlistCount">
               <span class="badge" *ngIf="wishlistCount > 0">
                 {{ wishlistCount }}
               </span>
@@ -92,7 +92,7 @@
           <!-- Cart -->
           <button class="icon-button" (click)="navigateToCart()">
             <i class="fas fa-shopping-cart"></i>
-            <ng-container *ngIf="cartCount$ | async as cartCount">
+            <ng-container *ngIf="(authService.isAuthenticated$ | async) && (cartCount$ | async) as cartCount">
               <span class="badge" *ngIf="cartCount > 0">
                 {{ cartCount }}
               </span>

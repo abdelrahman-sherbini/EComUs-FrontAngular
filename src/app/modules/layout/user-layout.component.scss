@@ -1,15 +1,15 @@
 @use "sass:color";
 
-// Variables
-$primary-color: #000;
+// Variables - Updated colors for a lighter and brighter look
+$primary-color: #333; // Lighter than black
 $secondary-color: #f8f9fa;
-$accent-color: #ff4500;
-$text-color: #333;
+$accent-color: #ff6347; // Brighter tomato red
+$text-color: #444;
 $light-gray: #e9ecef;
 $medium-gray: #ced4da;
 $dark-gray: #6c757d;
 $white: #fff;
-$box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+$box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 $transition: all 0.3s ease;
 $border-radius: 4px;
 
@@ -23,12 +23,13 @@ $border-radius: 4px;
 
 // Header
 .ecomus-header {
-  background-color: $white;
+  background-color: #fcfcfc; // Lighter background
   box-shadow: $box-shadow;
   position: sticky;
   top: 0;
   z-index: 1000;
   padding: 15px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
 
   .container {
     width: 100%;
@@ -47,6 +48,13 @@ $border-radius: 4px;
     text-decoration: none;
     display: flex;
     align-items: center;
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: $accent-color; // Brighter logo color
+      margin: 0;
+    }
 
     .logo-image {
       height: 32px;
@@ -221,22 +229,27 @@ $border-radius: 4px;
 
       &:hover {
         background-color: $secondary-color;
+        color: $accent-color;
       }
 
       .badge {
         position: absolute;
-        top: -5px;
-        right: -5px;
+        top: -8px;
+        right: -8px;
         background-color: $accent-color;
         color: $white;
-        font-size: 10px;
+        font-size: 11px;
         font-weight: 600;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
+        min-width: 20px;
+        height: 20px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 0 6px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        border: 1.5px solid white;
+        animation: pulse 1.5s infinite;
       }
     }
 
@@ -316,6 +329,19 @@ $border-radius: 4px;
         transform: translateY(0);
       }
     }
+  }
+}
+
+// Animation for the badge
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 
