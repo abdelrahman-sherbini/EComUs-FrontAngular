@@ -14,7 +14,7 @@ export class CartService {
   constructor(
     private auth: AuthService,
     private toast: ToastService,
-    private customerCart: CustomerCartService,
+    private cartService: CustomerCartService,
     private popup: PopupService,
     private router: Router,
     ) {}
@@ -22,7 +22,6 @@ export class CartService {
   addToCart(product: {productId: number, quantity: number , name: string}, requestedQuantity: number): Observable<any> {
     // 1. Auth check
     if (!this.auth.isAuthenticated()) {
-
       this.popup.showConfirm(
         'You must login to add to cart.',
         [
@@ -59,7 +58,7 @@ export class CartService {
       quantity: requestedQuantity
     };
 
-    return this.customerCart.addOrUpdateCartItem(dto).pipe(
+    return this.cartService.addOrUpdateCartItem(dto).pipe(
       tap(() => {
         // Optionally: call another service to refresh cart count
         this.toast.showSuccess(product.name, 'add to cart');

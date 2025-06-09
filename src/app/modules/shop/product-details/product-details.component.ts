@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { NgClass, NgForOf, NgIf} from '@angular/common';
 import {ToastComponent} from '../../../components/toast/toast.component';
 import {PopupComponent} from '../../../components/popup/popup.component';
+import {WishListService} from '../wish-list-service';
 
 @Component({
   selector: 'app-product-details',
@@ -28,13 +29,18 @@ export class ProductDetailsComponent implements OnInit {
   error: string | null = null;
   selectedQty = 1;
   mainImage = '';
+  totalPrice = 0;
+  isWishlisted = false;
+
 
   constructor(
     private route: ActivatedRoute,
     private productsService: CustomerProductsService,
     private cartService: CartService,
-    private toast: ToastService
-  ) {}
+    private toast: ToastService,
+    private wishlistService: WishListService
+  ) {
+  }
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -43,6 +49,8 @@ export class ProductDetailsComponent implements OnInit {
         next: (prod) => {
           this.product = prod;
           this.mainImage = prod.images?.[0] || 'assets/img/no-image.png';
+          this.selectedQty = 1;
+          this.updateTotal();
           this.loading = false;
         },
         error: () => {
@@ -54,15 +62,24 @@ export class ProductDetailsComponent implements OnInit {
       this.error = 'Invalid product ID.';
       this.loading = false;
     }
+
+    this.checkIfWishlisted();
+
   }
 
   setMainImage(img: string) {
     this.mainImage = img;
   }
 
-  changeQty(delta: number) {
-    const max = this.product?.quantity || 1;
-    this.selectedQty = Math.max(1, Math.min(this.selectedQty + delta, max));
+  changeQty(change: number) {
+    if (!this.product) return;
+    const max = this.product.quantity ?? 1;
+    this.selectedQty = Math.max(1, Math.min(this.selectedQty + change, max));
+    this.updateTotal();
+  }
+
+  updateTotal() {
+    this.totalPrice = this.product ? (this.product.price ?? 0) * this.selectedQty : 0;
   }
 
   addToCart() {
@@ -72,18 +89,31 @@ export class ProductDetailsComponent implements OnInit {
       return;
     }
     this.cartService.addToCart(
-      { productId: this.product.productId!, quantity: this.product.quantity!, name: this.product.productName! },
+      {productId: this.product.productId!, quantity: this.product.quantity!, name: this.product.productName!},
       this.selectedQty
-    ).subscribe({
-    });
+    ).subscribe({});
   }
 
-  addToWishlist() {
-    this.toast.showInfo('Added to wishlist!');
+
+
+  checkIfWishlisted() {
+    if (this.product?.productId) {
+      this.wishlistService.isWishlisted(this.product.productId)
+        .subscribe(isInList => this.isWishlisted = isInList);
+    }
   }
 
-  get totalPrice(): number {
-    return (this.product?.price ?? 0) * this.selectedQty;
+  toggleWishlist() {
+    if (!this.product?.productId) return;
+    if (this.isWishlisted) {
+      this.wishlistService.remove(this.product.productId).subscribe(() => {
+        this.isWishlisted = false;
+      });
+    } else {
+      this.wishlistService.add(this.product.productId).subscribe(() => {
+        this.isWishlisted = true;
+      });
+    }
   }
-
 }
+

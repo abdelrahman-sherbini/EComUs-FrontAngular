@@ -29,16 +29,35 @@
           <input type="text" [value]="selectedQty" class="form-control d-inline mx-2 qty-input" readonly>
           <button class="btn btn-outline-secondary btn-sm" (click)="changeQty(1)" [disabled]="selectedQty >= (prod.quantity || 1)">+</button>
         </div>
-        <button class="btn btn-outline-secondary rounded-circle wishlist-btn ms-auto" type="button" title="Add to wishlist" (click)="addToWishlist()">
-          <i class="bi bi-heart fs-5"></i>
+        <button
+          class="btn btn-outline-secondary rounded-circle wishlist-btn ms-auto"
+          type="button"
+          [title]="isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'"
+          (click)="toggleWishlist()"
+          [attr.aria-pressed]="isWishlisted"
+          [attr.aria-label]="isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'"
+        >
+          <i class="bi"
+             [ngClass]="isWishlisted ? 'bi-heart-fill' : 'bi-heart'"
+             [style.color]="isWishlisted ? '#111' : '#bbb'"
+             style="font-size: 1.3rem; transition: color 0.2s;"></i>
         </button>
       </div>
+      <!-- Conditional Add-to-Cart / Sold Out Button -->
       <button
+        *ngIf="prod.quantity && selectedQty <= prod.quantity; else soldOut"
         class="btn btn-dark btn-lg w-100 mb-2"
-        [disabled]="!prod.quantity || selectedQty > prod.quantity"
         (click)="addToCart()">
         Add to cart – ${{ totalPrice }}
       </button>
+
+      <ng-template #soldOut>
+        <button class="btn btn-secondary btn-lg w-100 mb-2 d-flex justify-content-center align-items-center" disabled>
+          <span class="me-2">Sold</span>
+          <span style="font-size: 1.2rem;">🚫</span>
+          <span class="ms-2">– ${{ prod.price }}</span>
+        </button>
+      </ng-template>
       <!-- Info cards and payment icons -->
       <div class="row mt-3 gy-3">
         <div class="col-12 col-md-6">
@@ -75,6 +94,7 @@
     </div>
   </div>
 
+  <!-- Extra details below main section -->
   <div class="container product-extra-details mt-5">
     <div class="row">
       <div class="col-12">
@@ -109,8 +129,6 @@
     </div>
   </div>
 </div>
-
-
 
 <ng-template #loadingOrError>
   <div class="container py-5 text-center">

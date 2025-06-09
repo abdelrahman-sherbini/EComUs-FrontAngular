@@ -125,18 +125,58 @@
     background: #f8f9fa;
     font-weight: bold;
   }
-
-  .total-price {
-    font-size: 1.1rem;
-  }
 }
-
 .product-details-page + .container {
   margin-top: -16px;
 }
-.policy-text {
-  font-size: 15px;
-  color: #666;
-  line-height: 1.7;
+.product-extra-details {
+  .section-title {
+    font-weight: 600;
+    color: #222;
+  }
+  .section-content {
+    font-size: 15px;
+    color: #222;
+  }
+  .policy-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #222;
+  }
+  .policy-text {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.7;
+  }
+}
+
+button.btn-secondary[disabled] {
+  background-color: #666 !important;
+  border: none;
+  opacity: 1;
+}
+
+.wishlist-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1.5px solid #ddd;
+  background: #fff;
+  transition: border 0.12s, box-shadow 0.12s;
+
+  i {
+    font-size: 22px;
+    transition: color 0.12s, transform 0.15s;
+  }
+
+  &:hover, &:focus {
+    border-color: #222;
+    box-shadow: 0 2px 6px #0002;
+    i { color: #333 !important; }
+  }
+
+  &:active i {
+    transform: scale(1.15);
+  }
 }
 
