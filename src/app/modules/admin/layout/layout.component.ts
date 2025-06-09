@@ -29,6 +29,11 @@ export class LayoutComponent implements OnInit , OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+  logout(): void {
+    this.authService.logout().subscribe(() => {
+      // Navigation is handled in the auth service
+    });
+  }
 
   currentUser$: Observable<any>;
   categoryForm: FormGroup;
