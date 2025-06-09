@@ -14,10 +14,49 @@
 <!-- Product Grid -->
 <app-product-grid [products]="products"
                   [gridClass]="gridClass"
+                  [categories]="categories"
                   (quickAdd)="openQuickAdd($event)"
                   (quickView)="openQuickView($event)"
+                  (filterApplied)="onFilterApplied($event)"
 >
 </app-product-grid>
+
+<nav *ngIf="totalPages > 1" aria-label="Page navigation" class="my-4">
+  <ul class="pagination custom-pagination justify-content-center align-items-center">
+    <!-- Prev Arrow -->
+    <li class="page-item">
+      <button
+        class="page-link"
+        [disabled]="currentPage === 1"
+        (click)="goToPage(currentPage - 1)">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+    </li>
+    <!-- Page Numbers with Ellipsis -->
+    <ng-container *ngFor="let page of visiblePages()">
+      <li class="page-item" *ngIf="page === '...'">
+        <span class="page-link disabled">…</span>
+      </li>
+      <li class="page-item" *ngIf="page !== '...'" [class.active]="page === currentPage">
+        <button class="page-link" (click)="goToPage(page)">{{ page }}</button>
+      </li>
+    </ng-container>
+    <!-- Next Arrow -->
+    <li class="page-item">
+      <button
+        class="page-link"
+        [disabled]="currentPage === totalPages"
+        (click)="goToPage(currentPage + 1)">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </li>
+  </ul>
+</nav>
+
+
+
+
+
 
 <!-- Footer -->
 <app-footer></app-footer>

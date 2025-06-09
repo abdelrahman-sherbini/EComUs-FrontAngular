@@ -11,3 +11,101 @@
   font-size: 2rem;
 }
 
+
+.custom-pagination {
+  gap: 8px;
+}
+
+.custom-pagination .page-link {
+  min-width: 48px;
+  min-height: 48px;
+  border-radius: 10px;
+  margin: 0 4px;
+  background: #fff;
+  color: #222;
+  border: none;
+  box-shadow: 0 2px 8px 0 rgba(24,24,24,0.08);
+  font-size: 1.1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.22s cubic-bezier(.4,0,.2,1), color 0.22s cubic-bezier(.4,0,.2,1), box-shadow 0.22s, transform 0.13s;
+  outline: none;
+  position: relative;
+}
+
+.custom-pagination .page-link:hover:not(.active):not(:disabled),
+.custom-pagination .page-link:focus-visible:not(.active):not(:disabled) {
+  background: #f5f6fa;
+  color: #4F8EFF;
+  box-shadow: 0 4px 20px 0 rgba(79,142,255,0.08);
+  transform: scale(1.08) translateY(-2px);
+}
+
+.custom-pagination .page-item.active .page-link,
+.custom-pagination .page-link.active {
+  background: linear-gradient(90deg, #243B55 0%, #4F8EFF 100%);
+  color: #fff;
+  box-shadow: 0 0 0 3px rgba(79,142,255,0.12), 0 4px 16px 0 rgba(36,59,85,.19);
+  transform: scale(1.10) translateY(-3px);
+  border: none;
+}
+
+.custom-pagination .page-link:disabled {
+  background: #f4f4f4;
+  color: #bbb;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.custom-pagination .page-link i {
+  font-size: 1.2rem;
+}
+.custom-pagination {
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.custom-pagination .page-link {
+  min-width: 38px;
+  min-height: 38px;
+  border-radius: 10px;
+  margin: 0 2px;
+  font-size: 1rem;
+  padding: 6px 12px;
+  /* ...other styles as before */
+}
+
+@media (max-width: 576px) {
+  .custom-pagination {
+    gap: 3px;
+  }
+  .custom-pagination .page-link {
+    min-width: 28px;
+    min-height: 28px;
+    font-size: 0.95rem;
+    padding: 4px 6px;
+  }
+}
+
+
+@media (max-width: 430px) {
+  .custom-pagination {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+  }
+  .custom-pagination::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (max-width: 500px) {
+  .custom-pagination .page-link {
+    min-width: 38px;
+    min-height: 38px;
+    font-size: 1rem;
+  }
+}

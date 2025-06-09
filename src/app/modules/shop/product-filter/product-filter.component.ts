@@ -24,8 +24,8 @@ export class ProductFilterComponent implements OnInit,OnDestroy{
 
   activeGrid = 4;
   dropdownOpen:boolean = false;
-  selectedSort = 'Featured';
-  sorts = ['Featured', 'Newest', 'Price: Low to High', 'Price: High to Low'];
+  selectedSort = 'Sort ↑↓';
+  sorts = ['Sort ↑↓' , 'Name: a → z', 'Name: z → a', 'Price: Low to High', 'Price: High to Low'];
 
 
   setGrid(layout: number): void {

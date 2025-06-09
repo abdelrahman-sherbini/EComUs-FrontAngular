@@ -10,13 +10,13 @@
 import { CategoryNoProductDTO } from './category-no-product-dto';
 
 
-export interface ProductDTO { 
+export interface ProductDTO {
     productId?: number;
     productName: string;
     description: string;
     quantity?: number;
     price?: number;
     categories?: Array<CategoryNoProductDTO>;
-    images?: Array<string>;
+    images: Array<string>;
 }
 

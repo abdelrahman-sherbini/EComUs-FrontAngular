@@ -2,6 +2,7 @@ import {Component, Input} from '@angular/core';
 import {Modal} from 'bootstrap';
 import {RouterLink} from '@angular/router';
 import {NgForOf, NgIf} from '@angular/common';
+import {ProductDTO} from '../../openapi';
 
 @Component({
   selector: 'app-quick-view-modal',
@@ -14,11 +15,16 @@ import {NgForOf, NgIf} from '@angular/common';
   styleUrl: './quick-view-modal.component.css'
 })
 export class QuickViewModalComponent {
-  @Input() product: any = null;
+  @Input() product:  ProductDTO = {
+    productName: '',
+    description: '',
+    images: [],
+    price:0
+  };
   quantity = 1;
 
   get total(): number {
-    return this.product ? this.quantity * this.product.price : 0;
+    return this.quantity * (this.product?.price ?? 0);
   }
 
   open(product: any) {

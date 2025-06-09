@@ -2,12 +2,12 @@
   <div  class="row gy-4">
     <ng-container *ngIf="products?.length; else noProducts">
       <div
-        *ngFor="let product of products"
+        *ngFor="let product of products "
         [ngClass]="getGridClasses(gridClass)">
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative product-card">
           <div class="position-relative overflow-hidden">
             <img
-              [src]="product.image[0]"
+              [src]="product.images && product.images.length ? product.images[0] : '/placeholder.jpg'"
               alt="Product image"
               class="w-100 object-fit-cover"/>
 
@@ -32,11 +32,21 @@
         </div>
         <!-- Product details -->
         <div class="p-3">
+          <!-- Product Categories -->
+          <div *ngIf="product.categories?.length" class="mb-1 mt-1">
+            <span
+              *ngFor="let cat of product.categories"
+              class="badge rounded-pill bg-light text-secondary border me-1 small"
+              style="font-weight: 600;">
+              {{ cat.categoryName || cat.categoryName }}
+            </span>
+          </div>
           <a
-            [routerLink]="['/product', product.id]"
+            [routerLink]="['/product', product.productId]"
             class="fw-normal mb-1 text-decoration-none product-name-link">
-            {{ product.name }}
+            {{ product.productName }}
           </a>
+
           <div class="fw-bold">${{ product.price }}</div>
         </div>
       </div>
@@ -72,8 +82,11 @@
         </label>
         <div *ngIf="categoryOpen">
           <div *ngFor="let cat of categories" class="form-check">
-            <input [(ngModel)]="cat.checked" [name]="'cat_' + cat.name" class="form-check-input" type="checkbox" />
-            <label class="form-check-label">{{ cat.name }}</label>
+            <input  type="checkbox"
+                    [value]="cat.categoryName"
+                    (change)="onCategoryChange($event, cat.categoryName)"
+                    [checked]="filter.categories.includes(cat.categoryName)">
+            <label>{{ cat.categoryName }}</label>
           </div>
         </div>
       </div>
@@ -86,12 +99,16 @@
         </label>
         <div *ngIf="availabilityOpen">
           <div class="form-check">
-            <input [(ngModel)]="filter.inStock" name="inStock" class="form-check-input" type="checkbox" />
+            <input [(ngModel)]="filter.stockStatus" value="inStock" name="stockStatus" class="form-check-input" type="radio" />
             <label class="form-check-label">In stock</label>
           </div>
           <div class="form-check">
-            <input [(ngModel)]="filter.outOfStock" name="outOfStock" class="form-check-input" type="checkbox" />
+            <input [(ngModel)]="filter.stockStatus" value="outOfStock" name="stockStatus" class="form-check-input" type="radio" />
             <label class="form-check-label">Out of stock</label>
+          </div>
+          <div class="form-check">
+            <input [(ngModel)]="filter.stockStatus" value="" name="stockStatus" class="form-check-input" type="radio" />
+            <label class="form-check-label">All</label>
           </div>
         </div>
       </div>
