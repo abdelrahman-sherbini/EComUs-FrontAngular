@@ -1,5 +1,21 @@
-<button (click)="testSuccess()">Test Success</button>
-<button (click)="testError()">Test Error</button>
-<button (click)="testWarning()">Test Warning</button>
-<button (click)="testInfo()">Test Info</button>
+<div class="test-container">
+  <h2>Toast Tests</h2>
+  <div class="button-group">
+    <button (click)="testSuccess()">Test Success Toast</button>
+    <button (click)="testError()">Test Error Toast</button>
+    <button (click)="testWarning()">Test Warning Toast</button>
+    <button (click)="testInfo()">Test Info Toast</button>
+  </div>
+
+  <h2>Popup Tests</h2>
+  <div class="button-group">
+    <button (click)="testAlertPopup()">Test Alert Popup</button>
+    <button (click)="testConfirmPopup()">Test Confirm Popup</button>
+    <button (click)="testLoginPopup()">Test Login Popup</button>
+    <button (click)="testPromptPopup()">Test Prompt Popup</button>
+    <button (click)="testMultiOptionPopup()">Test Multi-Option Popup</button>
+  </div>
+</div>
+
 <app-toast></app-toast>
+<app-popup></app-popup>
