@@ -19,7 +19,7 @@ export class CartService {
     private router: Router,
     ) {}
 
-  addToCart(product: {productId: number, quantity: number}, requestedQuantity: number): Observable<any> {
+  addToCart(product: {productId: number, quantity: number , name: string}, requestedQuantity: number): Observable<any> {
     // 1. Auth check
     if (!this.auth.isAuthenticated()) {
 
@@ -47,8 +47,8 @@ export class CartService {
     const available = product.quantity;
     if (available < requestedQuantity) {
       this.toast.showWarning(
-        `Not enough stock available. ${available} in stock, you requested ${requestedQuantity}.`,
-        'add to cart'
+        ` ${available} in stock, you requested ${requestedQuantity}.`,
+        'Not enough stock available.'
       );
       return EMPTY;
     }
@@ -62,10 +62,10 @@ export class CartService {
     return this.customerCart.addOrUpdateCartItem(dto).pipe(
       tap(() => {
         // Optionally: call another service to refresh cart count
-        this.toast.showSuccess('Added to cart!', 'add to cart');
+        this.toast.showSuccess(product.name, 'add to cart');
       }),
       catchError(() => {
-        this.toast.showWarning('Could not add to cart. Try again.', 'add to cart');
+        this.toast.showWarning('Could not add: ' + product.name+' to cart. Try again.', 'add to cart');
         return EMPTY;
       })
     );
