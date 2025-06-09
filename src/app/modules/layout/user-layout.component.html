@@ -1,0 +1,163 @@
+<div class="ecomus-layout">
+  <!-- Header -->
+  <header class="ecomus-header">
+    <div class="container">
+      <div class="header-content">
+        <!-- Logo -->
+        <a routerLink="/" class="logo">
+          <h1>ecomus</h1>
+        </a>
+
+        <!-- Search -->
+        <div class="search-container">
+          <div class="search-input-wrapper">
+            <input
+              type="text"
+              [(ngModel)]="searchKeyword"
+              (keyup)="onSearch()"
+              (keyup.enter)="onSearch()"
+              placeholder="Search products..."
+              class="search-input">
+            <button class="search-button" (click)="onSearch()">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+
+          <!-- Search Results Dropdown -->
+          <div class="search-results" *ngIf="showSearchResults && searchResults.length > 0">
+            <ul>
+              <li *ngFor="let product of searchResults" (click)="navigateToProduct(product.productId!)">
+                <div class="search-result-item">
+                  <div class="product-image">
+                    <img [src]="product.images && product.images.length ? product.images![0] : '/favicon.ico'"
+                         [alt]="product.productName"
+                         onerror="this.src='/assets/placeholder.jpg'">
+                  </div>
+                  <div class="product-info">
+                    <h4>{{ product.productName }}</h4>
+                    <p class="price">${{ product.price?.toFixed(2) }}</p>
+                  </div>
+                </div>
+              </li>
+              <li *ngIf="hasMoreResults" class="load-more" #loadMoreTrigger>
+                <button *ngIf="!isSearching" (click)="loadMoreResults()">
+                  Load more results
+                </button>
+                <span *ngIf="isSearching">Loading...</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="search-results" *ngIf="showSearchResults && searchResults.length === 0 && !isSearching">
+            <p class="no-results">No products found</p>
+          </div>
+        </div>
+
+        <!-- User Actions -->
+        <div class="user-actions">
+          <!-- User Account -->
+          <div class="user-dropdown">
+            <button class="icon-button" (click)="toggleUserDropdown($event)">
+              <i class="fas fa-user"></i>
+            </button>
+            <div class="dropdown-menu" [class.show]="showUserDropdown">
+              <ng-container *ngIf="(authService.isAuthenticated$ | async); else unauthenticated">
+                <div class="user-info" *ngIf="currentUser$ | async as user">
+                  <p>Hello, {{ user.name || 'User' }}</p>
+                </div>
+                <a routerLink="/user/dashboard">Dashboard</a>
+                <a routerLink="/user/profile">My Profile</a>
+                <a routerLink="/user/orders">My Orders</a>
+                <a routerLink="/user/settings">Settings</a>
+                <div class="dropdown-divider"></div>
+                <a href="javascript:void(0)" (click)="logout()">Logout</a>
+              </ng-container>
+              <ng-template #unauthenticated>
+                <a routerLink="/login">Login</a>
+                <a routerLink="/register">Register</a>
+              </ng-template>
+            </div>
+          </div>
+
+          <!-- Wishlist -->
+          <button class="icon-button" (click)="navigateToWishlist()">
+            <i class="fas fa-heart"></i>
+            <ng-container *ngIf="wishlistCount$ | async as wishlistCount">
+              <span class="badge" *ngIf="wishlistCount > 0">
+                {{ wishlistCount }}
+              </span>
+            </ng-container>
+          </button>
+
+          <!-- Cart -->
+          <button class="icon-button" (click)="navigateToCart()">
+            <i class="fas fa-shopping-cart"></i>
+            <ng-container *ngIf="cartCount$ | async as cartCount">
+              <span class="badge" *ngIf="cartCount > 0">
+                {{ cartCount }}
+              </span>
+            </ng-container>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="ecomus-main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Footer -->
+  <footer class="ecomus-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>About Ecomus</h3>
+          <p>Your one-stop shop for all your needs. Quality products, fast delivery, and excellent customer service.</p>
+        </div>
+        <div class="footer-section">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a routerLink="/">Home</a></li>
+            <li><a routerLink="/shop">Shop</a></li>
+            <li><a routerLink="/about">About Us</a></li>
+            <li><a routerLink="/contact">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Customer Service</h3>
+          <ul>
+            <li><a routerLink="/faq">FAQ</a></li>
+            <li><a routerLink="/shipping">Shipping & Returns</a></li>
+            <li><a routerLink="/terms">Terms & Conditions</a></li>
+            <li><a routerLink="/privacy">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Connect With Us</h3>
+          <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-pinterest"></i></a>
+          </div>
+          <p>Subscribe to our newsletter</p>
+          <div class="newsletter">
+            <input type="email" placeholder="Your email">
+            <button>Subscribe</button>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 Ecomus. All rights reserved.</p>
+        <div class="payment-methods">
+          <img src="/assets/visa.png" alt="Visa">
+          <img src="/assets/mastercard.png" alt="Mastercard">
+          <img src="/assets/paypal.png" alt="PayPal">
+          <img src="/assets/amex.png" alt="American Express">
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>
