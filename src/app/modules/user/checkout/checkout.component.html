@@ -1,0 +1,247 @@
+<!--checkout.component.html-->
+<div class="checkout-container">
+  <!-- Page Header -->
+  <div class="checkout-header">
+    <h1>Check Out</h1>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="loading">
+    Processing your order...
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="orderSuccess" class="success-message">
+    <div class="success-icon">✅</div>
+    <h2>Order Placed Successfully!</h2>
+    <p>{{ successMessage }}</p>
+    <div class="success-actions">
+      <button class="success-btn primary" (click)="continueShoppingOrGoHome()">
+        Continue Shopping
+      </button>
+      <button class="success-btn secondary" (click)="goBackToCart()">
+        View Cart
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Checkout Content -->
+  <div class="checkout-content" *ngIf="!loading && !orderSuccess">
+    <!-- Left Column - Customer Information -->
+    <div class="customer-section">
+      <div class="section-card">
+        <h2>Customer Information</h2>
+
+        <!-- Address Type Selection -->
+        <div class="address-type-selection" *ngIf="savedAddresses.length > 0">
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio"
+                     name="addressType"
+                     [value]="false"
+                     [(ngModel)]="useExistingAddress"
+                     (change)="onAddressTypeChange()">
+              <span>Enter new address</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio"
+                     name="addressType"
+                     [value]="true"
+                     [(ngModel)]="useExistingAddress"
+                     (change)="onAddressTypeChange()">
+              <span>Use saved address</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Existing Address Selection -->
+        <!-- <div class="existing-address-section" *ngIf="useExistingAddress && savedAddresses.length > 0">
+          <div class="form-group">
+            <label for="existingAddress">Select Address:</label>
+            <select id="existingAddress"
+                    [(ngModel)]="selectedAddressId"
+                    (change)="onExistingAddressChange()"
+                    class="form-control">
+              <option *ngFor="let address of savedAddresses" [value]="address.id">
+                {{ address.area }}, {{ address.street }}, {{ address.buildingNo }}, {{ address.city }}
+              </option>
+            </select>
+          </div>
+        </div> -->
+
+        <!-- Customer Form -->
+        <form class="customer-form">
+          <!-- Name (Disabled - from user profile) -->
+          <div class="form-group">
+            <label for="name">Name*</label>
+            <input type="text"
+                   id="name"
+                   [(ngModel)]="customerInfo.name"
+                   name="name"
+                   class="form-control"
+                   placeholder="Enter your full name"
+                   [class.error]="orderAttempted && !customerInfo.name.trim()"
+                   disabled
+                   title="Name is automatically filled from your profile">
+          </div>
+
+          <!-- Phone Number (Disabled - from user profile) -->
+          <div class="form-group">
+            <label for="phoneNumber">Phone Number*</label>
+            <input type="tel"
+                   id="phoneNumber"
+                   [(ngModel)]="customerInfo.phoneNumber"
+                   name="phoneNumber"
+                   class="form-control"
+                   placeholder="01234567890"
+                   [class.error]="orderAttempted && !customerInfo.phoneNumber.trim()"
+                   disabled
+                   title="Phone number is automatically filled from your profile">
+          </div>
+
+          <!-- Town/City -->
+          <div class="form-group">
+            <label for="townCity">Town/City*</label>
+            <input type="text"
+                   id="townCity"
+                   [(ngModel)]="customerInfo.townCity"
+                   name="townCity"
+                   class="form-control"
+                   placeholder="Enter your city"
+                   [class.error]="orderAttempted && !customerInfo.townCity.trim()"
+                   [disabled]="useExistingAddress">
+          </div>
+
+          <!-- Area and Street -->
+          <div class="form-row">
+            <div class="form-group half">
+              <label for="area">Area*</label>
+              <input type="text"
+                     id="area"
+                     [(ngModel)]="customerInfo.area"
+                     name="area"
+                     class="form-control"
+                     placeholder="Area"
+                     [class.error]="orderAttempted && !customerInfo.area.trim()"
+                     [disabled]="useExistingAddress">
+            </div>
+            <div class="form-group half">
+              <label for="street">Street*</label>
+              <input type="text"
+                     id="street"
+                     [(ngModel)]="customerInfo.street"
+                     name="street"
+                     class="form-control"
+                     placeholder="Street"
+                     [class.error]="orderAttempted && !customerInfo.street.trim()"
+                     [disabled]="useExistingAddress">
+            </div>
+          </div>
+
+          <!-- Building Number -->
+          <div class="form-group">
+            <label for="buildingNumber">Building Number*</label>
+            <input type="text"
+                   id="buildingNumber"
+                   [(ngModel)]="customerInfo.buildingNumber"
+                   name="buildingNumber"
+                   class="form-control"
+                   placeholder="Building number"
+                   [class.error]="orderAttempted && !customerInfo.buildingNumber.trim()"
+                   [disabled]="useExistingAddress">
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right Column - Order Summary -->
+    <div class="order-summary-section">
+      <div class="section-card">
+        <h2>Order Summary</h2>
+
+        <!-- Cart Items -->
+        <div class="order-items">
+          <div class="order-item" *ngFor="let item of cartItems">
+            <div class="item-image">
+              <img [src]="item.product.images && item.product.images.length ? item.product.images[0] : '/placeholder.jpg'"
+                   alt="Product Image">
+              <span class="item-quantity">{{ item.quantity }}</span>
+            </div>
+            <div class="item-details">
+              <h4>{{ item.product.productName }}</h4>
+            </div>
+            <div class="item-price">
+              {{ getItemTotal(item) | currency }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Total -->
+        <div class="order-total">
+          <div class="total-row">
+            <span>Total</span>
+            <span class="total-amount">{{ totalPrice | currency }}</span>
+          </div>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="payment-section">
+          <h3>Pay on delivery*</h3>
+          <div class="payment-options">
+            <label class="payment-option">
+              <input type="radio"
+                     name="paymentType"
+                     value="CREDIT"
+                     [(ngModel)]="selectedPaymentType">
+              <span class="payment-icon credit-card">💳</span>
+              <span>Credit Card</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio"
+                     name="paymentType"
+                     value="CASH"
+                     [(ngModel)]="selectedPaymentType">
+              <span class="payment-icon cash">💵</span>
+              <span>Cash</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Order Notes -->
+        <div class="order-notes">
+          <p>Credit card payment will be processed to complete your order without cost to you or experience throughout this website, and for other purposes described in our <a href="#">privacy policy</a>.</p>
+        </div>
+
+        <!-- Terms and Conditions -->
+        <div class="terms-section">
+          <label class="terms-checkbox">
+            <input type="checkbox"
+                   [(ngModel)]="termsAccepted"
+                   [class.error]="orderAttempted && !termsAccepted">
+            <span>I have read and agree to the website <a href="#">terms and conditions</a>*</span>
+          </label>
+        </div>
+
+        <!-- Confirm Order Button -->
+        <button class="confirm-order-btn"
+                (click)="confirmOrder()"
+                [disabled]="loading"
+                [class.disabled]="loading">
+          {{ loading ? 'Processing...' : 'Confirm order' }}
+        </button>
+
+        <!-- Back to Cart -->
+        <button class="back-to-cart-btn"
+                (click)="goBackToCart()"
+                [disabled]="loading">
+          Back to Cart
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
