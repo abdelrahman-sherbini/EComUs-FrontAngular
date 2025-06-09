@@ -2,13 +2,13 @@
 // import { Router } from '@angular/router';
 // import { CommonModule, CurrencyPipe } from '@angular/common';
 // import { FormsModule } from '@angular/forms';
-// import { 
-//   CustomerCartService, 
-//   CustomerAddressesService, 
+// import {
+//   CustomerCartService,
+//   CustomerAddressesService,
 //   CustomerOrdersService,
-//   CustomerProfileService, 
-//   CartDTO, 
-//   AddressDTO, 
+//   CustomerProfileService,
+//   CartDTO,
+//   AddressDTO,
 //   CheckOutOrderDTO,
 //   UserDTO
 // } from '../../openapi';
@@ -85,7 +85,7 @@
 
 //   loadCartSummary(): void {
 //     this.loading = true;
-    
+
 //     // Load cart items for display
 //     this.cartService.getCartItems(1, 100).subscribe({
 //       next: (response) => {
@@ -160,7 +160,7 @@
 //         return `${selectedAddress.area}, ${selectedAddress.street}, ${selectedAddress.buildingNo}, ${selectedAddress.city}`;
 //       }
 //     }
-    
+
 //     return `${this.customerInfo.area}, ${this.customerInfo.street}, ${this.customerInfo.buildingNumber}, ${this.customerInfo.townCity}`;
 //   }
 
@@ -197,14 +197,14 @@
 //     this.orderService.createOrder(checkoutData).subscribe({
 //       next: (order) => {
 //         console.log('Order created successfully:', order);
-        
+
 //         // Save address if it's new and user wants to save it
 //         if (!this.useExistingAddress) {
 //           this.saveNewAddress();
 //         }
-        
+
 //         // Navigate to success page or order confirmation
-//         this.router.navigate(['/user/orders'], { 
+//         this.router.navigate(['/user/orders'], {
 //           queryParams: { orderId: order.orderId, success: true }
 //         });
 //       },
@@ -250,13 +250,13 @@
 // import { Router } from '@angular/router';
 // import { CommonModule, CurrencyPipe } from '@angular/common';
 // import { FormsModule } from '@angular/forms';
-// import { 
-//   CustomerCartService, 
-//   CustomerAddressesService, 
+// import {
+//   CustomerCartService,
+//   CustomerAddressesService,
 //   CustomerOrdersService,
 //   CustomerProfileService,
-//   CartDTO, 
-//   AddressDTO, 
+//   CartDTO,
+//   AddressDTO,
 //   CheckOutOrderDTO,
 //   UserDTO
 // } from '../../openapi';
@@ -338,7 +338,7 @@
 
 //   loadCartSummary(): void {
 //     this.loading = true;
-    
+
 //     // Load cart items for display
 //     this.cartService.getCartItems(1, 100).subscribe({
 //       next: (response) => {
@@ -413,7 +413,7 @@
 //         return `${selectedAddress.area}, ${selectedAddress.street}, ${selectedAddress.buildingNo}, ${selectedAddress.city}`;
 //       }
 //     }
-    
+
 //     return `${this.customerInfo.area}, ${this.customerInfo.street}, ${this.customerInfo.buildingNumber}, ${this.customerInfo.townCity}`;
 //   }
 
@@ -451,19 +451,19 @@
 //     this.orderService.createOrder(checkoutData).subscribe({
 //       next: (order) => {
 //         console.log('Order created successfully:', order);
-        
+
 //         // Save address if it's new and user wants to save it
 //         if (!this.useExistingAddress) {
 //           this.saveNewAddress();
 //         }
-        
+
 //         // Set success state
 //         this.loading = false;
 //         this.orderSuccess = true;
 //         this.createdOrderId = order.orderId || null;
 //         this.successMessage = `Your order has been placed successfully! Order ID: ${order.orderId}`;
 //         this.error = ''; // Clear any previous errors
-        
+
 //       },
 //       error: (error) => {
 //         this.error = 'Failed to create order. Please try again.';
@@ -515,13 +515,13 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { 
-  CustomerCartService, 
-  CustomerAddressesService, 
+import {
+  CustomerCartService,
+  CustomerAddressesService,
   CustomerOrdersService,
   CustomerProfileService,
-  CartDTO, 
-  AddressDTO, 
+  CartDTO,
+  AddressDTO,
   CheckOutOrderDTO,
   UserDTO
 } from '../../openapi';
@@ -603,7 +603,7 @@ export class CheckoutComponent implements OnInit {
 
   loadCartSummary(): void {
     this.loading = true;
-    
+
     // Load cart items for display
     this.cartService.getCartItems(1, 100).subscribe({
       next: (response) => {
@@ -678,7 +678,7 @@ export class CheckoutComponent implements OnInit {
         return `${selectedAddress.area}, ${selectedAddress.street}, ${selectedAddress.buildingNo}, ${selectedAddress.city}`;
       }
     }
-    
+
     return `${this.customerInfo.area}, ${this.customerInfo.street}, ${this.customerInfo.buildingNumber}, ${this.customerInfo.townCity}`;
   }
 
@@ -713,7 +713,7 @@ export class CheckoutComponent implements OnInit {
       street: this.customerInfo.street,
       buildingNo: this.customerInfo.buildingNumber
     };
-    
+
     const checkoutData: CheckOutOrderDTO = {
       address: JSON.stringify(addressObject),
       payType: this.selectedPaymentType
@@ -723,24 +723,30 @@ export class CheckoutComponent implements OnInit {
     this.orderService.createOrder(checkoutData).subscribe({
       next: (order) => {
         console.log('Order created successfully:', order);
-        
+
         // Save address if it's new and user wants to save it
         if (!this.useExistingAddress) {
           this.saveNewAddress();
         }
-        
+
         // Set success state
         this.loading = false;
         this.orderSuccess = true;
         this.createdOrderId = order.orderId || null;
         this.successMessage = `Your order has been placed successfully! Order ID: ${order.orderId}`;
         this.error = ''; // Clear any previous errors
-        
+
       },
       error: (error) => {
-        this.error = 'Failed to create order. Please try again.';
         this.loading = false;
         this.orderSuccess = false;
+
+        if (error.error && error.error.message) {
+          this.error = error.error.message;
+        } else {
+          this.error = `Failed to create order. ${error.status === 402 ? 'Payment required.' : 'Please try again.'}`;
+        }
+
         console.error('Error creating order:', error);
       }
     });
