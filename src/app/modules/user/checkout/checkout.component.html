@@ -1,4 +1,26 @@
 <!--checkout.component.html-->
+
+<!-- Updated Success Popup Modal -->
+<div *ngIf="orderSuccess" class="modal-overlay" [class.show]="orderSuccess" (click)="closeSuccessModal()">
+  <div class="success-modal" (click)="$event.stopPropagation()">
+    <button class="close-btn" (click)="closeSuccessModal()">&times;</button>
+    
+    <div class="success-icon"></div>
+    
+    <h2>Thank you for your purchase!</h2>
+    <!-- <p>Your order has been received. Order ID: {{ orderID || '#117' }}</p> -->
+    
+    <div class="success-actions">
+      <button class="success-btn primary" (click)="continueShoppingOrGoHome()">
+        Continue Shopping
+      </button>
+      <button class="success-btn secondary" (click)="viewOrderDetails()">
+        View Order Details
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="checkout-container">
   <!-- Page Header -->
   <div class="checkout-header">
@@ -15,23 +37,8 @@
     {{ error }}
   </div>
 
-  <!-- Success Message -->
-  <div *ngIf="orderSuccess" class="success-message">
-    <div class="success-icon">✅</div>
-    <h2>Order Placed Successfully!</h2>
-    <p>{{ successMessage }}</p>
-    <div class="success-actions">
-      <button class="success-btn primary" (click)="continueShoppingOrGoHome()">
-        Continue Shopping
-      </button>
-      <button class="success-btn secondary" (click)="goBackToCart()">
-        View Cart
-      </button>
-    </div>
-  </div>
-
   <!-- Main Checkout Content -->
-  <div class="checkout-content" *ngIf="!loading && !orderSuccess">
+  <div class="checkout-content" *ngIf="!loading">
     <!-- Left Column - Customer Information -->
     <div class="customer-section">
       <div class="section-card">
@@ -58,21 +65,6 @@
             </label>
           </div>
         </div>
-
-        <!-- Existing Address Selection -->
-        <!-- <div class="existing-address-section" *ngIf="useExistingAddress && savedAddresses.length > 0">
-          <div class="form-group">
-            <label for="existingAddress">Select Address:</label>
-            <select id="existingAddress"
-                    [(ngModel)]="selectedAddressId"
-                    (change)="onExistingAddressChange()"
-                    class="form-control">
-              <option *ngFor="let address of savedAddresses" [value]="address.id">
-                {{ address.area }}, {{ address.street }}, {{ address.buildingNo }}, {{ address.city }}
-              </option>
-            </select>
-          </div>
-        </div> -->
 
         <!-- Customer Form -->
         <form class="customer-form">
