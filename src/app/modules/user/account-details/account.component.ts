@@ -1,10 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { NgClass, CommonModule } from '@angular/common';
 import { OrdersComponent } from './orders/orders.component';
 import { UpdateAccountComponent } from './update-account/update-account.component';
 import { AddressDTO } from '../../openapi/model/address-dto';
-import {WishlistComponent} from '../wishlist/wishlist.component';
+import { WishlistComponent } from '../wishlist/wishlist.component';
+import { Router, NavigationEnd } from '@angular/router';
+import { Subscription, filter } from 'rxjs';
+import {AuthService} from '../../../services/auth-service';
 
 interface UserProfile {
   userId: number;
@@ -33,16 +36,40 @@ interface UserProfile {
   templateUrl: './account.component.html',
   styleUrls: ['./account.component.css']
 })
-export class AccountComponent implements OnInit {
+export class AccountComponent implements OnInit, OnDestroy {
   user: UserProfile | null = null;
   loading = false;
   error: string | null = null;
   activeTab = 'account-details';
+  private routerSubscription: Subscription | null = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private authService: AuthService,
+    private http: HttpClient,
+    private router: Router
+  ) {}
 
   ngOnInit() {
+    // Load user profile initially
     this.loadUserProfile();
+
+    // Subscribe to router events to reload data when navigating to this component
+    this.routerSubscription = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      // Check if the current route is the account details route
+      if (event.url.includes('/user/account')) {
+        console.log('Navigated to account page, reloading data');
+        this.loadUserProfile();
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    // Clean up subscription when component is destroyed
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 
   loadUserProfile() {
@@ -67,6 +94,7 @@ export class AccountComponent implements OnInit {
   }
 
   setActiveTab(tab: string) {
+    const previousTab = this.activeTab;
     this.activeTab = tab;
 
     // Handle logout
@@ -74,16 +102,25 @@ export class AccountComponent implements OnInit {
       this.handleLogout();
       return;
     }
+
+    // Reload user profile data when switching to account-details tab
+    if (tab === 'account-details' && previousTab !== 'account-details') {
+      this.loadUserProfile();
+    }
   }
 
   private handleLogout() {
     // Implement logout logic here
     if (confirm('Are you sure you want to logout?')) {
-      // Clear any stored tokens/session data
-      localStorage.removeItem('authToken');
-      // Redirect to login or home page
-      // this.router.navigate(['/login']);
-      console.log('User logged out');
+
+      this.authService.logout().subscribe({
+        next: () => {
+          // Logout successful, navigation handled by auth service
+        },
+        error: (error) => {
+          console.error('Logout error:', error);
+        }
+      });
     }
   }
 
