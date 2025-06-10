@@ -21,6 +21,8 @@ export * from './paged-response-cart-dto';
 export * from './paged-response-order-dto';
 export * from './paged-response-product-dto';
 export * from './paged-response-user-dto';
+export * from './password-reset-dto';
+export * from './password-reset-request-dto';
 export * from './payment-type-stats-projection';
 export * from './product-dto';
 export * from './product-sales-stats-projection';

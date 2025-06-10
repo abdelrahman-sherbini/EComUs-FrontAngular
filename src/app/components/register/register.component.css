@@ -9,81 +9,89 @@
 
 .auth-card {
   width: 100%;
-  max-width: 900px;
+  max-width: 1000px; /* Increased from 900px */
   background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 12px; /* Increased roundness */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); /* Enhanced shadow */
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
 }
 
 .auth-header {
-  padding: 1.5rem 2rem;
+  padding: 2rem;
+  text-align: center; /* Center the header text */
   border-bottom: 1px solid #f0f0f0;
 }
 
 .auth-header h2 {
-  font-size: 1.5rem;
-  font-weight: 500;
+  font-size: 2rem; /* Larger font */
+  font-weight: 600;
   color: #333;
   margin: 0;
 }
 
 form {
-  padding: 2rem;
-  max-width: 400px;
+  padding: 2.5rem;
+  max-width: 800px; /* Significantly increased width */
+  margin: 0 auto;
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem; /* More space between groups */
+  width: 100%;
 }
 
 label {
   display: block;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
+  margin-bottom: 0.75rem; /* More space below labels */
+  font-size: 1rem; /* Larger font */
   color: #333;
+  font-weight: 500; /* Slightly bolder */
 }
 
 .form-control {
   width: 100%;
-  padding: 0.75rem;
+  padding: 1rem 1.2rem; /* More padding */
   border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  transition: border-color 0.2s;
+  border-radius: 6px; /* Rounder corners */
+  font-size: 1.1rem; /* Larger text */
+  transition: all 0.3s ease;
+  background-color: #fafafa;
 }
 
-.form-control:focus {
-  outline: none;
-  border-color: #000;
-}
-
-.form-control.is-invalid {
-  border-color: #dc3545;
-}
-
-.invalid-feedback {
-  color: #dc3545;
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Wider columns */
+  gap: 2rem; /* More space between columns */
 }
 
 .btn-submit {
   width: 100%;
-  padding: 0.75rem;
+  padding: 1rem;
   background-color: #000;
   color: #fff;
   border: none;
-  border-radius: 4px;
-  font-size: 1rem;
+  border-radius: 6px; /* Rounder corners */
+  font-size: 1.1rem; /* Larger text */
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
+  margin-top: 2rem; /* More space above button */
+  letter-spacing: 0.5px;
+}
+
+.password-strength {
+  margin-top: 1rem; /* More space */
+  font-size: 0.9rem;
+}
+
+.strength-indicator {
+  margin-bottom: 0.5rem; /* More space between indicators */
 }
 
 .btn-submit:hover {
   background-color: #333;
+  transform: translateY(-2px); /* Subtle lift effect */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .btn-submit:disabled {
@@ -148,12 +156,6 @@ label {
   width: auto;
 }
 
-.form-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-}
-
 .form-validation-message {
   background-color: #fff8f8;
   border: 1px solid #f5c6cb;
@@ -175,16 +177,6 @@ label {
 
 .required {
   color: #dc3545;
-}
-
-.password-strength {
-  margin-top: 0.5rem;
-  font-size: 0.85rem;
-}
-
-.strength-indicator {
-  color: #6c757d;
-  margin-bottom: 0.25rem;
 }
 
 .strength-indicator.valid {

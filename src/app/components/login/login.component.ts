@@ -62,7 +62,6 @@ export class LoginComponent implements OnInit {
   }
 
   forgotPassword(): void {
-    // Implement password reset functionality
-    alert('Password reset functionality will be implemented soon.');
+    this.router.navigate(['/password-reset']);
   }
 }

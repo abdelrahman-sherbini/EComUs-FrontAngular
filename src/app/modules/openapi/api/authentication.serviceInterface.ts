@@ -11,6 +11,8 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
+import { PasswordResetDTO } from '../model/models';
+import { PasswordResetRequestDTO } from '../model/models';
 import { Token } from '../model/models';
 import { UserSignInDTO } from '../model/models';
 import { UserSignUpDTO } from '../model/models';
@@ -23,6 +25,13 @@ import { Configuration }                                     from '../configurat
 export interface AuthenticationServiceInterface {
     defaultHeaders: HttpHeaders;
     configuration: Configuration;
+
+    /**
+     * 
+     * 
+     * @param passwordResetRequestDTO 
+     */
+    forgotPassword(passwordResetRequestDTO: PasswordResetRequestDTO, extraHttpRequestParams?: any): Observable<{}>;
 
     /**
      * 
@@ -47,7 +56,21 @@ export interface AuthenticationServiceInterface {
     /**
      * 
      * 
+     * @param passwordResetDTO 
+     */
+    resetPassword(passwordResetDTO: PasswordResetDTO, extraHttpRequestParams?: any): Observable<{}>;
+
+    /**
+     * 
+     * 
      */
     token(extraHttpRequestParams?: any): Observable<Token>;
+
+    /**
+     * 
+     * 
+     * @param token 
+     */
+    validateResetToken(token: string, extraHttpRequestParams?: any): Observable<boolean>;
 
 }

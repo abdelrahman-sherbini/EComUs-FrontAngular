@@ -59,6 +59,8 @@ model/paged-response-cart-dto.ts
 model/paged-response-order-dto.ts
 model/paged-response-product-dto.ts
 model/paged-response-user-dto.ts
+model/password-reset-dto.ts
+model/password-reset-request-dto.ts
 model/payment-type-stats-projection.ts
 model/product-dto.ts
 model/product-sales-stats-projection.ts

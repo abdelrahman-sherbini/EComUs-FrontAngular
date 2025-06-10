@@ -658,6 +658,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Token"
+  /api/auth/reset-password:
+    post:
+      tags:
+      - Authentication
+      operationId: resetPassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordResetDTO"
+        required: true
+      responses:
+        "200":
+          description: OK
   /api/auth/register:
     post:
       tags:
@@ -706,6 +720,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Token"
+  /api/auth/forgot-password:
+    post:
+      tags:
+      - Authentication
+      operationId: forgotPassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordResetRequestDTO"
+        required: true
+      responses:
+        "200":
+          description: OK
   /api/admin/products:
     get:
       tags:
@@ -1385,6 +1413,24 @@ paths:
                 format: int32
       security:
       - BearerAuth: []
+  /api/auth/reset-password/validate:
+    get:
+      tags:
+      - Authentication
+      operationId: validateResetToken
+      parameters:
+      - name: token
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: boolean
   /api/admin/users:
     get:
       tags:
@@ -2427,6 +2473,18 @@ components:
           type: string
         refreshToken:
           type: string
+    PasswordResetDTO:
+      type: object
+      properties:
+        token:
+          type: string
+          minLength: 1
+        newPassword:
+          type: string
+          minLength: 1
+      required:
+      - newPassword
+      - token
     UserSignUpDTO:
       type: object
       properties:
@@ -2470,6 +2528,14 @@ components:
       required:
       - email
       - password
+    PasswordResetRequestDTO:
+      type: object
+      properties:
+        email:
+          type: string
+          minLength: 1
+      required:
+      - email
     PagedResponseUserDTO:
       type: object
       properties:
@@ -2645,18 +2711,18 @@ components:
     TopCustomersProjection:
       type: object
       properties:
+        userName:
+          type: string
+        email:
+          type: string
         userId:
           type: integer
           format: int64
-        email:
-          type: string
         totalOrders:
           type: integer
           format: int64
         totalSpent:
           type: number
-        userName:
-          type: string
     UserRoleDistributionProjection:
       type: object
       properties:
@@ -2668,11 +2734,13 @@ components:
     CustomerOrderStatsProjection:
       type: object
       properties:
+        userName:
+          type: string
+        email:
+          type: string
         userId:
           type: integer
           format: int64
-        email:
-          type: string
         totalOrders:
           type: integer
           format: int64
@@ -2683,16 +2751,14 @@ components:
           format: date
         totalSpent:
           type: number
-        userName:
-          type: string
     TopSellingProductProjection:
       type: object
       properties:
-        productName:
-          type: string
         productId:
           type: integer
           format: int64
+        productName:
+          type: string
         totalRevenue:
           type: number
         totalQuantitySold:
@@ -2701,19 +2767,19 @@ components:
     RecentOrderProjection:
       type: object
       properties:
+        userName:
+          type: string
+        status:
+          type: string
         orderId:
           type: integer
           format: int64
-        status:
-          type: string
-        userEmail:
-          type: string
         orderTotal:
           type: number
         orderDate:
           type: string
           format: date
-        userName:
+        userEmail:
           type: string
     MonthlyOrderStatsProjection:
       type: object
@@ -2732,25 +2798,25 @@ components:
     DailyOrderStatsProjection:
       type: object
       properties:
-        orderCount:
-          type: integer
-          format: int64
         orderDate:
           type: string
           format: date
         dailyRevenue:
           type: number
+        orderCount:
+          type: integer
+          format: int64
     ProductSalesStatsProjection:
       type: object
       properties:
-        productName:
-          type: string
-        productId:
-          type: integer
-          format: int64
         totalQuantity:
           type: integer
           format: int64
+        productId:
+          type: integer
+          format: int64
+        productName:
+          type: string
         totalRevenue:
           type: number
         orderCount:
@@ -2764,19 +2830,14 @@ components:
         totalItemsSold:
           type: integer
           format: int64
-        averageItemPrice:
-          type: number
         averageItemsPerOrder:
+          type: number
+        averageItemPrice:
           type: number
     OrderStatsProjection:
       type: object
       properties:
         cancelledOrders:
-          type: integer
-          format: int64
-        totalRevenue:
-          type: number
-        pendingOrders:
           type: integer
           format: int64
         totalOrders:
@@ -2785,6 +2846,11 @@ components:
         completedOrders:
           type: integer
           format: int64
+        pendingOrders:
+          type: integer
+          format: int64
+        totalRevenue:
+          type: number
         averageOrderValue:
           type: number
     OrderStatusDistributionProjection:
@@ -2800,11 +2866,11 @@ components:
     RevenueByPeriodProjection:
       type: object
       properties:
-        revenue:
-          type: number
         periodDate:
           type: string
           format: date
+        revenue:
+          type: number
         orderCount:
           type: integer
           format: int64
@@ -2836,28 +2902,28 @@ components:
     DashboardSummaryProjection:
       type: object
       properties:
-        totalRevenue:
-          type: number
-        pendingOrders:
+        totalUsers:
           type: integer
           format: int64
+        todayRevenue:
+          type: number
         totalOrders:
           type: integer
           format: int64
-        totalUsers:
+        pendingOrders:
           type: integer
           format: int64
         todayOrders:
           type: integer
           format: int64
-        todayRevenue:
+        totalRevenue:
           type: number
-        revenueGrowthRate:
-          type: number
-          format: double
         newCustomersThisMonth:
           type: integer
           format: int64
+        revenueGrowthRate:
+          type: number
+          format: double
   securitySchemes:
     BearerAuth:
       type: http

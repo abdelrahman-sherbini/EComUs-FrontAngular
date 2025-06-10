@@ -12,6 +12,7 @@ import {UsersComponent} from './modules/admin/users/users.component';
 import {AnalyticsComponent} from './modules/admin/analytics/analytics.component';
 import {UserLayoutComponent} from './modules/layout/user-layout.component';
 import {RegisterComponent} from './components/register/register.component';
+import {PasswordResetComponent} from './components/password-reset/password-reset.component';
 
 export const routes: Routes = [
 
@@ -50,7 +51,12 @@ export const routes: Routes = [
         path: 'register',
         component: RegisterComponent,
         canActivate: [LoginRedirectGuard]
-      }
+      },
+      {
+        path: 'password-reset',
+
+        component: PasswordResetComponent
+      },
     ]
   },
   { path: '', redirectTo: '/products', pathMatch: 'full' },
