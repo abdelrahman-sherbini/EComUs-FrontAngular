@@ -2,6 +2,11 @@ import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewEncapsula
 import {FormsModule} from '@angular/forms';
 import {NgForOf, NgIf, NgSwitch, NgSwitchCase} from '@angular/common';
 
+type SortOption = {
+  display: string;
+  field: string;
+  direction: 'asc' | 'desc';
+};
 
 @Component({
   selector: 'app-product-filter',
@@ -19,13 +24,11 @@ import {NgForOf, NgIf, NgSwitch, NgSwitchCase} from '@angular/common';
 export class ProductFilterComponent implements OnInit,OnDestroy{
   @Output() gridChanged = new EventEmitter<number>();
   @Output() openFilter = new EventEmitter<void>();
-  @Output() sortChanged = new EventEmitter<string>();
+  @Output() sortChanged = new EventEmitter<{field: string, direction: 'asc' | 'desc'}>();
 
 
   activeGrid = 4;
   dropdownOpen:boolean = false;
-  selectedSort = 'Sort ↑↓';
-  sorts = ['Sort ↑↓' , 'Name: a → z', 'Name: z → a', 'Price: Low to High', 'Price: High to Low'];
 
 
   setGrid(layout: number): void {
@@ -37,9 +40,25 @@ export class ProductFilterComponent implements OnInit,OnDestroy{
     this.openFilter.emit();
   }
 
-  setSort(sort: string) {
-    this.selectedSort = sort;
-    this.sortChanged.emit(sort);  // <-- EMIT when changed
+  sortOptions: SortOption[] = [
+    { display: 'Sort ↑↓', field: 'productId', direction: 'asc' },
+    { display: 'Name: a → z', field: 'productName', direction: 'asc' },
+    { display: 'Name: z → a', field: 'productName', direction: 'desc' },
+    { display: 'Price: Low to High', field: 'price', direction: 'asc' },
+    { display: 'Price: High to Low', field: 'price', direction: 'desc' },
+    { display: 'The Most Purchased', field: 'purchaseCount', direction: 'desc' },
+    { display: 'Category', field: 'categories', direction: 'asc' }
+  ];
+
+  selectedSort = this.sortOptions[0].display;
+
+  setSort(sortDisplay: string) {
+    const selectedOption = this.sortOptions.find(opt => opt.display === sortDisplay) || this.sortOptions[0];
+    this.selectedSort = selectedOption.display;
+    this.sortChanged.emit({
+      field: selectedOption.field,
+      direction: selectedOption.direction
+    });
   }
 
 // Only button toggles dropdown

@@ -36,14 +36,14 @@
 
       </button>
       <ul class="dropdown-menu dropdown-menu-end" [class.show]="dropdownOpen" role="menu">
-        <li *ngFor="let sort of sorts">
+        <li *ngFor="let sort of sortOptions">
           <a class="dropdown-item"
-             [class.active]="selectedSort === sort"
-             (click)="setSortAndClose(sort, $event)"
+             [class.active]="selectedSort === sort.display"
+             (click)="setSortAndClose(sort.display, $event)"
              role="menuitem"
              href="#">
-            {{ sort }}
-            <span *ngIf="selectedSort === sort" class="ms-2 text-success">&#10003;</span>
+            {{ sort.display }}
+            <span *ngIf="selectedSort === sort.display" class="ms-2 text-success">&#10003;</span>
           </a>
         </li>
       </ul>

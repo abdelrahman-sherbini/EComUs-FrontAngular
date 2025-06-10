@@ -115,32 +115,10 @@ export class HomeComponent implements OnInit  {
     this.gridClass = `grid-${columns}`;
   }
 
-  handleSortChange(sort: string) {
-    this.sortValue = sort;
-    // Map UI value to field/dir:
-    switch (sort) {
-      case 'Name: a → z':
-        this.sortField = 'productName';
-        this.sortDir = 'asc';
-        break;
-      case 'Name: z → a':
-        this.sortField = 'productName';
-        this.sortDir = 'desc';
-        break;
-      case 'Price: Low to High':
-        this.sortField = 'price';
-        this.sortDir = 'asc';
-        break;
-      case 'Price: High to Low':
-        this.sortField = 'price';
-        this.sortDir = 'desc';
-        break;
-      default:
-        this.sortField = 'productId';
-        this.sortDir = 'asc';
-        break;
-    }
-    this.currentPage = 1; // Reset to first page when sorting
+  handleSortChange(sort: {field: string, direction: 'asc' | 'desc'}) {
+    this.sortField = sort.field;
+    this.sortDir = sort.direction;
+    this.currentPage = 1;
     this.loadProducts();
   }
 
