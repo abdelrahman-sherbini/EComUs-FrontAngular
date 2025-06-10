@@ -6,11 +6,24 @@
 
 /* Wishlist Header */
 .wishlist-header {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  /* background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   padding: 40px 0;
   text-align: center;
   margin-bottom: 40px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb; */
+             
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+    margin-bottom: 40px;
+  padding: 0 30px;
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle, rgba(255, 224, 233, 1) 0%, rgba(216, 228, 242, 1) 100%);
+  box-sizing: border-box;
 }
 
 .header-content {
@@ -428,4 +441,237 @@
   .wishlist-header h1 {
     font-size: 2rem;
   }
+
+  /* Perfect Pagination Styles for Angular Component */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 32px 0;
+  flex-wrap: wrap;
+  padding: 0;
+}
+
+.page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 16px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #4a5568;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.page-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.page-btn:hover:not(:disabled):not(.active) {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 10px 25px -5px rgba(102, 126, 234, 0.4),
+    0 4px 6px -2px rgba(102, 126, 234, 0.2);
+  border-color: rgba(102, 126, 234, 0.3);
+  color: #667eea;
+}
+
+.page-btn:hover:not(:disabled):not(.active)::before {
+  opacity: 0.1;
+}
+
+.page-btn:active:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.page-btn.active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  box-shadow: 
+    0 8px 25px -5px rgba(102, 126, 234, 0.5),
+    0 4px 6px -2px rgba(102, 126, 234, 0.3);
+  transform: translateY(-1px);
+  border-color: transparent;
+}
+
+.page-btn.active::before {
+  display: none;
+}
+
+.page-btn:disabled {
+  background: #f7fafc;
+  color: #a0aec0;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-color: #e2e8f0;
+}
+
+.page-btn:disabled:hover {
+  transform: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-color: #e2e8f0;
+  color: #a0aec0;
+}
+
+.page-btn:disabled::before {
+  display: none;
+}
+
+/* Page Number Buttons */
+.page-number {
+  min-width: 44px;
+  font-weight: 600;
+}
+
+/* Navigation Buttons (Previous/Next) */
+.page-btn:first-child,
+.page-btn:last-child {
+  padding: 0 20px;
+  font-weight: 500;
+  gap: 8px;
+  min-width: auto;
+}
+
+/* Previous Button Icon */
+.page-btn:first-child::before {
+  content: '←';
+  margin-right: 6px;
+  font-size: 16px;
+  transition: transform 0.3s ease;
+}
+
+.page-btn:first-child:hover:not(:disabled)::before {
+  transform: translateX(-2px);
+}
+
+/* Next Button Icon */
+.page-btn:last-child::after {
+  content: '→';
+  margin-left: 6px;
+  font-size: 16px;
+  transition: transform 0.3s ease;
+}
+
+.page-btn:last-child:hover:not(:disabled)::after {
+  transform: translateX(2px);
+}
+
+/* Results Info Styling */
+.results-info {
+  text-align: center;
+  margin-top: 24px;
+  color: #718096;
+  font-size: 14px;
+  font-weight: 500;
+  background: #f8fafc;
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  backdrop-filter: blur(10px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .pagination {
+    gap: 4px;
+    margin: 24px 0;
+  }
+  
+  .page-btn {
+    min-width: 40px;
+    height: 40px;
+    font-size: 13px;
+    padding: 0 12px;
+  }
+  
+  .page-btn:first-child,
+  .page-btn:last-child {
+    padding: 0 16px;
+  }
+  
+  .results-info {
+    font-size: 13px;
+    padding: 10px 20px;
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pagination {
+    gap: 2px;
+  }
+  
+  .page-btn {
+    min-width: 36px;
+    height: 36px;
+    font-size: 12px;
+  }
+  
+  .page-btn:first-child,
+  .page-btn:last-child {
+    padding: 0 12px;
+    font-size: 12px;
+  }
+}
+
+/* Animation for smooth transitions */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pagination {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+/* Focus states for accessibility */
+.page-btn:focus {
+  outline: none;
+  box-shadow: 
+    0 0 0 3px rgba(102, 126, 234, 0.3),
+    0 4px 6px -2px rgba(102, 126, 234, 0.2);
+}
+
+.page-btn:focus:not(:hover) {
+  transform: none;
+}
+
+/* Loading state (optional) */
+.pagination.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.pagination.loading .page-btn {
+  cursor: wait;
+}
 }

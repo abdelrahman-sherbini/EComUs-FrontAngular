@@ -6,11 +6,18 @@
 }
 
 .page-header {
-  background-color: #ffffff;
-  padding: 2rem 0;
-  text-align: center;
-  border-bottom: 1px solid #e9ecef;
-  margin-bottom: 2rem;
+ position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+    margin-bottom: 40px;
+  padding: 0 30px;
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle, rgba(255, 224, 233, 1) 0%, rgba(216, 228, 242, 1) 100%);
+  box-sizing: border-box;
 }
 
 .page-header h1 {
