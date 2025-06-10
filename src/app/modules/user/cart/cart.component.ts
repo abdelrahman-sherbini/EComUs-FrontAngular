@@ -263,6 +263,11 @@ increaseQuantity(productId: number, currentQuantity: number): void {
     productId: productId,
     quantity: 1  // Add 1 to existing quantity
   };
+  const cartItem = this.cartItems.find(item => item.product?.productId === productId);
+  if (cartItem!.quantity! >= cartItem!.product.quantity!) {
+    this.error = 'Not enough stock available';
+    return;
+  }
 
   this.cartService.addOrUpdateCartItem(shoppingCartDTO).subscribe({
     next: (updatedItem: CartDTO) => {

@@ -163,7 +163,7 @@ export class UserLayoutComponent implements OnInit, AfterViewInit, OnDestroy {
 
   navigateToProduct(productId: number): void {
     this.clearSearch();
-    this.router.navigate(['/product', productId]);
+    this.router.navigate(['/products/product/', productId]);
   }
 
   navigateToCart(): void {
