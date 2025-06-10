@@ -81,6 +81,16 @@
             </a>
 
             <div class="fw-bold">${{ product.price }}</div>
+
+            <!-- Add stock indicator -->
+            <div *ngIf="product.quantity !== undefined" class="stock-indicator mt-1">
+              <span *ngIf="product.quantity > 0 && product.quantity <= 5" class="small text-warning fw-semibold">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i> Only {{ product.quantity }} left
+              </span>
+              <span *ngIf="product.quantity === 0" class="small text-danger fw-semibold">
+                <i class="bi bi-x-circle-fill me-1"></i> Out of stock
+              </span>
+            </div>
           </div>
         </div>
       </div>

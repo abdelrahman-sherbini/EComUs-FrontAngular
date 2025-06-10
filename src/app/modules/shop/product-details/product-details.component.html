@@ -23,6 +23,18 @@
     <div class="col-lg-5">
       <h2 class="fw-semibold mb-2">{{ prod.productName }}</h2>
       <div class="fs-3 fw-bold text-dark mb-2">${{ prod.price }}</div>
+      <!-- Add stock indicator -->
+      <div *ngIf="prod.quantity !== undefined" class="stock-indicator mb-3">
+        <span *ngIf="prod.quantity > 5" class="badge bg-success rounded-pill px-3 py-2">
+          <i class="bi bi-check-circle me-1"></i> In Stock
+        </span>
+        <span *ngIf="prod.quantity > 0 && prod.quantity <= 5" class="badge bg-warning text-dark rounded-pill px-3 py-2">
+          <i class="bi bi-exclamation-triangle me-1"></i> Only {{ prod.quantity }} left in stock
+        </span>
+        <span *ngIf="prod.quantity === 0" class="badge bg-danger rounded-pill px-3 py-2">
+          <i class="bi bi-x-circle me-1"></i> Out of Stock
+        </span>
+      </div>
       <div class="d-flex align-items-center mb-3 gap-2 action-row">
         <span class="me-2">Quantity</span>
         <div class="qty-group">
