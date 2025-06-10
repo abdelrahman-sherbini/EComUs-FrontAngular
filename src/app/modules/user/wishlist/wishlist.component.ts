@@ -1,10 +1,10 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CustomerWishlistService } from '../../openapi';
-import { PagedResponseProductDTO, ProductDTO } from '../../openapi';
+import { ProductDTO } from '../../openapi';
 import { FormsModule } from '@angular/forms';
 import { CurrencyPipe, SlicePipe } from '@angular/common';
-import {ShoppingService} from '../../../services/shopping.service';
+import { WishListService } from '../../../services/wish-list-service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-wishlist',
@@ -17,14 +17,18 @@ import {ShoppingService} from '../../../services/shopping.service';
   ],
   styleUrls: ['./wishlist.component.css']
 })
-export class WishlistComponent implements OnInit {
+export class WishlistComponent implements OnInit, OnDestroy {
   @Input() hideHeader: boolean = false;
+
+  // All wishlist items from service
+  allWishlistItems: ProductDTO[] = [];
+  // Filtered and paginated items to display
   wishlistItems: ProductDTO[] = [];
   loading = false;
   error: string | null = null;
 
   // Pagination
-  currentPage = 0; // Internal 0-based page tracking
+  currentPage = 0;
   pageSize = 10;
   totalPages = 0;
   totalElements = 0;
@@ -34,155 +38,157 @@ export class WishlistComponent implements OnInit {
   selectedCategory = '';
   priceMin: number | null = null;
   priceMax: number | null = null;
-  sortField: 'productId' | 'userId' = 'productId';
+  sortField: 'productId' | 'productName' | 'price' = 'productId';
   sortDir: 'asc' | 'desc' = 'asc';
 
-  constructor(private shoppingService: ShoppingService,private wishlistService: CustomerWishlistService) {}
+  private wishlistSubscription?: Subscription;
+
+  constructor(private wishListService: WishListService) {}
 
   ngOnInit(): void {
-    this.loadWishlistItems();
+    this.subscribeToWishlist();
+    this.refreshWishlist();
   }
 
-  // Load wishlist items without any filters (for initial load and pagination)
-  loadWishlistItems(): void {
-    this.loading = true;
-    this.error = null;
+  ngOnDestroy(): void {
+    if (this.wishlistSubscription) {
+      this.wishlistSubscription.unsubscribe();
+    }
+  }
 
-    // Convert 0-based currentPage to 1-based pageNum for API
-    const apiPageNum = this.currentPage + 1;
-
-    console.log('Loading wishlist items with basic params:', {
-      pageNum: apiPageNum,
-      pageSize: this.pageSize,
-      sortField: this.sortField,
-      sortDir: this.sortDir
-    });
-
-    // Call API with only basic pagination and sorting parameters
-    // Convert 0-based currentPage to 1-based pageNum
-    this.wishlistService.getWishItems(
-      apiPageNum, // This maps to pageNum (1-based)
-      this.pageSize,
-      this.sortField,
-      this.sortDir
-    ).subscribe({
-      next: (response: PagedResponseProductDTO) => {
-        console.log('Wishlist API response:', response);
-        this.wishlistItems = response.content || [];
-        this.totalPages = response.totalPages || 0;
-        this.totalElements = response.totalElements || 0;
+  private subscribeToWishlist(): void {
+    this.wishlistSubscription = this.wishListService.getAllWishlistedProducts$().subscribe({
+      next: (products) => {
+        this.allWishlistItems = products;
+        this.applyFiltersAndPagination();
         this.loading = false;
-
-        if (this.wishlistItems.length === 0) {
-          console.log('No items found in wishlist response');
-        }
       },
-      error: (err: any) => {
-        console.error('Wishlist API error:', err);
-        this.error = `Failed to load wishlist items: ${err.message || 'Unknown error'}`;
+      error: (err) => {
+        console.error('Error loading wishlist:', err);
+        this.error = 'Failed to load wishlist items';
         this.loading = false;
-
-        // Additional error details for debugging
-        if (err.status === 500) {
-          console.error('Server error details:', err.error);
-          this.error = 'Server error occurred. Please try again later.';
-        }
       }
     });
   }
 
-  // Load wishlist items with filters (for search and filtering)
-  loadWishlistItemsWithFilters(): void {
+  private refreshWishlist(): void {
     this.loading = true;
     this.error = null;
+    this.wishListService.refreshWishlist();
+  }
 
-    // Convert 0-based currentPage to 1-based pageNum for API
-    const apiPageNum = this.currentPage + 1;
+  private applyFiltersAndPagination(): void {
+    let filteredItems = [...this.allWishlistItems];
 
-    console.log('Loading wishlist items with filters:', {
-      pageNum: apiPageNum,
-      pageSize: this.pageSize,
-      sortField: this.sortField,
-      sortDir: this.sortDir,
-      searchKeyword: this.searchKeyword,
-      selectedCategory: this.selectedCategory,
-      priceMin: this.priceMin,
-      priceMax: this.priceMax
-    });
+    // Apply search filter
+    if (this.searchKeyword.trim()) {
+      const keyword = this.searchKeyword.toLowerCase();
+      filteredItems = filteredItems.filter(item =>
+        item.productName?.toLowerCase().includes(keyword) ||
+        item.description?.toLowerCase().includes(keyword)
+      );
+    }
 
-    // Full API call with all parameters
-    this.wishlistService.getWishItems(
-      apiPageNum, // Convert to 1-based
-      this.pageSize,
-      this.sortField,
-      this.sortDir,
-      this.searchKeyword || undefined,
-      undefined, // productName
-      undefined, // description
-      this.priceMin || undefined,
-      this.priceMax || undefined,
-      undefined, // categoryId
-      this.selectedCategory || undefined
-    ).subscribe({
-      next: (response: PagedResponseProductDTO) => {
-        this.wishlistItems = response.content || [];
-        this.totalPages = response.totalPages || 0;
-        this.totalElements = response.totalElements || 0;
-        this.loading = false;
-      },
-      error: (err: any) => {
-        this.error = `Failed to load wishlist items: ${err.message || 'Unknown error'}`;
-        this.loading = false;
-        console.error('Error loading wishlist with filters:', err);
+    // Apply category filter
+    if (this.selectedCategory) {
+      filteredItems = filteredItems.filter(item =>
+        item.categories?.some(cat =>
+          cat.categoryName?.toLowerCase() === this.selectedCategory.toLowerCase()
+        )
+      );
+    }
+
+    // Apply price filters
+    if (this.priceMin !== null) {
+      filteredItems = filteredItems.filter(item =>
+        item.price !== undefined && item.price >= this.priceMin!
+      );
+    }
+    if (this.priceMax !== null) {
+      filteredItems = filteredItems.filter(item =>
+        item.price !== undefined && item.price <= this.priceMax!
+      );
+    }
+
+    // Apply sorting
+    filteredItems.sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (this.sortField) {
+        case 'productId':
+          aValue = a.productId || 0;
+          bValue = b.productId || 0;
+          break;
+        case 'productName':
+          aValue = a.productName || '';
+          bValue = b.productName || '';
+          break;
+        case 'price':
+          aValue = a.price || 0;
+          bValue = b.price || 0;
+          break;
+        default:
+          aValue = a.productId || 0;
+          bValue = b.productId || 0;
       }
+
+      if (typeof aValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      if (aValue < bValue) return this.sortDir === 'asc' ? -1 : 1;
+      if (aValue > bValue) return this.sortDir === 'asc' ? 1 : -1;
+      return 0;
     });
+
+    // Update totals
+    this.totalElements = filteredItems.length;
+    this.totalPages = Math.ceil(this.totalElements / this.pageSize);
+
+    // Ensure current page is valid
+    if (this.currentPage >= this.totalPages && this.totalPages > 0) {
+      this.currentPage = this.totalPages - 1;
+    }
+
+    // Apply pagination
+    const startIndex = this.currentPage * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.wishlistItems = filteredItems.slice(startIndex, endIndex);
   }
 
   removeFromWishlist(productId: number): void {
-    console.log('Removing product from wishlist:', productId);
+    if (!productId) return;
 
-    this.wishlistService._delete(productId).subscribe({
+    console.log('Removing product from wishlist:', productId);
+    this.wishListService.remove(productId).subscribe({
       next: () => {
         console.log('Product removed successfully');
-        // Reload with current view (filtered or unfiltered)
-
-        this.shoppingService.decrementWishlistCount()
-        if (this.hasActiveFilters()) {
-          this.loadWishlistItemsWithFilters();
-        } else {
-          this.loadWishlistItems();
-        }
+        // The wishlist will automatically update through the subscription
       },
-      error: (err: any) => {
+      error: (err) => {
         console.error('Error removing item:', err);
-        this.error = `Failed to remove item: ${err.message || 'Unknown error'}`;
+        // Error handling is already done in the service
       }
     });
   }
 
   onSearch(): void {
     this.currentPage = 0;
-    this.loadWishlistItemsWithFilters(); // Use filtered version for search
+    this.applyFiltersAndPagination();
   }
 
   onPageChange(page: number): void {
-    this.currentPage = page;
-    // Use appropriate loading method based on whether filters are active
-    if (this.hasActiveFilters()) {
-      this.loadWishlistItemsWithFilters();
-    } else {
-      this.loadWishlistItems();
+    if (page >= 0 && page < this.totalPages) {
+      this.currentPage = page;
+      this.applyFiltersAndPagination();
     }
   }
 
   onSortChange(): void {
     this.currentPage = 0;
-    // Use appropriate loading method based on whether filters are active
-    if (this.hasActiveFilters()) {
-      this.loadWishlistItemsWithFilters();
-    } else {
-      this.loadWishlistItems();
-    }
+    this.applyFiltersAndPagination();
   }
 
   clearFilters(): void {
@@ -191,7 +197,7 @@ export class WishlistComponent implements OnInit {
     this.priceMin = null;
     this.priceMax = null;
     this.currentPage = 0;
-    this.loadWishlistItems(); // Load without filters
+    this.applyFiltersAndPagination();
   }
 
   // Helper method to check if any filters are active
@@ -217,5 +223,11 @@ export class WishlistComponent implements OnInit {
     }).format(price);
   }
 
+  // Force refresh method (can be called from template if needed)
+  forceRefresh(): void {
+    this.refreshWishlist();
+  }
+
   protected readonly Math = Math;
 }
+

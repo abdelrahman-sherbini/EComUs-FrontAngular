@@ -9,7 +9,6 @@
     </div>
   </div>
 
-
   <!-- Main Content -->
   <div class="main-content">
     <!-- Search and Filters -->
@@ -36,15 +35,16 @@
 
         <div class="filter-group">
           <label>Price Range:</label>
-          <input type="number" [(ngModel)]="priceMin" placeholder="Min" class="price-input">
-          <input type="number" [(ngModel)]="priceMax" placeholder="Max" class="price-input">
+          <input type="number" [(ngModel)]="priceMin" placeholder="Min" class="price-input" (change)="onSearch()">
+          <input type="number" [(ngModel)]="priceMax" placeholder="Max" class="price-input" (change)="onSearch()">
         </div>
 
         <div class="filter-group">
           <label>Sort By:</label>
           <select [(ngModel)]="sortField" (change)="onSortChange()">
             <option value="productId">Product ID</option>
-<!--            <option value="userId">User ID</option>-->
+            <option value="productName">Product Name</option>
+            <option value="price">Price</option>
           </select>
           <select [(ngModel)]="sortDir" (change)="onSortChange()">
             <option value="asc">Ascending</option>
@@ -64,7 +64,7 @@
     <!-- Error State -->
     <div *ngIf="error" class="error">
       <p>{{ error }}</p>
-      <button (click)="loadWishlistItems()" class="retry-btn">Retry</button>
+      <button (click)="forceRefresh()" class="retry-btn">Retry</button>
     </div>
 
     <!-- Products Grid -->
@@ -88,7 +88,7 @@
 
           <!-- Product Description -->
           <p class="product-description" *ngIf="product.description">
-            {{ product.description | slice:0:100 }}{{ product.description.length > 100 ? '...' : '' }}
+            {{ product.description | slice:0:100 }}{{ product.description && product.description.length > 100 ? '...' : '' }}
           </p>
 
           <div class="product-price">
@@ -105,22 +105,21 @@
           </div>
 
           <!-- Quantity Info -->
-<!--            <div *ngIf="product.quantity !== undefined" class="quantity-info">-->
-<!--              <span class="quantity-label">Available: </span>-->
-<!--              <span [class]="'quantity-value ' + (product.quantity > 0 ? 'in-stock' : 'out-of-stock')">-->
-<!--                {{ product.quantity > 0 ? product.quantity : 'Out of Stock' }}-->
-<!--              </span>-->
-<!--            </div>-->
-          </div>
-
-          <!-- Remove Button -->
-          <button (click)="removeFromWishlist(product.productId!)"
-                  class="remove-btn"
-                  title="Remove from wishlist"
-                  [disabled]="!product.productId">
-            ×
-          </button>
+          <!-- <div *ngIf="product.quantity !== undefined" class="quantity-info">
+            <span class="quantity-label">Available: </span>
+            <span [class]="'quantity-value ' + (product.quantity > 0 ? 'in-stock' : 'out-of-stock')">
+              {{ product.quantity > 0 ? product.quantity : 'Out of Stock' }}
+            </span>
+          </div> -->
         </div>
+
+        <!-- Remove Button -->
+        <button (click)="removeFromWishlist(product.productId!)"
+                class="remove-btn"
+                title="Remove from wishlist"
+                [disabled]="!product.productId">
+          ×
+        </button>
       </div>
     </div>
 
@@ -159,17 +158,7 @@
       of {{ totalElements }} items
     </div>
   </div>
+</div>
 
-<!--  &lt;!&ndash; Footer &ndash;&gt;-->
-<!--  <footer class="footer">-->
-<!--    <div class="footer-content">-->
-<!--      <p>© 2024 Ecomus Store. All Rights Reserved.</p>-->
-<!--      <div class="payment-icons">-->
-<!--        <img src="/assets/visa.png" alt="Visa">-->
-<!--        <img src="/assets/paypal.png" alt="PayPal">-->
-<!--        <img src="/assets/mastercard.png" alt="Mastercard">-->
-<!--        <img src="/assets/amex.png" alt="American Express">-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </footer>-->
-<!--</div>-->
+
+
