@@ -36,6 +36,7 @@
           (click)="toggleWishlist()"
           [attr.aria-pressed]="isWishlisted"
           [attr.aria-label]="isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'"
+          [disabled]="wishlistLoading"
         >
           <i class="bi"
              [ngClass]="isWishlisted ? 'bi-heart-fill' : 'bi-heart'"

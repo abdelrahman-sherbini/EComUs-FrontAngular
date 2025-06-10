@@ -63,8 +63,6 @@ export class CartService {
     return this.cartService.addOrUpdateCartItem(dto).pipe(
       tap(() => {
         this.shoppingService.incrementCartCount(dto.quantity);
-        // Optionally: call another service to refresh cart count
-
         this.toast.showSuccess(product.name, 'add to cart');
       }),
       catchError(() => {

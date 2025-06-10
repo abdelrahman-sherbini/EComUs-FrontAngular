@@ -31,6 +31,7 @@ export class ProductDetailsComponent implements OnInit {
   mainImage = '';
   totalPrice = 0;
   isWishlisted = false;
+  wishlistLoading = false;
 
 
   constructor(
@@ -52,6 +53,8 @@ export class ProductDetailsComponent implements OnInit {
           this.selectedQty = 1;
           this.updateTotal();
           this.loading = false;
+          this.checkIfWishlisted()
+
         },
         error: () => {
           this.error = 'Product not found or an error occurred.';
@@ -62,8 +65,6 @@ export class ProductDetailsComponent implements OnInit {
       this.error = 'Invalid product ID.';
       this.loading = false;
     }
-
-    this.checkIfWishlisted();
 
   }
 
@@ -94,24 +95,31 @@ export class ProductDetailsComponent implements OnInit {
     ).subscribe({});
   }
 
-
-
   checkIfWishlisted() {
     if (this.product?.productId) {
-      this.wishlistService.isWishlisted(this.product.productId)
-        .subscribe(isInList => this.isWishlisted = isInList);
+      this.wishlistService.isWishlisted$(this.product.productId)
+        .subscribe((isInList: boolean) => this.isWishlisted = isInList);
     }
   }
 
   toggleWishlist() {
-    if (!this.product?.productId) return;
+    if (!this.product?.productId || this.wishlistLoading) return;
+    this.wishlistLoading = true;
     if (this.isWishlisted) {
-      this.wishlistService.remove(this.product.productId).subscribe(() => {
-        this.isWishlisted = false;
+      this.wishlistService.remove(this.product.productId).subscribe({
+        next: () => {
+          this.checkIfWishlisted();
+          this.wishlistLoading = false;
+        },
+        error: () => { this.wishlistLoading = false; }
       });
     } else {
-      this.wishlistService.add(this.product.productId).subscribe(() => {
-        this.isWishlisted = true;
+      this.wishlistService.add(this.product.productId).subscribe({
+        next: () => {
+          this.checkIfWishlisted();
+          this.wishlistLoading = false;
+        },
+        error: () => { this.wishlistLoading = false; }
       });
     }
   }

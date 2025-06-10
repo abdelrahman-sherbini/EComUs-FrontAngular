@@ -3,42 +3,54 @@ import {AuthService} from '../../services/auth-service';
 import {ToastService} from '../../services/toast';
 import {PopupService} from '../../services/popup.service';
 import {Router} from '@angular/router';
-import {catchError, EMPTY, map, Observable, of, tap} from 'rxjs';
-import {CustomerWishlistService} from '../openapi';
+import {BehaviorSubject, catchError, EMPTY, map, Observable, of, tap} from 'rxjs';
+import {CustomerWishlistService, PagedResponseProductDTO, ProductDTO} from '../openapi';
+import {ShoppingService} from "../../services/shopping.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class WishListService {
 
+  private wishlistProductsSubject = new BehaviorSubject<ProductDTO[]>([]);
+  public wishlistProducts$ = this.wishlistProductsSubject.asObservable();
+
   constructor(
     private auth: AuthService,
     private toast: ToastService,
     private wishlistService: CustomerWishlistService,
     private popup: PopupService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private shoppingService: ShoppingService
+  ) {
+    if (this.auth.isAuthenticated()) {
+      this.refreshWishlist();
+    }
+    // You may want to subscribe to login/logout events here to refresh/clear the list
+  }
 
-  /**
-   * Add a product to the user's wishlist.
-   * @param productId - The product ID to add.
-   */
+  /** Loads all wishlist products for the current user */
+  refreshWishlist() {
+    if (!this.auth.isAuthenticated()) {
+      this.wishlistProductsSubject.next([]);
+      return;
+    }
+    this.wishlistService.getWishItems().pipe(
+      map((paged: PagedResponseProductDTO) => paged.content ?? []),
+      catchError(() => of([]))
+    ).subscribe(products => {
+      this.wishlistProductsSubject.next(products);
+    });
+  }
+
+  /** Add a product to wishlist and refresh local list */
   add(productId: number): Observable<any> {
     if (!this.auth.isAuthenticated()) {
       this.popup.showConfirm(
         'You must login to add to wishlist.',
         [
-          {
-            text: 'Cancel',
-            value: 'cancel',
-            style: 'secondary'
-          },
-          {
-            text: 'Login',
-            value: 'login',
-            style: 'primary',
-            action: () => this.router.navigate(['/login'])
-          }
+          { text: 'Cancel', value: 'cancel', style: 'secondary' },
+          { text: 'Login', value: 'login', style: 'primary', action: () => this.router.navigate(['/login']) }
         ],
         'Login Required'
       );
@@ -46,7 +58,11 @@ export class WishListService {
     }
 
     return this.wishlistService.add(productId).pipe(
-      tap(() => this.toast.showSuccess('Added to your wishlist!')),
+      tap(() => {
+        this.shoppingService.incrementWishlistCount()
+        this.toast.showSuccess('Added to your wishlist!');
+        this.refreshWishlist(); // Refresh the list after add
+      }),
       catchError((err) => {
         this.toast.showError(
           err?.error?.message || 'Could not add to wishlist.'
@@ -56,10 +72,7 @@ export class WishListService {
     );
   }
 
-  /**
-   * Remove a product from the user's wishlist.
-   * @param productId - The product ID to remove.
-   */
+  /** Remove a product from wishlist and refresh local list */
   remove(productId: number): Observable<any> {
     if (!this.auth.isAuthenticated()) {
       this.toast.showWarning('You must login to remove from wishlist.');
@@ -68,7 +81,11 @@ export class WishListService {
     }
 
     return this.wishlistService._delete(productId).pipe(
-      tap(() => this.toast.showSuccess('Removed from your wishlist.')),
+      tap(() => {
+        this.shoppingService.decrementWishlistCount()
+        this.toast.showSuccess('Removed from your wishlist.');
+        this.refreshWishlist(); // Refresh the list after remove
+      }),
       catchError((err) => {
         this.toast.showError(
           err?.error?.message || 'Could not remove from wishlist.'
@@ -78,14 +95,15 @@ export class WishListService {
     );
   }
 
-  isWishlisted(productId: number): Observable<boolean> {
-    if (!this.auth.isAuthenticated()) {
-      return of(false);
-    }
-    return this.wishlistService.getById(productId).pipe(
-      map((item) => !!item),         // If we get a WishlistDTO, return true
-      catchError(() => of(false))    // If error (404/not found), return false
+  /** Checks if a product is in the local wishlist */
+  isWishlisted(productId: number): boolean {
+    return this.wishlistProductsSubject.value.some(p => p.productId === productId);
+  }
+
+  /** (If you need async version for guards, etc.) */
+  isWishlisted$(productId: number): Observable<boolean> {
+    return this.wishlistProducts$.pipe(
+      map(products => products.some(p => p.productId === productId))
     );
   }
 }
-
