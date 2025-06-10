@@ -108,3 +108,19 @@
   pointer-events: auto; // allow links, just dim visually
   filter: grayscale(0.2);
 }
+
+.stock-indicator {
+  min-height: 20px;
+
+  .small {
+    font-size: 0.8rem;
+
+    &.text-warning {
+      color: #856404 !important;
+    }
+
+    &.text-danger {
+      color: #721c24 !important;
+    }
+  }
+}
