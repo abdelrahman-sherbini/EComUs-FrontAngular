@@ -16,7 +16,7 @@ import { Router } from '@angular/router';
     SlicePipe,
     CurrencyPipe
   ],
-  styleUrls: ['./wishlist.component.css']
+  styleUrls: ['./wishlist.component.scss']
 })
 export class WishlistComponent implements OnInit, OnDestroy {
   @Input() hideHeader: boolean = false;
@@ -238,6 +238,14 @@ export class WishlistComponent implements OnInit, OnDestroy {
     if (productId) {
       this.router.navigate(['/products/product', productId]);
     }
+  }
+
+  trackByProductId(index: number, product: ProductDTO): number | undefined {
+    return product.productId;
+  }
+
+  onImageError(event: Event) {
+    (event.target as HTMLImageElement).src = '/assets/placeholder.jpg';
   }
 }
 

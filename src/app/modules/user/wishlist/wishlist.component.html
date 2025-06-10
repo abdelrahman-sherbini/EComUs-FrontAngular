@@ -1,63 +1,75 @@
 <div class="wishlist-container">
-  <!-- Header - only show if not hidden -->
-  <div class="wishlist-header" *ngIf="!hideHeader">
+  <!-- Header -->
+  <header *ngIf="!hideHeader" class="wishlist-header">
     <div class="header-content">
-      <h1>My Wishlist</h1>
+      <h1>
+        <i aria-hidden="true" class="bi bi-heart-fill me-2"></i>
+        My Wishlist
+      </h1>
       <p *ngIf="!loading && wishlistItems.length > 0">
         Items you've saved for later
       </p>
     </div>
-  </div>
+  </header>
 
-  <!-- Main Content -->
-  <div class="main-content">
-    <!-- Search and Filters -->
-    <div class="filters-section">
-      <div class="search-bar">
-        <input
-          type="text"
-          [(ngModel)]="searchKeyword"
-          placeholder="Search products..."
-          class="search-input"
-          (keyup.enter)="onSearch()">
-        <button (click)="onSearch()" class="search-btn">Search</button>
-      </div>
-
-      <div class="filters">
-        <div class="filter-group">
-          <label>Category:</label>
-          <select [(ngModel)]="selectedCategory" (change)="onSearch()">
-            <option value="">All Categories</option>
-            <option value="clothing">Clothing</option>
-            <option value="accessories">Accessories</option>
-          </select>
+  <main class="main-content">
+    <!-- Filters Bar -->
+    <section class="filters-bar">
+      <form class="filters-form" (ngSubmit)="onSearch()" autocomplete="off">
+        <div class="search-group">
+          <input
+            type="text"
+            class="search-input"
+            [(ngModel)]="searchKeyword"
+            name="wishlistSearch"
+            placeholder="Search products..."
+            aria-label="Search products"
+          />
+          <button type="submit" class="search-btn" aria-label="Search">
+            <i class="bi bi-search"></i>
+          </button>
         </div>
-
-        <div class="filter-group">
-          <label>Price Range:</label>
-          <input type="number" [(ngModel)]="priceMin" placeholder="Min" class="price-input" (change)="onSearch()">
-          <input type="number" [(ngModel)]="priceMax" placeholder="Max" class="price-input" (change)="onSearch()">
+        <div class="filters-row">
+          <div class="filter-group">
+            <label for="categorySelect">Category</label>
+            <select id="categorySelect" [(ngModel)]="selectedCategory" name="category" (change)="onSearch()">
+              <option value="">All</option>
+              <option value="clothing">Clothing</option>
+              <option value="accessories">Accessories</option>
+            </select>
+          </div>
+          <div class="filter-group price-range-group">
+            <label>Price</label>
+            <div class="price-range">
+              <input type="number" [(ngModel)]="priceMin" name="minPrice" placeholder="Min" class="price-input" (change)="onSearch()" min="0">
+              <span>-</span>
+              <input type="number" [(ngModel)]="priceMax" name="maxPrice" placeholder="Max" class="price-input" (change)="onSearch()" min="0">
+            </div>
+          </div>
+          <div class="filter-group sort-group">
+            <label>Sort</label>
+            <div class="sort-selects">
+              <select [(ngModel)]="sortField" name="sortField" (change)="onSortChange()">
+                <option value="productId">ID</option>
+                <option value="productName">Name</option>
+                <option value="price">Price</option>
+              </select>
+              <select [(ngModel)]="sortDir" name="sortDir" (change)="onSortChange()">
+                <option value="asc">Asc</option>
+                <option value="desc">Desc</option>
+              </select>
+            </div>
+          </div>
+          <button type="button" class="clear-btn" (click)="clearFilters()" aria-label="Clear all filters">
+            <i class="bi bi-x-circle"></i>
+          </button>
         </div>
-
-        <div class="filter-group">
-          <label>Sort By:</label>
-          <select [(ngModel)]="sortField" (change)="onSortChange()">
-            <option value="productId">Product ID</option>
-            <option value="productName">Product Name</option>
-            <option value="price">Price</option>
-          </select>
-          <select [(ngModel)]="sortDir" (change)="onSortChange()">
-            <option value="asc">Ascending</option>
-            <option value="desc">Descending</option>
-          </select>
-        </div>
-
-        <button (click)="clearFilters()" class="clear-btn">Clear Filters</button>
-      </div>
-    </div>
+      </form>
+    </section>
 
     <!-- Loading State -->
     <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
       <p>Loading your wishlist...</p>
     </div>
 
@@ -68,88 +80,79 @@
     </div>
 
     <!-- Products Grid -->
-    <div *ngIf="!loading && !error" class="products-grid">
-      <div *ngFor="let product of wishlistItems" class="product-card">
-        <!-- Sale Badge - Only show if needed -->
-        <div *ngIf="product.price && product.price < 100" class="sale-badge">
-          SALE
-        </div>
-
-        <!-- Product Image - Make clickable -->
-        <div class="product-image" (click)="navigateToProductDetails(product.productId!)">
-          <img [src]="product.images && product.images.length ? product.images[0] : '/placeholder.jpg'"
+    <section *ngIf="!loading && !error" class="products-grid">
+      <div *ngFor="let product of wishlistItems; trackBy: trackByProductId" class="product-card" tabindex="0">
+        <!-- Remove button -->
+        <button
+          (click)="removeFromWishlist(product.productId!)"
+          [attr.aria-label]="'Remove ' + product.productName + ' from wishlist'"
+          [disabled]="!product.productId"
+          [title]="'Remove ' + product.productName + ' from wishlist'"
+          class="remove-btn-top"
+          tabindex="0">
+          <i class="bi bi-trash"></i>
+        </button>
+        <!-- Product Image -->
+        <div (click)="navigateToProductDetails(product.productId!)" class="product-image">
+          <img (error)="onImageError($event)"
                [alt]="product.productName"
-               onerror="this.src='/assets/placeholder.jpg'"
+               [src]="product.images && product.images.length ? product.images[0] : '/placeholder.jpg'"
+               loading="lazy"
                style="cursor: pointer;">
         </div>
-
-        <!-- Product Info - Make product name clickable -->
         <div class="product-info">
-          <h3 class="product-name" (click)="navigateToProductDetails(product.productId!)" style="cursor: pointer;">
+          <h3 (click)="navigateToProductDetails(product.productId!)" class="product-name">
             {{ product.productName }}
           </h3>
-
-          <!-- Product Description -->
-          <p class="product-description" *ngIf="product.description">
-            {{ product.description | slice:0:100 }}{{ product.description && product.description.length > 100 ? '...' : '' }}
+          <p *ngIf="product.description" class="product-description">
+            {{ product.description | slice:0:80 }}<span *ngIf="product.description.length > 80">...</span>
           </p>
-
           <div class="product-price">
-            <span class="current-price" *ngIf="product.price">
+            <span *ngIf="product.price" class="current-price">
               {{ product.price | currency }}
             </span>
           </div>
-
-          <!-- Categories -->
           <div *ngIf="product.categories && product.categories.length > 0" class="product-categories">
-            <span *ngFor="let category of product.categories; let last = last" class="category-tag">
-              {{ category.categoryName }}<span *ngIf="!last">, </span>
+            <span *ngFor="let category of product.categories || []; let last = last" class="category-tag">
+              <i class="bi bi-bookmark"></i> {{ category.categoryName }}<span *ngIf="!last">, </span>
             </span>
           </div>
         </div>
-
-        <!-- Add View Details Button -->
-        <div class="product-actions">
-          <button class="view-details-btn" (click)="navigateToProductDetails(product.productId!)">
-            View Details
-          </button>
-          <button (click)="removeFromWishlist(product.productId!)"
-                  class="remove-btn"
-                  title="Remove from wishlist"
-                  [disabled]="!product.productId">
-            ×
-          </button>
-        </div>
       </div>
-    </div>
+    </section>
 
     <!-- Empty State -->
     <div *ngIf="!loading && !error && wishlistItems.length === 0" class="empty-state">
-      <p>Your wishlist is empty</p>
-      <a href="/products" class="shop-btn">Continue Shopping</a>
+      <img alt="Empty wishlist" class="empty-illustration mb-3" src="/assets/empty-box.svg" width="100">
+      <h5>Your wishlist is empty</h5>
+      <p>Start exploring and save products for later.</p>
+      <a class="shop-btn" routerLink="/products">
+        <i class="bi bi-bag-plus"></i> Continue Shopping
+      </a>
     </div>
 
     <!-- Pagination -->
-    <div *ngIf="totalPages > 1" class="pagination">
+    <nav *ngIf="totalPages > 1" class="pagination">
       <button (click)="onPageChange(currentPage - 1)"
               [disabled]="currentPage === 0"
+              aria-label="Previous Page"
               class="page-btn">
-        Previous
+        <i class="bi bi-chevron-left"></i>
       </button>
-
-      <button *ngFor="let page of pages"
-              (click)="onPageChange(page)"
-              [class]="'page-btn ' + (page === currentPage ? 'active' : '')"
+      <button (click)="onPageChange(page)"
+              *ngFor="let page of pages"
+              [attr.aria-label]="'Go to page ' + (page + 1)"
+              [ngClass]="{'page-btn': true, 'active': page === currentPage}"
               class="page-number">
         {{ page + 1 }}
       </button>
-
       <button (click)="onPageChange(currentPage + 1)"
               [disabled]="currentPage === totalPages - 1"
+              aria-label="Next Page"
               class="page-btn">
-        Next
+        <i class="bi bi-chevron-right"></i>
       </button>
-    </div>
+    </nav>
 
     <!-- Results Info -->
     <div *ngIf="!loading && wishlistItems.length > 0" class="results-info">
@@ -157,8 +160,5 @@
       {{ Math.min((currentPage + 1) * pageSize, totalElements) }}
       of {{ totalElements }} items
     </div>
-  </div>
+  </main>
 </div>
-
-
-
