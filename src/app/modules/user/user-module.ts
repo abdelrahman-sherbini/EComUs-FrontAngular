@@ -16,10 +16,10 @@ const routes:Routes = [
   {
       path :'profile',component:ProfileComponent,
   },
-  // {
-  //   path: 'wishlist',
-  //   component: WishlistComponent,
-  // },
+  {
+    path: 'wishlist',
+    component: WishlistComponent,
+  },
   {
     path: 'cart',
     component: CartComponent,

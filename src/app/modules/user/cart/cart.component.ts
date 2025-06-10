@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CustomerCartService, CartDTO, PagedResponseCartDTO, ShoppingCartDTO } from '../../openapi';
 import { AsyncPipe, CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import {ShoppingService} from '../../../services/shopping.service';
 
 @Component({
   selector: 'app-cart',
@@ -29,6 +30,7 @@ export class CartComponent implements OnInit {
   Math = Math;
 
   constructor(
+    private shoppingService: ShoppingService,
     private cartService: CustomerCartService,
     private router: Router,
     private route: ActivatedRoute
@@ -224,6 +226,7 @@ export class CartComponent implements OnInit {
         }
         this.loadTotalPrice();
         this.loadTotalQuantity();
+        this.shoppingService.decrementCartCount(shoppingCartDTO.quantity);
       },
       error: (error) => {
         this.error = 'Failed to update cart item';
@@ -245,6 +248,7 @@ export class CartComponent implements OnInit {
         this.loadCartItems();
         this.loadTotalPrice();
         this.loadTotalQuantity();
+        this.shoppingService.refreshCounts();
       },
       error: (error) => {
         this.error = 'Failed to remove cart item';
@@ -268,6 +272,7 @@ increaseQuantity(productId: number, currentQuantity: number): void {
       }
       this.loadTotalPrice();
       this.loadTotalQuantity();
+      this.shoppingService.incrementCartCount();
     },
     error: (error) => {
       this.error = 'Failed to update cart item';
@@ -297,6 +302,7 @@ decreaseQuantity(productId: number, currentQuantity: number): void {
       }
       this.loadTotalPrice();
       this.loadTotalQuantity();
+      this.shoppingService.decrementCartCount();
     },
     error: (error) => {
       this.error = 'Failed to update cart item';
