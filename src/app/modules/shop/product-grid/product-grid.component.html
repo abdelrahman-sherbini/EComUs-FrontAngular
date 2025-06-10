@@ -1,36 +1,47 @@
 <div class="container">
-  <div  class="row gy-4">
+  <div class="row gy-4">
     <ng-container *ngIf="products?.length; else noProducts">
       <div
         *ngFor="let product of products "
         [ngClass]="getGridClasses(gridClass)">
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative product-card">
+        <div [ngClass]="{'out-of-stock': !product.quantity}"
+             class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative product-card">
           <div class="position-relative overflow-hidden">
-            <img
-              [src]="product.images && product.images.length ? product.images[0] : '/placeholder.jpg'"
-              alt="Product image"
-              class="w-100 object-fit-cover"/>
+            <a [routerLink]="['product/', product.productId]">
+              <img
+                [src]="product.images && product.images.length ? product.images[0] : '/placeholder.jpg'"
+                alt="Product image"
+                class="w-100 object-fit-cover"
+                style="cursor:pointer;"/>
+              <span
+                *ngIf="!product.quantity"
+                class="badge bg-danger position-absolute top-0 start-0 m-2 px-3 py-2 fs-6 rounded-pill z-2"
+                style="opacity:0.94;">
+                Out of Stock
+              </span>
+            </a>
 
             <!-- Hover actions -->
             <div class="hover-actions position-absolute top-0 end-0 p-2 d-flex flex-column align-items-center gap-2">
               <!-- Wishlist Heart Button -->
               <button
-                class="btn wishlist-btn"
-                type="button"
                 (click)="onWishlistClick(product)"
-                [title]="isWishlisted(product) ? 'Remove from wishlist' : 'Add to wishlist'"
+                [attr.aria-label]="isWishlisted(product) ? 'Remove from wishlist' : 'Add to wishlist'"
                 [attr.aria-pressed]="isWishlisted(product)"
-                [attr.aria-label]="isWishlisted(product) ? 'Remove from wishlist' : 'Add to wishlist'">
-                <i class="bi"
-                   [ngClass]="isWishlisted(product) ? 'bi-heart-fill' : 'bi-heart'"
-                   [style.color]="isWishlisted(product) ? '#111' : '#bbb'"></i>
+                [title]="isWishlisted(product) ? 'Remove from wishlist' : 'Add to wishlist'"
+                class="btn wishlist-btn"
+                type="button">
+                <i [ngClass]="isWishlisted(product) ? 'bi-heart-fill' : 'bi-heart'"
+                   [style.color]="isWishlisted(product) ? '#111' : '#bbb'"
+                   class="bi"></i>
               </button>
+
               <!-- Quick View Eye Button -->
               <button
-                class="btn quick-view-btn"
-                type="button"
                 (click)="onQuickView(product)"
-                title="Quick View">
+                class="btn quick-view-btn"
+                title="Quick View"
+                type="button">
                 <i class="bi bi-eye"></i>
               </button>
             </div>
@@ -38,30 +49,39 @@
             <!-- Quick Add -->
             <div
               (click)="onQuickAdd(product)"
-              class="quick-add text-center py-2 w-100 fw-bold bg-dark position-absolute bottom-0 start-0">
+              *ngIf="product.quantity; else disabledQuickAdd"
+              class="quick-add text-center py-2 w-100 fw-bold bg-dark position-absolute bottom-0 start-0"
+              style="cursor:pointer;">
               Quick Add
             </div>
-          </div>
+            <ng-template #disabledQuickAdd>
+              <div
+                class="quick-add text-center py-2 w-100 fw-bold bg-secondary text-white-50 position-absolute bottom-0 start-0"
+                style="opacity: 0.7; cursor: not-allowed;">
+                Out of Stock
+              </div>
+            </ng-template>
 
-        </div>
-        <!-- Product details -->
-        <div class="p-3">
-          <!-- Product Categories -->
-          <div *ngIf="product.categories?.length" class="mb-1 mt-1">
-            <span
-              *ngFor="let cat of product.categories"
-              class="badge rounded-pill bg-light text-secondary border me-1 small"
-              style="font-weight: 600;">
-              {{ cat.categoryName || cat.categoryName }}
-            </span>
           </div>
-          <a
-            [routerLink]="['product/', product.productId]"
-            class="fw-normal mb-1 text-decoration-none product-name-link">
-            {{ product.productName }}
-          </a>
+          <!-- Product details -->
+          <div class="p-3">
+            <!-- Product Categories -->
+            <div *ngIf="product.categories?.length" class="mb-1 mt-1">
+              <span
+                *ngFor="let cat of product.categories"
+                class="badge rounded-pill bg-light text-secondary border me-1 small"
+                style="font-weight: 600;">
+                {{ cat.categoryName || cat.categoryName }}
+              </span>
+            </div>
+            <a
+              [routerLink]="['product/', product.productId]"
+              class="fw-normal mb-1 text-decoration-none product-name-link">
+              {{ product.productName }}
+            </a>
 
-          <div class="fw-bold">${{ product.price }}</div>
+            <div class="fw-bold">${{ product.price }}</div>
+          </div>
         </div>
       </div>
     </ng-container>
@@ -77,12 +97,12 @@
 
 
 <!-- Bootstrap Offcanvas -->
-<div class="offcanvas offcanvas-start" id="filterSidebar" tabindex="-1" aria-labelledby="filterSidebarLabel">
+<div aria-labelledby="filterSidebarLabel" class="offcanvas offcanvas-start" id="filterSidebar" tabindex="-1">
   <div class="offcanvas-header border-bottom">
     <h6 class="offcanvas-title" id="filterSidebarLabel">
       <i class="bi bi-filter me-2"></i>Filter
     </h6>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    <button aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" type="button"></button>
   </div>
 
   <div class="offcanvas-body">
@@ -90,16 +110,17 @@
 
       <!-- Product Categories -->
       <div class="mb-4">
-        <label class="form-label fw-semibold d-flex justify-content-between" (click)="toggleSection('category')" style="cursor: pointer;">
+        <label (click)="toggleSection('category')" class="form-label fw-semibold d-flex justify-content-between"
+               style="cursor: pointer;">
           Product categories
-          <i class="bi" [ngClass]="categoryOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+          <i [ngClass]="categoryOpen ? 'bi-chevron-up' : 'bi-chevron-down'" class="bi"></i>
         </label>
         <div *ngIf="categoryOpen">
           <div *ngFor="let cat of categories" class="form-check">
-            <input  type="checkbox"
-                    [value]="cat.categoryName"
-                    (change)="onCategoryChange($event, cat.categoryName)"
-                    [checked]="filter.categories.includes(cat.categoryName)">
+            <input (change)="onCategoryChange($event, cat.categoryName)"
+                   [checked]="filter.categories.includes(cat.categoryName)"
+                   [value]="cat.categoryName"
+                   type="checkbox">
             <label>{{ cat.categoryName }}</label>
           </div>
         </div>
@@ -107,21 +128,24 @@
 
       <!-- Availability -->
       <div class="mb-4">
-        <label class="form-label fw-semibold d-flex justify-content-between" (click)="toggleSection('availability')" style="cursor: pointer;">
+        <label (click)="toggleSection('availability')" class="form-label fw-semibold d-flex justify-content-between"
+               style="cursor: pointer;">
           Availability
-          <i class="bi" [ngClass]="availabilityOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+          <i [ngClass]="availabilityOpen ? 'bi-chevron-up' : 'bi-chevron-down'" class="bi"></i>
         </label>
         <div *ngIf="availabilityOpen">
           <div class="form-check">
-            <input [(ngModel)]="filter.stockStatus" value="inStock" name="stockStatus" class="form-check-input" type="radio" />
+            <input [(ngModel)]="filter.stockStatus" class="form-check-input" name="stockStatus" type="radio"
+                   value="inStock"/>
             <label class="form-check-label">In stock</label>
           </div>
           <div class="form-check">
-            <input [(ngModel)]="filter.stockStatus" value="outOfStock" name="stockStatus" class="form-check-input" type="radio" />
+            <input [(ngModel)]="filter.stockStatus" class="form-check-input" name="stockStatus" type="radio"
+                   value="outOfStock"/>
             <label class="form-check-label">Out of stock</label>
           </div>
           <div class="form-check">
-            <input [(ngModel)]="filter.stockStatus" value="" name="stockStatus" class="form-check-input" type="radio" />
+            <input [(ngModel)]="filter.stockStatus" class="form-check-input" name="stockStatus" type="radio" value=""/>
             <label class="form-check-label">All</label>
           </div>
         </div>
@@ -129,19 +153,20 @@
 
       <!-- Price -->
       <div class="mb-4">
-        <label class="form-label fw-semibold d-flex justify-content-between" (click)="toggleSection('price')" style="cursor: pointer;">
+        <label (click)="toggleSection('price')" class="form-label fw-semibold d-flex justify-content-between"
+               style="cursor: pointer;">
           Price
-          <i class="bi" [ngClass]="priceOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+          <i [ngClass]="priceOpen ? 'bi-chevron-up' : 'bi-chevron-down'" class="bi"></i>
         </label>
         <div *ngIf="priceOpen">
           <div class="row">
             <div class="col">
               <label class="form-label small">start ($)</label>
-              <input [(ngModel)]="filter.minPrice" name="minPrice" class="form-control" type="number" />
+              <input [(ngModel)]="filter.minPrice" class="form-control" name="minPrice" type="number"/>
             </div>
             <div class="col">
               <label class="form-label small">end ($)</label>
-              <input [(ngModel)]="filter.maxPrice" name="maxPrice" class="form-control" type="number" />
+              <input [(ngModel)]="filter.maxPrice" class="form-control" name="maxPrice" type="number"/>
             </div>
           </div>
         </div>
@@ -150,8 +175,8 @@
 
       <!-- Action Buttons -->
       <div class="d-grid gap-2">
-        <button type="submit" class="btn btn-dark">Apply Filter</button>
-        <button type="button" class="btn btn-outline-dark" (click)="clearFilters()">Clear All Filters</button>
+        <button class="btn btn-dark" type="submit">Apply Filter</button>
+        <button (click)="clearFilters()" class="btn btn-outline-dark" type="button">Clear All Filters</button>
       </div>
 
     </form>

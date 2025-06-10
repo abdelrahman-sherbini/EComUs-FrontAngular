@@ -36,39 +36,52 @@
               </div>
             </div>
 
-
             <!-- Info Section -->
             <div class="w-100">
-              <h5 class="mb-1">{{ product.productName }}</h5>
+              <h5 class="mb-1 d-flex align-items-center gap-2">
+                {{ product.productName }}
+                <span *ngIf="!product.quantity"
+                      class="badge bg-danger fs-6 rounded-pill"
+                      style="opacity:0.92;">
+      Out of Stock
+    </span>
+              </h5>
               <div class="fw-bold mb-3">${{ product.price }}</div>
+              <p *ngIf="!product.quantity" class="text-danger small mb-2">
+                Sorry, this item is currently out of stock.
+              </p>
               <p class="text-muted mb-4" style="max-width: 400px;">
                 {{ product.description || 'Add a touch of comfort and style to your wardrobe with LC Waikiki’s signature leggings. Designed with a flattering fit and stretch fabric, these leggings move with you—perfect for daily wear, workouts, or cozy lounging.' }}
               </p>
-
               <div class="mb-3">
                 <label class="fw-semibold">Quantity</label>
                 <div class="input-group w-50">
                   <button
                     class="btn btn-outline-secondary"
                     (click)="changeQty(-1)"
-                    [disabled]="quantity <= 1"
+                    [disabled]="quantity <= 1 || !product.quantity"
                   >–</button>
                   <input
                     type="text"
                     class="form-control text-center"
                     [value]="quantity"
-                    readonly />
+                    readonly
+                    [disabled]="!product.quantity"
+                  />
                   <button
                     class="btn btn-outline-secondary"
                     (click)="changeQty(1)"
-                    [disabled]="quantity >= (product.quantity || 1)"
+                    [disabled]="quantity >= (product.quantity || 1) || !product.quantity"
                   >+</button>
                 </div>
               </div>
 
-
               <div class="d-flex gap-2 align-items-center">
-                <button class="btn btn-dark flex-grow-1" (click)="addToCart()">
+                <button
+                  class="btn btn-dark flex-grow-1"
+                  (click)="addToCart()"
+                  [disabled]="!product.quantity"
+                >
                   Add to cart – ${{ total.toFixed(2) }}
                 </button>
                 <button
@@ -85,7 +98,10 @@
               </div>
 
               <div class="mt-4">
-                <a href="javascript:void(0)" (click)="viewProductDetails()" class="text-decoration-none fw-medium">
+                <a (click)="viewProductDetails()"
+                   class="view-details-link text-decoration-none fw-medium d-inline-flex align-items-center gap-1"
+                   tabindex="0"
+                   role="button">
                   View full details <i class="bi bi-arrow-up-right"></i>
                 </a>
               </div>

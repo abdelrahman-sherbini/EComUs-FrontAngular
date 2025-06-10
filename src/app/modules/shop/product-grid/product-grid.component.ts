@@ -4,17 +4,17 @@ import {CategoryDTO, ProductDTO} from '../../openapi';
 import {RouterLink} from '@angular/router';
 import {FormsModule} from '@angular/forms';
 import {Offcanvas} from 'bootstrap';
-import {WishListService} from '../wish-list-service';
+import {WishListService} from '../../../services/wish-list-service';
 
 
 @Component({
   selector: 'app-product-grid',
   imports: [
-    NgForOf,
-    NgClass,
-    NgIf,
-    RouterLink,
     FormsModule,
+    NgClass,
+    RouterLink,
+    NgIf,
+    NgForOf,
   ],
   templateUrl: './product-grid.component.html',
   styleUrl: './product-grid.component.scss'
