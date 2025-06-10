@@ -105,6 +105,13 @@ export class LayoutComponent implements OnInit , OnDestroy {
       this.sidebarCollapsed = true;
       sidebar.classList.remove('show');
     }
+
+    // Handle user dropdown clicks
+    const userDropdown = document.querySelector('.nav-item.dropdown');
+    const dropdownMenu = document.querySelector('.nav-item.dropdown .dropdown-menu');
+    if (userDropdown && !userDropdown.contains(event.target as Node) && dropdownMenu) {
+      dropdownMenu.classList.remove('show');
+    }
   }
 
   // Optional: Track hover state for additional functionality
@@ -117,6 +124,15 @@ export class LayoutComponent implements OnInit , OnDestroy {
   onSidebarMouseLeave() {
     if (!this.isMobile) {
       this.sidebarHovered = false;
+    }
+  }
+
+  // Add this method to handle user dropdown toggle
+  toggleUserDropdown(event: Event): void {
+    event.stopPropagation(); // Prevent document click from immediately closing it
+    const dropdown = document.querySelector('.nav-item.dropdown .dropdown-menu');
+    if (dropdown) {
+      dropdown.classList.toggle('show');
     }
   }
 
