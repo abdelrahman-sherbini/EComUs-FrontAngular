@@ -171,7 +171,7 @@ export class UserLayoutComponent implements OnInit, AfterViewInit, OnDestroy {
       this.router.navigate(['/user/cart']);
     } else {
       this.router.navigate(['/login'], {
-        queryParams: { returnUrl: '/cart' }
+        queryParams: { returnUrl: '/user/cart' }
       });
     }
   }
@@ -181,7 +181,7 @@ export class UserLayoutComponent implements OnInit, AfterViewInit, OnDestroy {
       this.router.navigate(['/user/wishlist']);
     } else {
       this.router.navigate(['/login'], {
-        queryParams: { returnUrl: '/wishlist' }
+        queryParams: { returnUrl: '/user/wishlist' }
       });
     }
   }

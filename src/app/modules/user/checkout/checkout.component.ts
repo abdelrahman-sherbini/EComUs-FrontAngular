@@ -16,6 +16,7 @@ import {
   CheckOutOrderDTO,
   UserDTO
 } from '../../openapi';
+import {ShoppingService} from '../../../services/shopping.service';
 
 @Component({
   selector: 'app-checkout',
@@ -60,6 +61,7 @@ export class CheckoutComponent implements OnInit {
   createdOrderId: number | null = null;
 
   constructor(
+    private shoppingService: ShoppingService,
     private cartService: CustomerCartService,
     private addressService: CustomerAddressesService,
     private orderService: CustomerOrdersService,
@@ -226,6 +228,7 @@ export class CheckoutComponent implements OnInit {
         this.createdOrderId = order.orderId || null;
         this.successMessage = `Your order has been placed successfully! Order ID: ${order.orderId}`;
         this.error = ''; // Clear any previous errors
+        this.shoppingService.refreshCounts();
 
       },
       error: (error) => {

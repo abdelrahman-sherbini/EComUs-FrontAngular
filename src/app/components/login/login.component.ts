@@ -51,6 +51,7 @@ export class LoginComponent implements OnInit {
       const credentials: UserSignInDTO = this.loginForm.value;
       this.authService.login(credentials).subscribe({
         next: () => {
+          this.router.navigate([this.returnUrl]);
           // Navigation is handled by the auth state subscription
         },
         error: (error) => {

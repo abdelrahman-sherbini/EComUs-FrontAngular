@@ -9,7 +9,6 @@ import {WishListService} from '../wish-list-service';
 @Component({
   selector: 'app-quick-view-modal',
   imports: [
-    RouterLink,
     NgForOf,
     NgIf,
     NgClass
