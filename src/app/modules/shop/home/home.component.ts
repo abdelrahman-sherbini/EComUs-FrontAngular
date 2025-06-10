@@ -13,7 +13,7 @@ import {
 import {NgForOf, NgIf} from '@angular/common';
 import {ToastComponent} from '../../../components/toast/toast.component';
 import {PopupComponent} from "../../../components/popup/popup.component";
-import {WishListService} from '../wish-list-service';
+import {WishListService} from '../../../services/wish-list-service';
 
 
 @Component({

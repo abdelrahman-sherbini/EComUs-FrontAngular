@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { Modal } from 'bootstrap';
-import {CartService} from '../cart-service';
+import {CartService} from '../../../services/cart-service';
 import {ProductDTO} from '../../openapi';
-import {WishListService} from '../wish-list-service';
+import {WishListService} from '../../../services/wish-list-service';
 import {NgClass} from '@angular/common';
 
 

@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import {AuthService} from '../../services/auth-service';
-import {ToastService} from '../../services/toast';
-import {PopupService} from '../../services/popup.service';
+import {AuthService} from './auth-service';
+import {ToastService} from './toast';
+import {PopupService} from './popup.service';
 import {Router} from '@angular/router';
 import {BehaviorSubject, catchError, EMPTY, map, Observable, of, tap} from 'rxjs';
-import {CustomerWishlistService, PagedResponseProductDTO, ProductDTO} from '../openapi';
-import {ShoppingService} from "../../services/shopping.service";
+import {CustomerWishlistService, PagedResponseProductDTO, ProductDTO} from '../modules/openapi';
+import {ShoppingService} from "./shopping.service";
 
 @Injectable({
   providedIn: 'root'

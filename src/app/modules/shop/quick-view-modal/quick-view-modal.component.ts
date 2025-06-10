@@ -3,8 +3,8 @@ import {Modal} from 'bootstrap';
 import {Router} from '@angular/router';
 import {NgClass, NgForOf, NgIf} from '@angular/common';
 import {ProductDTO} from '../../openapi';
-import {CartService} from '../cart-service';
-import {WishListService} from '../wish-list-service';
+import {CartService} from '../../../services/cart-service';
+import {WishListService} from '../../../services/wish-list-service';
 
 @Component({
   selector: 'app-quick-view-modal',

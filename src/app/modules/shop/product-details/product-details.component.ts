@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CustomerProductsService, ProductDTO } from '../../openapi';
 import { ActivatedRoute } from '@angular/router';
-import { CartService } from '../cart-service';
+import { CartService } from '../../../services/cart-service';
 import { ToastService } from '../../../services/toast';
 import { FormsModule } from '@angular/forms';
 import { NgClass, NgForOf, NgIf} from '@angular/common';
 import {ToastComponent} from '../../../components/toast/toast.component';
 import {PopupComponent} from '../../../components/popup/popup.component';
-import {WishListService} from '../wish-list-service';
+import {WishListService} from '../../../services/wish-list-service';
 
 @Component({
   selector: 'app-product-details',

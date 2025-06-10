@@ -4,7 +4,7 @@ import {CategoryDTO, ProductDTO} from '../../openapi';
 import {RouterLink} from '@angular/router';
 import {FormsModule} from '@angular/forms';
 import {Offcanvas} from 'bootstrap';
-import {WishListService} from '../wish-list-service';
+import {WishListService} from '../../../services/wish-list-service';
 
 
 @Component({
