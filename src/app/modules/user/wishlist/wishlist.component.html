@@ -1,6 +1,14 @@
 <div class="wishlist-container">
-  <!-- Header -->
- 
+  <!-- Header - only show if not hidden -->
+  <div class="wishlist-header" *ngIf="!hideHeader">
+    <div class="header-content">
+      <h1>My Wishlist</h1>
+      <p *ngIf="!loading && wishlistItems.length > 0">
+        Items you've saved for later
+      </p>
+    </div>
+  </div>
+
 
   <!-- Main Content -->
   <div class="main-content">

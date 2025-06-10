@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CustomerWishlistService } from '../../openapi';
 import { PagedResponseProductDTO, ProductDTO } from '../../openapi';
@@ -18,6 +18,7 @@ import {ShoppingService} from '../../../services/shopping.service';
   styleUrls: ['./wishlist.component.css']
 })
 export class WishlistComponent implements OnInit {
+  @Input() hideHeader: boolean = false;
   wishlistItems: ProductDTO[] = [];
   loading = false;
   error: string | null = null;
