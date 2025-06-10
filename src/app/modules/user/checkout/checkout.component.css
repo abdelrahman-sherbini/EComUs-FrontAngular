@@ -6,7 +6,7 @@
 }
 
 .checkout-header {
-  width: 100vw;            
+  width: 100vw;
   position: relative;
   left: 50%;
   transform: translateX(-50%);
@@ -22,7 +22,7 @@
 }
 
 .checkout-header h1 {
- font-size: 50px;         
+ font-size: 50px;
   font-weight: 400;
   color: #2c3e50;
   margin: 0;
@@ -570,29 +570,67 @@
   background-color: #f3f4f6;
 }
 
+/* Styling for address selection */
+.selected-address-card {
+  background-color: #f8f9fa;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.address-preview {
+  display: flex;
+  align-items: center;
+  color: #4a5568;
+  font-size: 0.95rem;
+}
+
+.address-preview i {
+  color: #3182ce;
+  font-size: 1.1rem;
+}
+
+select.form-control {
+  height: 45px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 0 15px;
+  font-size: 0.95rem;
+  color: #4a5568;
+  background-color: white;
+  transition: all 0.2s ease;
+  margin-bottom: 15px;
+}
+
+select.form-control:focus {
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .checkout-content {
     grid-template-columns: 1fr;
     gap: 20px;
   }
-  
+
   .section-card {
     padding: 20px;
   }
-  
+
   .checkout-header h1 {
     font-size: 2rem;
   }
-  
+
   .form-row {
     flex-direction: column;
   }
-  
+
   .payment-options {
     flex-direction: column;
   }
-  
+
   .radio-group {
     flex-direction: column;
   }
@@ -602,7 +640,7 @@
     padding: 2.5rem 1.5rem 2rem;
     max-width: 400px;
   }
-  
+
   .success-icon {
     width: 70px;
     height: 70px;
@@ -612,11 +650,11 @@
   .success-icon::before {
     font-size: 1.8rem;
   }
-  
+
   .success-modal h2 {
     font-size: 1.5rem;
   }
-  
+
   .success-btn {
     min-width: 180px;
     padding: 12px 24px;

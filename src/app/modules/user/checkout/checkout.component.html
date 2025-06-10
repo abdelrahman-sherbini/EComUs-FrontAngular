@@ -4,12 +4,12 @@
 <div *ngIf="orderSuccess" class="modal-overlay" [class.show]="orderSuccess" (click)="closeSuccessModal()">
   <div class="success-modal" (click)="$event.stopPropagation()">
     <button class="close-btn" (click)="closeSuccessModal()">&times;</button>
-    
+
     <div class="success-icon"></div>
-    
+
     <h2>Thank you for your purchase!</h2>
     <!-- <p>Your order has been received. Order ID: {{ orderID || '#117' }}</p> -->
-    
+
     <div class="success-actions">
       <button class="success-btn primary" (click)="continueShoppingOrGoHome()">
         Continue Shopping
@@ -63,6 +63,29 @@
                      (change)="onAddressTypeChange()">
               <span>Use saved address</span>
             </label>
+          </div>
+        </div>
+
+        <!-- Address Selection Dropdown (Only show when using existing address and has multiple addresses) -->
+        <div class="form-group" *ngIf="useExistingAddress && savedAddresses.length > 1">
+          <label for="savedAddressSelect">Select Address</label>
+          <select
+            id="savedAddressSelect"
+            class="form-control"
+            [(ngModel)]="selectedAddressId"
+            (ngModelChange)="onExistingAddressChange()"
+            name="savedAddressSelect">
+            <option *ngFor="let address of savedAddresses" [ngValue]="address.id">
+              {{ address.area }}, {{ address.street }}, {{ address.buildingNo }}, {{ address.city }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Display Selected Address (when using existing address) -->
+        <div class="selected-address-card" *ngIf="useExistingAddress && selectedAddressId">
+          <div class="address-preview">
+            <i class="bi bi-geo-alt-fill me-2"></i>
+            <span>{{ getAddressString() }}</span>
           </div>
         </div>
 

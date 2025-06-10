@@ -140,7 +140,10 @@ export class CheckoutComponent implements OnInit {
 
   onAddressTypeChange(): void {
     if (this.useExistingAddress && this.savedAddresses.length > 0) {
-      this.selectedAddressId = this.savedAddresses[0].id || null;
+      // If no address is selected yet, select the first one
+      if (!this.selectedAddressId && this.savedAddresses[0].id) {
+        this.selectedAddressId = this.savedAddresses[0].id;
+      }
       this.onExistingAddressChange();
     } else {
       this.selectedAddressId = null;
@@ -154,12 +157,23 @@ export class CheckoutComponent implements OnInit {
 
   onExistingAddressChange(): void {
     if (this.selectedAddressId) {
-      const selectedAddress = this.savedAddresses.find(addr => addr.id === this.selectedAddressId);
+      // Convert selectedAddressId to number for proper comparison
+      const selectedId = typeof this.selectedAddressId === 'string'
+        ? parseInt(this.selectedAddressId, 10)
+        : this.selectedAddressId;
+
+      const selectedAddress = this.savedAddresses.find(addr => addr.id === selectedId);
+
       if (selectedAddress) {
+        // Update the customer info with the selected address details
         this.customerInfo.area = selectedAddress.area || '';
         this.customerInfo.street = selectedAddress.street || '';
         this.customerInfo.buildingNumber = selectedAddress.buildingNo || '';
         this.customerInfo.townCity = selectedAddress.city || '';
+        
+      } else {
+        console.error('Address not found with ID:', selectedId);
+        console.log('Available addresses:', this.savedAddresses);
       }
     }
   }
