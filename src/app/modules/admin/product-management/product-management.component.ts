@@ -394,7 +394,9 @@ export class ProductManagementComponent implements OnInit, OnDestroy {
 
   // Remove new image
   removeNewImage(index: number): void {
-    this.newImages.splice(index, 1);
+    if (index >= 0 && index < this.newImages.length) {
+      this.newImages.splice(index, 1);
+    }
   }
 
   // Toggle category selection in update form
