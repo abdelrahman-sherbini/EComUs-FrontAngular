@@ -26,7 +26,16 @@ export class WishListService {
     if (this.auth.isAuthenticated()) {
       this.refreshWishlist();
     }
-    // You may want to subscribe to login/logout events here to refresh/clear the list
+
+    if (this.auth.authState$) {
+      this.auth.authState$.subscribe(isAuthenticated => {
+        if (!isAuthenticated) {
+          this.wishlistProductsSubject.next([]);
+        } else {
+          this.refreshWishlist();
+        }
+      });
+    }
   }
 
   /** Loads all wishlist products for the current user */
