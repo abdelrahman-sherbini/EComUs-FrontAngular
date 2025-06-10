@@ -1,8 +1,24 @@
-<!-- account.component.html - Updated with best practices -->
+<!-- account.component.html - Updated with dynamic page header -->
 <div class="account-container">
-  <!-- Page Title -->
+  <!-- Dynamic Page Title -->
   <div class="page-header">
-    <h1>My Account</h1>
+    @switch (activeTab) {
+      @case ('account-details') {
+        <h1>Account Details</h1>
+      }
+      @case ('orders') {
+        <h1>My Orders</h1>
+      }
+      @case ('update-account') {
+        <h1>Update Account</h1>
+      }
+      @case ('wishlist') {
+        <h1>My Wishlist</h1>
+      }
+      @default {
+        <h1>My Account</h1>
+      }
+    }
   </div>
 
   <div class="account-content">
@@ -70,17 +86,12 @@
             <!-- User Greeting -->
             <div class="user-greeting">
               <h2>Hello {{ user.userName }}</h2>
-
             </div>
 
             <!-- Personal Information Section -->
             <div class="info-section">
               <h3>Personal Information</h3>
-<!--              <div class="info-grid">-->
-<!--                <div class="info-item">-->
-<!--                  <label>User ID</label>-->
-<!--                  <div class="info-value">{{ user.userId }}</div>-->
-<!--                </div>-->
+              <div class="info-grid">
                 <div class="info-item">
                   <label>Username</label>
                   <div class="info-value">{{ user.userName }}</div>
@@ -115,7 +126,6 @@
                 <div class="address-grid">
                   @for (address of user.addresses; track address.id) {
                     <div class="address-card">
-<!--                      <h4>Address {{ address.id }}</h4>-->
                       <p><strong>Street:</strong> {{ address.street }}</p>
                       <p><strong>City:</strong> {{ address.city }}</p>
                       <p><strong>Area:</strong> {{ address.area }}</p>
@@ -159,7 +169,7 @@
                 </div>
               </div>
             </div>
-<!--          </div>-->
+          </div>
         }
       }
 
@@ -180,357 +190,3 @@
     </div>
   </div>
 </div>
-
-<!--&lt;!&ndash; account.component.html - Updated with best practices &ndash;&gt;-->
-<!--<div class="account-container">-->
-<!--  &lt;!&ndash; Page Title &ndash;&gt;-->
-<!--  <div class="page-header">-->
-<!--    <h1>My Account</h1>-->
-<!--  </div>-->
-
-<!--  <div class="account-content">-->
-<!--    &lt;!&ndash; Sidebar Navigation &ndash;&gt;-->
-<!--    <div class="sidebar">-->
-<!--      <nav class="nav-menu">-->
-<!--        <div-->
-<!--          class="nav-item"-->
-<!--          [class.active]="activeTab === 'account-details'"-->
-<!--          (click)="setActiveTab('account-details')">-->
-<!--          Account Details-->
-<!--        </div>-->
-<!--        <div-->
-<!--          class="nav-item"-->
-<!--          [class.active]="activeTab === 'orders'"-->
-<!--          (click)="setActiveTab('orders')">-->
-<!--          Orders-->
-<!--        </div>-->
-<!--        <div-->
-<!--          class="nav-item"-->
-<!--          [class.active]="activeTab === 'update-account'"-->
-<!--          (click)="setActiveTab('update-account')">-->
-<!--          Update Account-->
-<!--        </div>-->
-<!--        <div-->
-<!--          class="nav-item"-->
-<!--          [class.active]="activeTab === 'wishlist'"-->
-<!--          (click)="setActiveTab('wishlist')">-->
-<!--          Wishlist-->
-<!--        </div>-->
-<!--        <div-->
-<!--          class="nav-item logout"-->
-<!--          (click)="setActiveTab('logout')">-->
-<!--          Logout-->
-<!--        </div>-->
-<!--      </nav>-->
-<!--    </div>-->
-
-<!--    &lt;!&ndash; Main Content &ndash;&gt;-->
-<!--    <div class="main-content">-->
-<!--      &lt;!&ndash; Account Details Tab &ndash;&gt;-->
-<!--      @if (activeTab === 'account-details') {-->
-<!--        &lt;!&ndash; Loading State &ndash;&gt;-->
-<!--        @if (loading) {-->
-<!--          <div class="loading-container">-->
-<!--            <div class="spinner"></div>-->
-<!--            <p>Loading profile data...</p>-->
-<!--          </div>-->
-<!--        }-->
-
-<!--        &lt;!&ndash; Error State &ndash;&gt;-->
-<!--        @if (error) {-->
-<!--          <div class="error-container">-->
-<!--            <div class="error-message">-->
-<!--              <i class="error-icon">⚠️</i>-->
-<!--              <p>{{ error }}</p>-->
-<!--              <button class="retry-btn" (click)="loadUserProfile()">Retry</button>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        }-->
-
-<!--        &lt;!&ndash; User Data &ndash;&gt;-->
-<!--        @if (user && !loading) {-->
-<!--          <div>-->
-<!--            &lt;!&ndash; User Greeting &ndash;&gt;-->
-<!--            <div class="user-greeting">-->
-<!--              <h2>Hello {{ user.userName }}</h2>-->
-
-<!--            </div>-->
-
-<!--            &lt;!&ndash; Personal Information Section &ndash;&gt;-->
-<!--            <div class="info-section">-->
-<!--              <h3>Personal Information</h3>-->
-<!--              <div class="info-grid">-->
-<!--                <div class="info-item">-->
-<!--                  <label>User ID</label>-->
-<!--                  <div class="info-value">{{ user.userId }}</div>-->
-<!--                </div>-->
-<!--                <div class="info-item">-->
-<!--                  <label>Username</label>-->
-<!--                  <div class="info-value">{{ user.userName }}</div>-->
-<!--                </div>-->
-<!--                <div class="info-item">-->
-<!--                  <label>Email</label>-->
-<!--                  <div class="info-value">{{ user.email }}</div>-->
-<!--                </div>-->
-<!--                <div class="info-item">-->
-<!--                  <label>Phone</label>-->
-<!--                  <div class="info-value">{{ user.phone || 'Not provided' }}</div>-->
-<!--                </div>-->
-<!--                <div class="info-item">-->
-<!--                  <label>Job</label>-->
-<!--                  <div class="info-value">{{ user.job || 'Not specified' }}</div>-->
-<!--                </div>-->
-<!--                <div class="info-item">-->
-<!--                  <label>Birth Date</label>-->
-<!--                  <div class="info-value">{{ user.bd || 'Not provided' }}</div>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
-
-<!--            &lt;!&ndash; Address Information Section &ndash;&gt;-->
-<!--            <div class="info-section">-->
-<!--              <h3>Address Information</h3>-->
-<!--              @if (!user.addresses || user.addresses.length === 0) {-->
-<!--                <div class="empty-state">-->
-<!--                  <p>No addresses added yet</p>-->
-<!--                </div>-->
-<!--              } @else {-->
-<!--                <div class="address-grid">-->
-<!--                  @for (address of user.addresses; track address.id) {-->
-<!--                    <div class="address-card">-->
-<!--                      <h4>Address {{ address.id }}</h4>-->
-<!--                      <p><strong>Street:</strong> {{ address.street }}</p>-->
-<!--                      <p><strong>City:</strong> {{ address.city }}</p>-->
-<!--                      <p><strong>Area:</strong> {{ address.area }}</p>-->
-<!--                      <p><strong>Building No:</strong> {{ address.buildingNo }}</p>-->
-<!--                    </div>-->
-<!--                  }-->
-<!--                </div>-->
-<!--              }-->
-<!--            </div>-->
-
-<!--            &lt;!&ndash; Payment Information Section &ndash;&gt;-->
-<!--            <div class="info-section">-->
-<!--              <h3>Payment Information</h3>-->
-<!--              <div class="info-grid">-->
-<!--                <div class="info-item">-->
-<!--                  <label>Credit Card Number</label>-->
-<!--                  <div class="info-value">{{ maskCreditCard(user.creditNo) }}</div>-->
-<!--                </div>-->
-<!--                <div class="info-item">-->
-<!--                  <label>Credit Limit</label>-->
-<!--                  <div class="info-value">{{ formatCurrency(user.creditLimit) }}</div>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
-
-<!--            &lt;!&ndash; Statistics Section &ndash;&gt;-->
-<!--            <div class="info-section">-->
-<!--              <h3>Account Statistics</h3>-->
-<!--              <div class="stats-grid">-->
-<!--                <div class="stat-card">-->
-<!--                  <div class="stat-number">{{ user.orders?.length || 0 }}</div>-->
-<!--                  <div class="stat-label">Total Orders</div>-->
-<!--                </div>-->
-<!--                <div class="stat-card">-->
-<!--                  <div class="stat-number">{{ user.carts?.length || 0 }}</div>-->
-<!--                  <div class="stat-label">Active Carts</div>-->
-<!--                </div>-->
-<!--                <div class="stat-card">-->
-<!--                  <div class="stat-number">{{ user.addresses?.length || 0 }}</div>-->
-<!--                  <div class="stat-label">Saved Addresses</div>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        }-->
-<!--      }-->
-
-<!--      &lt;!&ndash; Orders Tab &ndash;&gt;-->
-<!--      @if (activeTab === 'orders') {-->
-<!--        <app-orders></app-orders>-->
-<!--      }-->
-
-<!--      &lt;!&ndash; Update Account Tab &ndash;&gt;-->
-<!--      @if (activeTab === 'update-account') {-->
-<!--        <div class="tab-content">-->
-<!--          <h2>Update Account</h2>-->
-<!--          <p>Account update functionality will be implemented here.</p>-->
-<!--          &lt;!&ndash; Add your update account form component here &ndash;&gt;-->
-<!--        </div>-->
-<!--      }-->
-
-<!--      &lt;!&ndash; Wishlist Tab &ndash;&gt;-->
-<!--      @if (activeTab === 'wishlist') {-->
-<!--        <div class="tab-content">-->
-<!--          <h2>My Wishlist</h2>-->
-<!--          <p>Wishlist functionality will be implemented here.</p>-->
-<!--          &lt;!&ndash; Add your wishlist component here &ndash;&gt;-->
-<!--        </div>-->
-<!--      }-->
-<!--    </div>-->
-<!--  </div>-->
-<!--</div>-->
-
-<!--&lt;!&ndash;<div class="account-container">&ndash;&gt;-->
-<!--&lt;!&ndash;  &lt;!&ndash; Page Title &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;  <div class="page-header">&ndash;&gt;-->
-<!--&lt;!&ndash;    <h1>My Account</h1>&ndash;&gt;-->
-<!--&lt;!&ndash;  </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;  <div class="account-content">&ndash;&gt;-->
-<!--&lt;!&ndash;    &lt;!&ndash; Sidebar Navigation &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;    <div class="sidebar">&ndash;&gt;-->
-<!--&lt;!&ndash;      <nav class="nav-menu">&ndash;&gt;-->
-<!--&lt;!&ndash;        <div&ndash;&gt;-->
-<!--&lt;!&ndash;          class="nav-item"&ndash;&gt;-->
-<!--&lt;!&ndash;          [class.active]="activeTab === 'account-details'"&ndash;&gt;-->
-<!--&lt;!&ndash;          (click)="setActiveTab('account-details')">&ndash;&gt;-->
-<!--&lt;!&ndash;          Account Details&ndash;&gt;-->
-<!--&lt;!&ndash;        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;        <div&ndash;&gt;-->
-<!--&lt;!&ndash;          class="nav-item"&ndash;&gt;-->
-<!--&lt;!&ndash;          [class.active]="activeTab === 'orders'"&ndash;&gt;-->
-<!--&lt;!&ndash;          (click)="setActiveTab('orders')">&ndash;&gt;-->
-<!--&lt;!&ndash;          Orders&ndash;&gt;-->
-<!--&lt;!&ndash;        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;        <div&ndash;&gt;-->
-<!--&lt;!&ndash;          class="nav-item"&ndash;&gt;-->
-<!--&lt;!&ndash;          [class.active]="activeTab === 'update-account'"&ndash;&gt;-->
-<!--&lt;!&ndash;          (click)="setActiveTab('update-account')">&ndash;&gt;-->
-<!--&lt;!&ndash;          Update Account&ndash;&gt;-->
-<!--&lt;!&ndash;        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;        <div&ndash;&gt;-->
-<!--&lt;!&ndash;          class="nav-item"&ndash;&gt;-->
-<!--&lt;!&ndash;          [class.active]="activeTab === 'wishlist'"&ndash;&gt;-->
-<!--&lt;!&ndash;          (click)="setActiveTab('wishlist')">&ndash;&gt;-->
-<!--&lt;!&ndash;          Wishlist&ndash;&gt;-->
-<!--&lt;!&ndash;        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;        <div&ndash;&gt;-->
-<!--&lt;!&ndash;          class="nav-item logout"&ndash;&gt;-->
-<!--&lt;!&ndash;          (click)="setActiveTab('logout')">&ndash;&gt;-->
-<!--&lt;!&ndash;          Logout&ndash;&gt;-->
-<!--&lt;!&ndash;        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;      </nav>&ndash;&gt;-->
-<!--&lt;!&ndash;    </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;    &lt;!&ndash; Main Content &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;    <div class="main-content">&ndash;&gt;-->
-<!--&lt;!&ndash;      &lt;!&ndash; Loading State &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;      @if (loading) {&ndash;&gt;-->
-<!--&lt;!&ndash;        <div class="loading-container">&ndash;&gt;-->
-<!--&lt;!&ndash;          <div class="spinner"></div>&ndash;&gt;-->
-<!--&lt;!&ndash;          <p>Loading profile data...</p>&ndash;&gt;-->
-<!--&lt;!&ndash;        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;      }&ndash;&gt;-->
-
-<!--&lt;!&ndash;      &lt;!&ndash; Error State &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;      @if (error) {&ndash;&gt;-->
-<!--&lt;!&ndash;        <div class="error-container">&ndash;&gt;-->
-<!--&lt;!&ndash;          <div class="error-message">&ndash;&gt;-->
-<!--&lt;!&ndash;            <i class="error-icon">⚠️</i>&ndash;&gt;-->
-<!--&lt;!&ndash;            <p>{{ error }}</p>&ndash;&gt;-->
-<!--&lt;!&ndash;            <button class="retry-btn" (click)="loadUserProfile()">Retry</button>&ndash;&gt;-->
-<!--&lt;!&ndash;          </div>&ndash;&gt;-->
-<!--&lt;!&ndash;        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;      }&ndash;&gt;-->
-
-<!--&lt;!&ndash;      &lt;!&ndash; User Data &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;      @if (user && !loading) {&ndash;&gt;-->
-<!--&lt;!&ndash;        <div>&ndash;&gt;-->
-<!--&lt;!&ndash;          &lt;!&ndash; User Greeting &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;          <div class="user-greeting">&ndash;&gt;-->
-<!--&lt;!&ndash;            <h2>Hello {{ user.userName }}</h2>&ndash;&gt;-->
-<!--&lt;!&ndash;          </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;          &lt;!&ndash; Personal Information Section &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;          <div class="info-section">&ndash;&gt;-->
-<!--&lt;!&ndash;            <h3>Personal Information</h3>&ndash;&gt;-->
-<!--&lt;!&ndash;            <div class="info-grid">&ndash;&gt;-->
-<!--&lt;!&ndash;              <div class="info-item">&ndash;&gt;-->
-<!--&lt;!&ndash;                <label>User ID</label>&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="info-value">{{ user.userId }}</div>&ndash;&gt;-->
-<!--&lt;!&ndash;              </div>&ndash;&gt;-->
-<!--&lt;!&ndash;              <div class="info-item">&ndash;&gt;-->
-<!--&lt;!&ndash;                <label>Username</label>&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="info-value">{{ user.userName }}</div>&ndash;&gt;-->
-<!--&lt;!&ndash;              </div>&ndash;&gt;-->
-<!--&lt;!&ndash;              <div class="info-item">&ndash;&gt;-->
-<!--&lt;!&ndash;                <label>Email</label>&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="info-value">{{ user.email }}</div>&ndash;&gt;-->
-<!--&lt;!&ndash;              </div>&ndash;&gt;-->
-<!--&lt;!&ndash;              <div class="info-item">&ndash;&gt;-->
-<!--&lt;!&ndash;                <label>Phone</label>&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="info-value">{{ user.phone || 'Not provided' }}</div>&ndash;&gt;-->
-<!--&lt;!&ndash;              </div>&ndash;&gt;-->
-<!--&lt;!&ndash;              <div class="info-item">&ndash;&gt;-->
-<!--&lt;!&ndash;                <label>Job</label>&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="info-value">{{ user.job || 'Not specified' }}</div>&ndash;&gt;-->
-<!--&lt;!&ndash;              </div>&ndash;&gt;-->
-<!--&lt;!&ndash;              <div class="info-item">&ndash;&gt;-->
-<!--&lt;!&ndash;                <label>Birth Date</label>&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="info-value">{{ user.bd || 'Not provided' }}</div>&ndash;&gt;-->
-<!--&lt;!&ndash;              </div>&ndash;&gt;-->
-<!--&lt;!&ndash;            </div>&ndash;&gt;-->
-<!--&lt;!&ndash;          </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;          &lt;!&ndash; Address Information Section &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;          <div class="info-section">&ndash;&gt;-->
-<!--&lt;!&ndash;            <h3>Address Information</h3>&ndash;&gt;-->
-<!--&lt;!&ndash;            @if (!user.addresses || user.addresses.length === 0) {&ndash;&gt;-->
-<!--&lt;!&ndash;              <div class="empty-state">&ndash;&gt;-->
-<!--&lt;!&ndash;                <p>No addresses added yet</p>&ndash;&gt;-->
-<!--&lt;!&ndash;              </div>&ndash;&gt;-->
-<!--&lt;!&ndash;            } @else {&ndash;&gt;-->
-<!--&lt;!&ndash;              <div class="address-grid">&ndash;&gt;-->
-<!--&lt;!&ndash;                @for (address of user.addresses; track address.id) {&ndash;&gt;-->
-<!--&lt;!&ndash;                  <div class="address-card">&ndash;&gt;-->
-<!--&lt;!&ndash;                    <h4>Address {{ address.id }}</h4>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <p><strong>Street:</strong> {{ address.street }}</p>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <p><strong>City:</strong> {{ address.city }}</p>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <p><strong>Area:</strong> {{ address.area }}</p>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <p><strong>Building No:</strong> {{ address.buildingNo }}</p>&ndash;&gt;-->
-<!--&lt;!&ndash;                  </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                }&ndash;&gt;-->
-<!--&lt;!&ndash;              </div>&ndash;&gt;-->
-<!--&lt;!&ndash;            }&ndash;&gt;-->
-<!--&lt;!&ndash;          </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;          &lt;!&ndash; Payment Information Section &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;          <div class="info-section">&ndash;&gt;-->
-<!--&lt;!&ndash;            <h3>Payment Information</h3>&ndash;&gt;-->
-<!--&lt;!&ndash;            <div class="info-grid">&ndash;&gt;-->
-<!--&lt;!&ndash;              <div class="info-item">&ndash;&gt;-->
-<!--&lt;!&ndash;                <label>Credit Card Number</label>&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="info-value">{{ maskCreditCard(user.creditNo) }}</div>&ndash;&gt;-->
-<!--&lt;!&ndash;              </div>&ndash;&gt;-->
-<!--&lt;!&ndash;              <div class="info-item">&ndash;&gt;-->
-<!--&lt;!&ndash;                <label>Credit Limit</label>&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="info-value">{{ formatCurrency(user.creditLimit) }}</div>&ndash;&gt;-->
-<!--&lt;!&ndash;              </div>&ndash;&gt;-->
-<!--&lt;!&ndash;            </div>&ndash;&gt;-->
-<!--&lt;!&ndash;          </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;          &lt;!&ndash; Statistics Section &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;          <div class="info-section">&ndash;&gt;-->
-<!--&lt;!&ndash;            <h3>Account Statistics</h3>&ndash;&gt;-->
-<!--&lt;!&ndash;            <div class="stats-grid">&ndash;&gt;-->
-<!--&lt;!&ndash;              <div class="stat-card">&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="stat-number">{{ user.orders?.length || 0 }}</div>&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="stat-label">Total Orders</div>&ndash;&gt;-->
-<!--&lt;!&ndash;              </div>&ndash;&gt;-->
-<!--&lt;!&ndash;              <div class="stat-card">&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="stat-number">{{ user.carts?.length || 0 }}</div>&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="stat-label">Active Carts</div>&ndash;&gt;-->
-<!--&lt;!&ndash;              </div>&ndash;&gt;-->
-<!--&lt;!&ndash;              <div class="stat-card">&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="stat-number">{{ user.addresses?.length || 0 }}</div>&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="stat-label">Saved Addresses</div>&ndash;&gt;-->
-<!--&lt;!&ndash;              </div>&ndash;&gt;-->
-<!--&lt;!&ndash;            </div>&ndash;&gt;-->
-<!--&lt;!&ndash;          </div>&ndash;&gt;-->
-<!--&lt;!&ndash;        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;      }&ndash;&gt;-->
-<!--&lt;!&ndash;    </div>&ndash;&gt;-->
-<!--&lt;!&ndash;  </div>&ndash;&gt;-->
-<!--&lt;!&ndash;</div>&ndash;&gt;-->
