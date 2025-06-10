@@ -49,12 +49,11 @@ export class ProductDetailsComponent implements OnInit {
       this.productsService.getProductById1(id).subscribe({
         next: (prod) => {
           this.product = prod;
-          this.mainImage = prod.images?.[0] || 'assets/img/no-image.png';
+          this.mainImage = (prod.images && prod.images.length) ? prod.images[0] : '/placeholder.jpg';
           this.selectedQty = 1;
           this.updateTotal();
           this.loading = false;
-          this.checkIfWishlisted()
-
+          this.checkIfWishlisted();
         },
         error: () => {
           this.error = 'Product not found or an error occurred.';
@@ -65,11 +64,16 @@ export class ProductDetailsComponent implements OnInit {
       this.error = 'Invalid product ID.';
       this.loading = false;
     }
-
   }
 
   setMainImage(img: string) {
-    this.mainImage = img;
+    this.mainImage = img || '/placeholder.jpg';
+  }
+
+  get productImages(): string[] {
+    return this.product?.images && this.product.images.length > 0
+      ? this.product.images
+      : ['/placeholder.jpg'];
   }
 
   changeQty(change: number) {
@@ -111,7 +115,8 @@ export class ProductDetailsComponent implements OnInit {
           this.checkIfWishlisted();
           this.wishlistLoading = false;
         },
-        error: () => { this.wishlistLoading = false; }
+        error: () => { this.wishlistLoading = false; },
+        complete: () => { this.wishlistLoading = false; }  // <-- ADD THIS LINE
       });
     } else {
       this.wishlistService.add(this.product.productId).subscribe({
@@ -119,9 +124,11 @@ export class ProductDetailsComponent implements OnInit {
           this.checkIfWishlisted();
           this.wishlistLoading = false;
         },
-        error: () => { this.wishlistLoading = false; }
+        error: () => { this.wishlistLoading = false; },
+        complete: () => { this.wishlistLoading = false; }  // <-- ADD THIS LINE
       });
     }
   }
+
 }
 
