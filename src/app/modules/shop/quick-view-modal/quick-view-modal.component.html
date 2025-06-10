@@ -62,8 +62,16 @@
                 <button class="btn btn-dark flex-grow-1" (click)="addToCart()">
                   Add to cart – ${{ total.toFixed(2) }}
                 </button>
-                <button class="btn btn-outline-secondary" title="Add to Wishlist">
-                  <i class="bi bi-heart"></i>
+                <button
+                  class="btn btn-outline-secondary wishlist-btn"
+                  type="button"
+                  (click)="onWishlistClick()"
+                  [title]="isWishlisted() ? 'Remove from wishlist' : 'Add to wishlist'"
+                  [attr.aria-pressed]="isWishlisted()"
+                  [attr.aria-label]="isWishlisted() ? 'Remove from wishlist' : 'Add to wishlist'">
+                  <i class="bi"
+                     [ngClass]="isWishlisted() ? 'bi-heart-fill' : 'bi-heart'"
+                     [style.color]="isWishlisted() ? '#111' : '#bbb'"></i>
                 </button>
               </div>
 

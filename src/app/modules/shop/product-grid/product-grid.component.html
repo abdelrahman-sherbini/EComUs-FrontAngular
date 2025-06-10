@@ -13,10 +13,24 @@
 
             <!-- Hover actions -->
             <div class="hover-actions position-absolute top-0 end-0 p-2 d-flex flex-column align-items-center gap-2">
-              <button class="btn btn-sm btn-light rounded-circle" title="Add to Wishlist">
-                <i class="bi bi-heart"></i>
+              <!-- Wishlist Heart Button -->
+              <button
+                class="btn wishlist-btn"
+                type="button"
+                (click)="onWishlistClick(product)"
+                [title]="isWishlisted(product) ? 'Remove from wishlist' : 'Add to wishlist'"
+                [attr.aria-pressed]="isWishlisted(product)"
+                [attr.aria-label]="isWishlisted(product) ? 'Remove from wishlist' : 'Add to wishlist'">
+                <i class="bi"
+                   [ngClass]="isWishlisted(product) ? 'bi-heart-fill' : 'bi-heart'"
+                   [style.color]="isWishlisted(product) ? '#111' : '#bbb'"></i>
               </button>
-              <button (click)="onQuickView(product)" class="btn btn-sm btn-light rounded-circle" title="Quick View">
+              <!-- Quick View Eye Button -->
+              <button
+                class="btn quick-view-btn"
+                type="button"
+                (click)="onQuickView(product)"
+                title="Quick View">
                 <i class="bi bi-eye"></i>
               </button>
             </div>
@@ -143,4 +157,3 @@
     </form>
   </div>
 </div>
-

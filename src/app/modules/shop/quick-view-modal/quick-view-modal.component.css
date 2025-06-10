@@ -32,3 +32,33 @@
 .carousel-control-next-icon {
   filter: invert(1) brightness(2); /* make sure icon stays white */
 }
+.wishlist-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1.5px solid #ddd;
+  background: #fff;
+  transition: border 0.12s, box-shadow 0.12s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wishlist-btn i {
+  font-size: 22px;
+  transition: color 0.15s, transform 0.15s;
+  line-height: 1;
+}
+
+.wishlist-btn:hover,
+.wishlist-btn:focus {
+  border-color: #222;
+  box-shadow: 0 2px 6px #0002;
+}
+
+.wishlist-btn:hover i {
+  color: #333 !important;
+}
+.wishlist-btn:active i {
+  transform: scale(1.15);
+}

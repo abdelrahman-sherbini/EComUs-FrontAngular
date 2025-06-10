@@ -20,8 +20,10 @@
                   (quickAdd)="openQuickAdd($event)"
                   (quickView)="openQuickView($event)"
                   (filterApplied)="onFilterApplied($event)"
->
+                  [isWishlisted]="isWishlisted.bind(this)"
+                  (wishlistToggled)="onWishlistToggled($event)">
 </app-product-grid>
+
 
 <nav *ngIf="totalPages > 1" aria-label="Page navigation" class="my-4">
   <ul class="pagination custom-pagination justify-content-center align-items-center">

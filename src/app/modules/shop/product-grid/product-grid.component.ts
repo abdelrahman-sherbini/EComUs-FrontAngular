@@ -1,11 +1,10 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {NgClass, NgForOf, NgIf} from '@angular/common';
 import {CategoryDTO, ProductDTO} from '../../openapi';
 import {RouterLink} from '@angular/router';
 import {FormsModule} from '@angular/forms';
-import { Offcanvas } from 'bootstrap';
-
-
+import {Offcanvas} from 'bootstrap';
+import {WishListService} from '../wish-list-service';
 
 
 @Component({
@@ -18,17 +17,9 @@ import { Offcanvas } from 'bootstrap';
     FormsModule,
   ],
   templateUrl: './product-grid.component.html',
-  styleUrl: './product-grid.component.css'
+  styleUrl: './product-grid.component.scss'
 })
-export class ProductGridComponent {
-  @Input() products: ProductDTO[] = [];
-  @Input() gridClass: string = 'grid-4';
-  @Input() categories: CategoryDTO[] = [];
-
-  @Output() quickView = new EventEmitter<any>();
-  @Output() addProduct = new EventEmitter<any>();
-  @Output() filterApplied = new EventEmitter<any>();
-  @Output() quickAdd = new EventEmitter<ProductDTO>();
+export class ProductGridComponent implements OnInit {
 
   filter: {
     categories: string[];
@@ -41,13 +32,40 @@ export class ProductGridComponent {
     minPrice: undefined,
     maxPrice: undefined
   };
+  categoryOpen = true;
+  availabilityOpen = true;
+  priceOpen = true;
+  wishlistedMap: { [productId: number]: boolean } = {};
+  @Input() products: ProductDTO[] = [];
+  @Input() gridClass: string = 'grid-4';
+  @Input() categories: CategoryDTO[] = [];
+  @Output() wishlistToggled = new EventEmitter<ProductDTO>();
+  @Output() quickView = new EventEmitter<any>();
+  @Output() addProduct = new EventEmitter<any>();
+  @Output() filterApplied = new EventEmitter<any>();
+  @Output() quickAdd = new EventEmitter<ProductDTO>();
   private sidebar: Offcanvas | undefined;
+
+  constructor(public wishListService: WishListService) {
+  }
+
+  @Input() isWishlisted: (product: ProductDTO) => boolean = () => false;
+
+  ngOnInit() {
+    // Subscribe to wishlist updates to keep icons in sync
+    this.wishListService.wishlistProducts$.subscribe(products => {
+      this.wishlistedMap = {};
+      products.forEach(p => this.wishlistedMap[p.productId!] = true);
+    });
+  }
+
+
+  onWishlistClick(product: ProductDTO) {
+    this.wishlistToggled.emit(product);
+  }
 
   onQuickView(product: ProductDTO) {
     this.quickView.emit(product);
-  }
-
-  addToCart(product: any) {
   }
 
   onQuickAdd(product: ProductDTO) {
@@ -68,7 +86,6 @@ export class ProductGridComponent {
     };
     this.filterApplied.emit(this.filter); // Emit empty filter to clear
     this.closeSidebar(); // Close the sidebar after applying the filter
-
   }
 
   openSidebar(): void {
@@ -78,15 +95,13 @@ export class ProductGridComponent {
       this.sidebar.show();
     }
   }
+
   closeSidebar(): void {
     if (this.sidebar) {
       this.sidebar.hide();
     }
   }
 
-  categoryOpen = true;
-  availabilityOpen = true;
-  priceOpen = true;
 
   toggleSection(section: string) {
     if (section === 'category') {
@@ -100,11 +115,16 @@ export class ProductGridComponent {
 
   getGridClasses(grid: string): string {
     switch (grid) {
-      case 'grid-2': return 'col-6';
-      case 'grid-3': return 'col-6 col-sm-4';
-      case 'grid-4': return 'col-6 col-sm-4 col-md-3';
-      case 'grid-6': return 'col-6 col-sm-4 col-md-3 col-lg-2';
-      default: return 'col-6';
+      case 'grid-2':
+        return 'col-6';
+      case 'grid-3':
+        return 'col-6 col-sm-4';
+      case 'grid-4':
+        return 'col-6 col-sm-4 col-md-3';
+      case 'grid-6':
+        return 'col-6 col-sm-4 col-md-3 col-lg-2';
+      default:
+        return 'col-6';
     }
   }
 

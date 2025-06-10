@@ -13,6 +13,7 @@ import {
 import {NgForOf, NgIf} from '@angular/common';
 import {ToastComponent} from '../../../components/toast/toast.component';
 import {PopupComponent} from "../../../components/popup/popup.component";
+import {WishListService} from '../wish-list-service';
 
 
 @Component({
@@ -34,9 +35,6 @@ export class HomeComponent implements OnInit  {
   products: ProductDTO[] = [];
   originalProducts: ProductDTO[] = [];
   categories: CategoryDTO[] = [];
-  cartSize = 0;
-  isLoggedIn = false;
-
   // Paging & Sorting
   currentPage: any =1 ; // Start at page 0
   pageSize:number = 10;   // Default page size, change as needed
@@ -48,29 +46,32 @@ export class HomeComponent implements OnInit  {
 
   gridClass: string = 'grid-4';
   private priceMin: undefined;
-
-  @ViewChild(QuickAddModalComponent) quickAddModal!: QuickAddModalComponent;
-  @ViewChild(QuickViewModalComponent) quickViewModal!: QuickViewModalComponent;
-  @ViewChild(ProductGridComponent) productGrid!: ProductGridComponent;
   private priceMax: undefined;
   private categoryName:string|undefined;
   private quantityMin: number | undefined;
   private quantityMax: number | undefined;
+  wishlistProducts: ProductDTO[] = [];
+
+
+  @ViewChild(QuickAddModalComponent) quickAddModal!: QuickAddModalComponent;
+  @ViewChild(QuickViewModalComponent) quickViewModal!: QuickViewModalComponent;
+  @ViewChild(ProductGridComponent) productGrid!: ProductGridComponent;
 
 
   constructor(
     private productsApi: CustomerProductsService,
-    private categoriesApi:CustomerCategoriesService
+    private categoriesApi:CustomerCategoriesService,
+    private wishListService: WishListService
   ) {}
 
   ngOnInit(): void {
     this.categoriesApi.getCategories1().subscribe((cat: CategoryDTO[]) => {
       this.categories = cat || [];
     });
-    // this.cartSize = this.productService.getCartSize();
-    // this.isLoggedIn = this.productService.isLoggedIn();
-
-    this.loadProducts(); // <-- Only call this now
+    this.wishListService.wishlistProducts$.subscribe(products => {
+      this.wishlistProducts = products;
+    });
+    this.loadProducts();
 
   }
 
@@ -182,5 +183,16 @@ export class HomeComponent implements OnInit  {
     console.log("max" + this.quantityMax);
   }
 
+  isWishlisted(product: ProductDTO): boolean {
+    return this.wishlistProducts.some(p => p.productId === product.productId);
+  }
+
+  onWishlistToggled(product: ProductDTO) {
+    if (this.isWishlisted(product)) {
+      this.wishListService.remove(product.productId!).subscribe();
+    } else {
+      this.wishListService.add(product.productId!).subscribe();
+    }
+  }
 
 }
