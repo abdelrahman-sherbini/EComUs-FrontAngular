@@ -11,7 +11,7 @@
   text-align: center;
   margin-bottom: 40px;
   border-bottom: 1px solid #e5e7eb; */
-             
+
   position: relative;
   left: 50%;
   transform: translateX(-50%);
@@ -225,6 +225,11 @@
   width: 100%;
   height: 250px;
   overflow: hidden;
+  cursor: pointer;
+}
+
+.product-image:hover img {
+  transform: scale(1.05);
 }
 
 .product-image img {
@@ -232,10 +237,6 @@
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s;
-}
-
-.product-card:hover .product-image img {
-  transform: scale(1.05);
 }
 
 .product-info {
@@ -248,6 +249,12 @@
   margin: 0 0 8px 0;
   color: #333;
   line-height: 1.3;
+  transition: color 0.2s;
+}
+
+.product-name:hover {
+  color: #007bff;
+  text-decoration: underline;
 }
 
 .product-price {
@@ -282,28 +289,47 @@
   cursor: pointer;
 }
 
+.product-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #f8f9fa;
+  border-top: 1px solid #eee;
+}
+
+.view-details-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.view-details-btn:hover {
+  background-color: #0069d9;
+}
+
 .remove-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: none;
-  background-color: rgba(255, 255, 255, 0.9);
-  color: #666;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  color: #dc3545;
   font-size: 18px;
+  line-height: 1;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition: all 0.2s;
-  z-index: 2;
 }
 
 .remove-btn:hover {
-  background-color: #ff6b35;
+  background-color: #dc3545;
   color: white;
+  border-color: #dc3545;
 }
 
 /* Empty State */
@@ -491,7 +517,7 @@
 
 .page-btn:hover:not(:disabled):not(.active) {
   transform: translateY(-2px);
-  box-shadow: 
+  box-shadow:
     0 10px 25px -5px rgba(102, 126, 234, 0.4),
     0 4px 6px -2px rgba(102, 126, 234, 0.2);
   border-color: rgba(102, 126, 234, 0.3);
@@ -509,7 +535,7 @@
 .page-btn.active {
   background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
-  box-shadow: 
+  box-shadow:
     0 8px 25px -5px rgba(102, 126, 234, 0.5),
     0 4px 6px -2px rgba(102, 126, 234, 0.3);
   transform: translateY(-1px);
@@ -599,19 +625,19 @@
     gap: 4px;
     margin: 24px 0;
   }
-  
+
   .page-btn {
     min-width: 40px;
     height: 40px;
     font-size: 13px;
     padding: 0 12px;
   }
-  
+
   .page-btn:first-child,
   .page-btn:last-child {
     padding: 0 16px;
   }
-  
+
   .results-info {
     font-size: 13px;
     padding: 10px 20px;
@@ -623,13 +649,13 @@
   .pagination {
     gap: 2px;
   }
-  
+
   .page-btn {
     min-width: 36px;
     height: 36px;
     font-size: 12px;
   }
-  
+
   .page-btn:first-child,
   .page-btn:last-child {
     padding: 0 12px;
@@ -656,7 +682,7 @@
 /* Focus states for accessibility */
 .page-btn:focus {
   outline: none;
-  box-shadow: 
+  box-shadow:
     0 0 0 3px rgba(102, 126, 234, 0.3),
     0 4px 6px -2px rgba(102, 126, 234, 0.2);
 }

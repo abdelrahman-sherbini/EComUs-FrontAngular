@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { CurrencyPipe, SlicePipe } from '@angular/common';
 import { WishListService } from '../../../services/wish-list-service';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-wishlist',
@@ -43,7 +44,10 @@ export class WishlistComponent implements OnInit, OnDestroy {
 
   private wishlistSubscription?: Subscription;
 
-  constructor(private wishListService: WishListService) {}
+  constructor(
+    private wishListService: WishListService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.subscribeToWishlist();
@@ -229,5 +233,11 @@ export class WishlistComponent implements OnInit, OnDestroy {
   }
 
   protected readonly Math = Math;
+
+  navigateToProductDetails(productId: number): void {
+    if (productId) {
+      this.router.navigate(['/products/product', productId]);
+    }
+  }
 }
 

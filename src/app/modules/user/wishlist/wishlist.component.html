@@ -75,16 +75,19 @@
           SALE
         </div>
 
-        <!-- Product Image -->
-        <div class="product-image">
+        <!-- Product Image - Make clickable -->
+        <div class="product-image" (click)="navigateToProductDetails(product.productId!)">
           <img [src]="product.images && product.images.length ? product.images[0] : '/placeholder.jpg'"
                [alt]="product.productName"
-               onerror="this.src='/assets/placeholder.jpg'">
+               onerror="this.src='/assets/placeholder.jpg'"
+               style="cursor: pointer;">
         </div>
 
-        <!-- Product Info -->
+        <!-- Product Info - Make product name clickable -->
         <div class="product-info">
-          <h3 class="product-name">{{ product.productName }}</h3>
+          <h3 class="product-name" (click)="navigateToProductDetails(product.productId!)" style="cursor: pointer;">
+            {{ product.productName }}
+          </h3>
 
           <!-- Product Description -->
           <p class="product-description" *ngIf="product.description">
@@ -103,23 +106,20 @@
               {{ category.categoryName }}<span *ngIf="!last">, </span>
             </span>
           </div>
-
-          <!-- Quantity Info -->
-          <!-- <div *ngIf="product.quantity !== undefined" class="quantity-info">
-            <span class="quantity-label">Available: </span>
-            <span [class]="'quantity-value ' + (product.quantity > 0 ? 'in-stock' : 'out-of-stock')">
-              {{ product.quantity > 0 ? product.quantity : 'Out of Stock' }}
-            </span>
-          </div> -->
         </div>
 
-        <!-- Remove Button -->
-        <button (click)="removeFromWishlist(product.productId!)"
-                class="remove-btn"
-                title="Remove from wishlist"
-                [disabled]="!product.productId">
-          ×
-        </button>
+        <!-- Add View Details Button -->
+        <div class="product-actions">
+          <button class="view-details-btn" (click)="navigateToProductDetails(product.productId!)">
+            View Details
+          </button>
+          <button (click)="removeFromWishlist(product.productId!)"
+                  class="remove-btn"
+                  title="Remove from wishlist"
+                  [disabled]="!product.productId">
+            ×
+          </button>
+        </div>
       </div>
     </div>
 

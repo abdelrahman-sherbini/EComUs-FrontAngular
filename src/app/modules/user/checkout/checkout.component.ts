@@ -170,7 +170,7 @@ export class CheckoutComponent implements OnInit {
         this.customerInfo.street = selectedAddress.street || '';
         this.customerInfo.buildingNumber = selectedAddress.buildingNo || '';
         this.customerInfo.townCity = selectedAddress.city || '';
-        
+
       } else {
         console.error('Address not found with ID:', selectedId);
         console.log('Available addresses:', this.savedAddresses);
