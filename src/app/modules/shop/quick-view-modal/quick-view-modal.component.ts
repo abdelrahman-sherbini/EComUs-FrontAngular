@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {Modal} from 'bootstrap';
-import {RouterLink} from '@angular/router';
+import {RouterLink, Router} from '@angular/router';
 import {NgClass, NgForOf, NgIf} from '@angular/common';
 import {ProductDTO} from '../../openapi';
 import {CartService} from '../cart-service';
@@ -27,7 +27,33 @@ export class QuickViewModalComponent {
   quantity = 1;
   private modal: Modal | undefined;
 
-  constructor(private cartService: CartService, public wishListService: WishListService) {}
+  constructor(
+    private cartService: CartService,
+    public wishListService: WishListService,
+    private router: Router
+  ) {}
+
+  viewProductDetails(): void {
+    if (this.modal) {
+      this.modal.hide();
+
+      // Clean up modal backdrop
+      setTimeout(() => {
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) {
+          backdrop.remove();
+        }
+        document.body.classList.remove('modal-open');
+        document.body.style.removeProperty('overflow');
+        document.body.style.removeProperty('padding-right');
+
+        // Navigate to product details page
+        if (this.product.productId) {
+          this.router.navigate(['/products/product/', this.product.productId]);
+        }
+      }, 150);
+    }
+  }
 
   get total(): number {
     return this.quantity * (this.product?.price ?? 0);
