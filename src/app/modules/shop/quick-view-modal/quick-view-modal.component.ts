@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {Modal} from 'bootstrap';
-import {RouterLink, Router} from '@angular/router';
+import {Router} from '@angular/router';
 import {NgClass, NgForOf, NgIf} from '@angular/common';
 import {ProductDTO} from '../../openapi';
 import {CartService} from '../cart-service';
@@ -11,7 +11,7 @@ import {WishListService} from '../wish-list-service';
   imports: [
     NgForOf,
     NgIf,
-    NgClass
+    NgClass,
   ],
   templateUrl: './quick-view-modal.component.html',
   styleUrl: './quick-view-modal.component.css'
@@ -80,6 +80,7 @@ export class QuickViewModalComponent {
   }
 
   addToCart() {
+    if (!this.product?.quantity) return;
     if (this.modal) {
       this.modal.hide();
     }
@@ -97,7 +98,16 @@ export class QuickViewModalComponent {
     if (this.isWishlisted()) {
       this.wishListService.remove(this.product.productId).subscribe();
     } else {
-      this.wishListService.add(this.product.productId).subscribe();
+      this.wishListService.add(this.product.productId, () => {
+        // This runs if not authenticated (popup shown)
+        this.closeModal();
+      }).subscribe();
+    }
+  }
+
+  closeModal() {
+    if (this.modal) {
+      this.modal.hide();
     }
   }
 }

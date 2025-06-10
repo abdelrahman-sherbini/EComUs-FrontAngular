@@ -44,7 +44,7 @@ export class WishListService {
   }
 
   /** Add a product to wishlist and refresh local list */
-  add(productId: number): Observable<any> {
+  add(productId: number, notAuthCallback?: () => void): Observable<any> {
     if (!this.auth.isAuthenticated()) {
       this.popup.showConfirm(
         'You must login to add to wishlist.',
@@ -54,6 +54,7 @@ export class WishListService {
         ],
         'Login Required'
       );
+      if (notAuthCallback) notAuthCallback();
       return EMPTY;
     }
 
@@ -97,6 +98,9 @@ export class WishListService {
 
   /** Checks if a product is in the local wishlist */
   isWishlisted(productId: number): boolean {
+    if (!this.auth.isAuthenticated()) {
+      return false; // Not authenticated, cannot be wishlisted
+    }
     return this.wishlistProductsSubject.value.some(p => p.productId === productId);
   }
 

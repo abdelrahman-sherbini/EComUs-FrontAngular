@@ -54,8 +54,6 @@ export class ProductDetailsComponent implements OnInit {
           this.updateTotal();
           this.loading = false;
           this.checkIfWishlisted();
-          console.log(this.product);
-
         },
         error: () => {
           this.error = 'Product not found or an error occurred.';

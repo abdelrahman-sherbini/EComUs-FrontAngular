@@ -10,11 +10,11 @@ import {WishListService} from '../wish-list-service';
 @Component({
   selector: 'app-product-grid',
   imports: [
-    NgForOf,
-    NgClass,
-    NgIf,
-    RouterLink,
     FormsModule,
+    NgClass,
+    RouterLink,
+    NgIf,
+    NgForOf,
   ],
   templateUrl: './product-grid.component.html',
   styleUrl: './product-grid.component.scss'

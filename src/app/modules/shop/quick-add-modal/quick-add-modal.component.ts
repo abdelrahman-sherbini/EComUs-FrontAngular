@@ -57,9 +57,7 @@ export class QuickAddModalComponent {
   }
 
   addToCart() {
-    if (this.modal) {
-      this.modal.hide();
-    }
+    this.closeModal();
     this.cartService.addToCart(
       { productId: this.product.productId!, quantity: this.product.quantity!, name: this.product.productName! },
       this.quantity
@@ -74,7 +72,16 @@ export class QuickAddModalComponent {
     if (this.isWishlisted()) {
       this.wishListService.remove(this.product.productId).subscribe();
     } else {
-      this.wishListService.add(this.product.productId).subscribe();
+      this.wishListService.add(this.product.productId, () => {
+        // Callback for not authenticated (login popup)
+        this.closeModal();
+      }).subscribe();
+    }
+  }
+
+  closeModal() {
+    if (this.modal) {
+      this.modal.hide();
     }
   }
 }
