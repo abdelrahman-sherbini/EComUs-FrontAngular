@@ -54,6 +54,8 @@ export class ProductDetailsComponent implements OnInit {
           this.updateTotal();
           this.loading = false;
           this.checkIfWishlisted();
+          console.log(this.product);
+
         },
         error: () => {
           this.error = 'Product not found or an error occurred.';
@@ -78,8 +80,12 @@ export class ProductDetailsComponent implements OnInit {
 
   changeQty(change: number) {
     if (!this.product) return;
-    const max = this.product.quantity ?? 1;
-    this.selectedQty = Math.max(1, Math.min(this.selectedQty + change, max));
+    const max = Math.max(this.product.quantity || 0, 0);
+    if (max === 0) {
+      this.selectedQty = 0;
+    } else {
+      this.selectedQty = Math.max(1, Math.min(this.selectedQty + change, max));
+    }
     this.updateTotal();
   }
 

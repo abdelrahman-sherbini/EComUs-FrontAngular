@@ -38,12 +38,14 @@ export class QuickAddModalComponent {
     return this.quantity * (this.product?.price ?? 0);
   }
 
-  increase() {
-    this.quantity++;
-  }
-
-  decrease() {
-    if (this.quantity > 1) this.quantity--;
+  changeQty(change: number) {
+    const max = Math.max(this.product.quantity || 0, 0);
+    let newQty = this.quantity + change;
+    if (max === 0) {
+      this.quantity = 0;
+    } else {
+      this.quantity = Math.max(1, Math.min(newQty, max));
+    }
   }
 
   open(product: any) {
