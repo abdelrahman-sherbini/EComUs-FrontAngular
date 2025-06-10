@@ -6,8 +6,9 @@
     <div class="col-lg-7 d-flex flex-row">
       <div class="d-flex flex-column align-items-center me-3 thumbnails">
         <img
-          *ngFor="let img of prod.images ?? ['assets/img/no-image.png']"
+          *ngFor="let img of productImages"
           [src]="img"
+          (error)="setMainImage('/placeholder.jpg')"
           class="thumb-img mb-2"
           [ngClass]="{selected: mainImage === img}"
           (click)="setMainImage(img)"
@@ -15,7 +16,7 @@
         />
       </div>
       <div class="flex-fill d-flex align-items-center justify-content-center main-image-wrapper position-relative">
-        <img [src]="mainImage" class="main-img rounded-3 shadow" [alt]="prod.productName || ''" />
+        <img [src]="mainImage" (error)="mainImage='/placeholder.jpg'" class="main-img rounded-3 shadow" [alt]="prod.productName || ''" />
       </div>
     </div>
     <!-- Info/Actions -->
