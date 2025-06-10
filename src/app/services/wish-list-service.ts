@@ -119,4 +119,44 @@ export class WishListService {
       map(products => products.some(p => p.productId === productId))
     );
   }
+
+  /** Returns all wishlist ProductDTOs (sync) */
+  getAllWishlistedProducts(): ProductDTO[] {
+    return this.wishlistProductsSubject.value;
+  }
+
+  /** Returns all wishlist ProductDTOs as observable */
+  getAllWishlistedProducts$(): Observable<ProductDTO[]> {
+    return this.wishlistProducts$;
+  }
+
+  /** Returns all wishlisted product IDs (sync) */
+  getWishlistedProductIds(): number[] {
+    return this.wishlistProductsSubject.value.map(p => p.productId!);
+  }
+
+  /** Returns all wishlisted product IDs as observable */
+  getWishlistedProductIds$(): Observable<number[]> {
+    return this.wishlistProducts$.pipe(
+      map(products => products.map(p => p.productId!))
+    );
+  }
+
+  /** Returns a mapping for a list of IDs: { id: true/false } */
+  areWishlisted(productIds: number[]): { [id: number]: boolean } {
+    const set = new Set(this.getWishlistedProductIds());
+    const result: { [id: number]: boolean } = {};
+    productIds.forEach(id => result[id] = set.has(id));
+    return result;
+  }
+
+  /** Returns the number of products in the wishlist (sync) */
+  getWishlistCount(): number {
+    return this.wishlistProductsSubject.value.length;
+  }
+
+  /** Returns the number of products in the wishlist (observable) */
+  getWishlistCount$(): Observable<number> {
+    return this.wishlistProducts$.pipe(map(arr => arr.length));
+  }
 }
