@@ -3,12 +3,13 @@ import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} fr
 import {CommonModule} from '@angular/common';
 import {UserSignInDTO} from '../../modules/openapi';
 import {AuthService} from '../../services/auth-service';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 
 @Component({
   selector: 'app-login',
+  standalone: true,
   imports: [
-    ReactiveFormsModule,CommonModule,FormsModule
+    ReactiveFormsModule, CommonModule, FormsModule, RouterModule
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
@@ -58,5 +59,10 @@ export class LoginComponent implements OnInit {
         }
       });
     }
+  }
+
+  forgotPassword(): void {
+    // Implement password reset functionality
+    alert('Password reset functionality will be implemented soon.');
   }
 }

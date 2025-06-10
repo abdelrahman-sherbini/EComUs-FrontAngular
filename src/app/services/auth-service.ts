@@ -114,7 +114,18 @@ export class AuthService {
       }),
       catchError(error => {
         this.handleAuthError('Registration failed. Please try again.');
-        return throwError(() => error);
+        let errorMessage = 'Registration failed. Please try again.';
+
+        if (error.error?.message) {
+          errorMessage = error.error.message;
+        } else if (error.status === 409) {
+          errorMessage = 'Email or username already exists.';
+        } else if (error.status === 400) {
+          errorMessage = 'Invalid registration data. Please check your inputs.';
+        }
+
+        this.updateAuthState({ isLoading: false, error: errorMessage });
+        return throwError(() => new Error(errorMessage));
       })
     );
   }

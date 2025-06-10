@@ -1,4 +1,3 @@
-
 .auth-container {
   display: flex;
   justify-content: center;
@@ -71,21 +70,6 @@ label {
   margin-top: 0.25rem;
 }
 
-.forgot-password {
-  margin-bottom: 1.5rem;
-  text-align: left;
-}
-
-.forgot-password a {
-  color: #333;
-  text-decoration: none;
-  font-size: 0.9rem;
-}
-
-.forgot-password a:hover {
-  text-decoration: underline;
-}
-
 .btn-submit {
   width: 100%;
   padding: 0.75rem;
@@ -112,24 +96,24 @@ label {
   border-top: 1px solid #f0f0f0;
 }
 
-.new-user {
+.existing-user {
   margin-bottom: 2rem;
 }
 
-.new-user h3 {
+.existing-user h3 {
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
   font-weight: 500;
 }
 
-.new-user p {
+.existing-user p {
   color: #666;
   margin-bottom: 1rem;
   font-size: 0.9rem;
   line-height: 1.5;
 }
 
-.register-link {
+.login-link {
   display: inline-block;
   padding: 0.5rem 1rem;
   background-color: transparent;
@@ -141,7 +125,7 @@ label {
   transition: all 0.2s;
 }
 
-.register-link:hover {
+.login-link:hover {
   background-color: #000;
   color: #fff;
 }
@@ -162,6 +146,72 @@ label {
 .payment-methods img {
   height: 20px;
   width: auto;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.form-validation-message {
+  background-color: #fff8f8;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  color: #721c24;
+}
+
+.form-validation-message p {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.form-validation-message ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.required {
+  color: #dc3545;
+}
+
+.password-strength {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.strength-indicator {
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+
+.strength-indicator.valid {
+  color: #28a745;
+}
+
+.strength-indicator .checkmark {
+  display: inline-block;
+  width: 16px;
+}
+
+.alert {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
 }
 
 @media (max-width: 768px) {

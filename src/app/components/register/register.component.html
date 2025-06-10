@@ -1,0 +1,218 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h2>Create Account</h2>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <!-- Form validation message -->
+      <div *ngIf="registerForm.invalid && (registerForm.dirty || registerForm.touched)" class="form-validation-message">
+        <p>Please fix the following validation errors:</p>
+        <ul>
+          <li *ngIf="isFieldInvalid('userName')">Username: {{ getFieldError('userName') }}</li>
+          <li *ngIf="isFieldInvalid('email')">Email: {{ getFieldError('email') }}</li>
+          <li *ngIf="isFieldInvalid('password')">Password: {{ getFieldError('password') }}</li>
+          <li *ngIf="isFieldInvalid('confirmPassword')">Confirm Password: {{ getFieldError('confirmPassword') }}</li>
+          <li *ngIf="isFieldInvalid('phone')">Phone: {{ getFieldError('phone') }}</li>
+          <li *ngIf="isFieldInvalid('job')">Job: {{ getFieldError('job') }}</li>
+          <li *ngIf="isFieldInvalid('creditNo')">Credit Card: {{ getFieldError('creditNo') }}</li>
+          <li *ngIf="isFieldInvalid('creditLimit')">Credit Limit: {{ getFieldError('creditLimit') }}</li>
+          <li *ngIf="isFieldInvalid('bd')">Birth Date: {{ getFieldError('bd') }}</li>
+        </ul>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="userName">Username <span class="required">*</span></label>
+          <input
+            type="text"
+            id="userName"
+            formControlName="userName"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('userName')"
+            placeholder="e.g., john_doe123"
+          >
+          <div *ngIf="isFieldInvalid('userName')" class="invalid-feedback">
+            {{ getFieldError('userName') }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email <span class="required">*</span></label>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('email')"
+            placeholder="e.g., user@example.com"
+          >
+          <div *ngIf="isFieldInvalid('email')" class="invalid-feedback">
+            {{ getFieldError('email') }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="password">Password <span class="required">*</span></label>
+          <input
+            type="password"
+            id="password"
+            formControlName="password"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('password')"
+            placeholder="Enter password"
+          >
+          <div *ngIf="isFieldInvalid('password')" class="invalid-feedback">
+            {{ getFieldError('password') }}
+          </div>
+
+          <!-- Password Strength Indicator -->
+          <div *ngIf="registerForm.get('password')?.value" class="password-strength">
+            <div class="strength-indicator" [class.valid]="hasUppercase(registerForm.get('password')?.value)">
+              <span class="checkmark">✓</span> Uppercase letter
+            </div>
+            <div class="strength-indicator" [class.valid]="hasLowercase(registerForm.get('password')?.value)">
+              <span class="checkmark">✓</span> Lowercase letter
+            </div>
+            <div class="strength-indicator" [class.valid]="hasNumber(registerForm.get('password')?.value)">
+              <span class="checkmark">✓</span> Number
+            </div>
+            <div class="strength-indicator" [class.valid]="hasSpecialChar(registerForm.get('password')?.value)">
+              <span class="checkmark">✓</span> Special character
+            </div>
+            <div class="strength-indicator" [class.valid]="hasMinLength(registerForm.get('password')?.value)">
+              <span class="checkmark">✓</span> At least 8 characters
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password <span class="required">*</span></label>
+          <input
+            type="password"
+            id="confirmPassword"
+            formControlName="confirmPassword"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('confirmPassword')"
+            placeholder="Confirm password"
+          >
+          <div *ngIf="isFieldInvalid('confirmPassword')" class="invalid-feedback">
+            {{ getFieldError('confirmPassword') }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input
+            type="tel"
+            id="phone"
+            formControlName="phone"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('phone')"
+            placeholder="e.g., +1234567890 or 123-456-7890"
+          >
+          <div *ngIf="isFieldInvalid('phone')" class="invalid-feedback">
+            {{ getFieldError('phone') }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="bd">Birth Date</label>
+          <input
+            type="date"
+            id="bd"
+            formControlName="bd"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('bd')"
+          >
+          <div *ngIf="isFieldInvalid('bd')" class="invalid-feedback">
+            {{ getFieldError('bd') }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="job">Occupation</label>
+          <input
+            type="text"
+            id="job"
+            formControlName="job"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('job')"
+            placeholder="Enter job title"
+          >
+          <div *ngIf="isFieldInvalid('job')" class="invalid-feedback">
+            {{ getFieldError('job') }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="creditNo">Credit Card Number</label>
+          <input
+            type="text"
+            id="creditNo"
+            formControlName="creditNo"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('creditNo')"
+            placeholder="e.g., 1234-5678-9012-3456"
+          >
+          <div *ngIf="isFieldInvalid('creditNo')" class="invalid-feedback">
+            {{ getFieldError('creditNo') }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="creditLimit">Credit Limit</label>
+          <input
+            type="number"
+            id="creditLimit"
+            formControlName="creditLimit"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('creditLimit')"
+            placeholder="Enter credit limit"
+          >
+          <div *ngIf="isFieldInvalid('creditLimit')" class="invalid-feedback">
+            {{ getFieldError('creditLimit') }}
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-danger" role="alert" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <button
+        type="submit"
+        [disabled]="registerForm.invalid || isLoading"
+        class="btn-submit"
+      >
+        {{ isLoading ? 'Creating Account...' : 'Create Account' }}
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <div class="existing-user">
+        <h3>Already have an account?</h3>
+        <p>Sign in to access your account, view orders, and manage your profile.</p>
+        <a routerLink="/login" class="login-link">Log in</a>
+      </div>
+
+      <div class="copyright">
+        <p>© 2024 Ecomus Store. All Rights Reserved</p>
+        <div class="payment-methods">
+          <img src="/assets/visa.png" alt="Visa">
+          <img src="/assets/mastercard.png" alt="Mastercard">
+          <img src="/assets/amex.png" alt="American Express">
+          <img src="/assets/paypal.png" alt="PayPal">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

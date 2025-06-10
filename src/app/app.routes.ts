@@ -11,13 +11,10 @@ import {CategoryManagementComponent} from './modules/admin/category-management/c
 import {UsersComponent} from './modules/admin/users/users.component';
 import {AnalyticsComponent} from './modules/admin/analytics/analytics.component';
 import {UserLayoutComponent} from './modules/layout/user-layout.component';
+import {RegisterComponent} from './components/register/register.component';
 
 export const routes: Routes = [
-  {
-    path: 'login',
-    component: LoginComponent,
-    canActivate: [LoginRedirectGuard]
-  },
+
 
   {
     path : 'admin',
@@ -44,6 +41,16 @@ export const routes: Routes = [
         redirectTo: 'products',
         pathMatch: 'full'
       },
+      {
+        path: 'login',
+        component: LoginComponent,
+        canActivate: [LoginRedirectGuard]
+      },
+      {
+        path: 'register',
+        component: RegisterComponent,
+        canActivate: [LoginRedirectGuard]
+      }
     ]
   },
   { path: '', redirectTo: '/products', pathMatch: 'full' },
