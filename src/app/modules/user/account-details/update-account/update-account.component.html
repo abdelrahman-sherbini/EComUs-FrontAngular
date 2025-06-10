@@ -22,6 +22,19 @@
       </div>
 
       <form [formGroup]="updateForm" (ngSubmit)="onUpdateProfile()" class="section-form">
+        <!-- Form validation message -->
+        <div *ngIf="updateForm.invalid" class="form-validation-message">
+          <p>Please fix the following validation errors:</p>
+          <ul>
+            <li *ngIf="updateForm.get('userName')?.invalid">Username: {{ getFieldError('userName') }}</li>
+            <li *ngIf="updateForm.get('email')?.invalid">Email: {{ getFieldError('email') }}</li>
+            <li *ngIf="updateForm.get('phone')?.invalid">Phone: {{ getFieldError('phone') }}</li>
+            <li *ngIf="updateForm.get('job')?.invalid">Job: {{ getFieldError('job') }}</li>
+            <li *ngIf="updateForm.get('creditNo')?.invalid">Credit Card: {{ getFieldError('creditNo') }}</li>
+            <li *ngIf="updateForm.get('creditLimit')?.invalid">Credit Limit: {{ getFieldError('creditLimit') }}</li>
+          </ul>
+        </div>
+
         <div class="form-row">
           <div class="form-group">
             <label for="userName">Username <span class="required">*</span></label>
@@ -30,9 +43,9 @@
               id="userName"
               formControlName="userName"
               class="form-input"
-              [class.error]="isFieldInvalid('userName')"
-              placeholder="Enter username">
-            <div *ngIf="isFieldInvalid('userName')" class="error-message">
+              [class.error]="updateForm.get('userName')?.invalid"
+              placeholder="e.g., john_doe123">
+            <div *ngIf="updateForm.get('userName')?.invalid" class="error-message">
               {{ getFieldError('userName') }}
             </div>
           </div>
@@ -44,9 +57,9 @@
               id="email"
               formControlName="email"
               class="form-input"
-              [class.error]="isFieldInvalid('email')"
-              placeholder="Enter email address">
-            <div *ngIf="isFieldInvalid('email')" class="error-message">
+              [class.error]="updateForm.get('email')?.invalid"
+              placeholder="e.g., user@example.com">
+            <div *ngIf="updateForm.get('email')?.invalid" class="error-message">
               {{ getFieldError('email') }}
             </div>
           </div>
@@ -60,7 +73,11 @@
               id="phone"
               formControlName="phone"
               class="form-input"
-              placeholder="Enter phone number">
+              [class.error]="updateForm.get('phone')?.invalid"
+              placeholder="e.g., +1234567890 or 123-456-7890">
+            <div *ngIf="updateForm.get('phone')?.invalid" class="error-message">
+              {{ getFieldError('phone') }}
+            </div>
           </div>
 
           <div class="form-group">
@@ -69,7 +86,9 @@
               type="date"
               id="bd"
               formControlName="bd"
-              class="form-input">
+              class="form-input"
+              readonly>
+            <small class="text-muted">Note: Birth date cannot be updated at this time.</small>
           </div>
         </div>
 
@@ -81,7 +100,11 @@
               id="job"
               formControlName="job"
               class="form-input"
+              [class.error]="updateForm.get('job')?.invalid"
               placeholder="Enter job title">
+            <div *ngIf="updateForm.get('job')?.invalid" class="error-message">
+              {{ getFieldError('job') }}
+            </div>
           </div>
 
           <div class="form-group">
@@ -91,8 +114,11 @@
               id="creditNo"
               formControlName="creditNo"
               class="form-input"
-              placeholder="Enter 16-digit card number"
-              maxlength="16">
+              [class.error]="updateForm.get('creditNo')?.invalid"
+              placeholder="e.g., 1234-5678-9012-3456">
+            <div *ngIf="updateForm.get('creditNo')?.invalid" class="error-message">
+              {{ getFieldError('creditNo') }}
+            </div>
           </div>
         </div>
 
@@ -104,19 +130,23 @@
               id="creditLimit"
               formControlName="creditLimit"
               class="form-input"
-              placeholder="Enter credit limit"
-              min="0">
+              [class.error]="updateForm.get('creditLimit')?.invalid"
+              placeholder="Enter credit limit">
+            <div *ngIf="updateForm.get('creditLimit')?.invalid" class="error-message">
+              {{ getFieldError('creditLimit') }}
+            </div>
           </div>
         </div>
 
         <div class="section-actions">
-          <button type="submit" class="btn btn-primary" [disabled]="loading || updateForm.invalid">
+          <button type="submit" class="btn btn-primary"
+                  [disabled]="loading || (!hasProfileChanges() && !updateForm.dirty)">
             <span *ngIf="loading" class="spinner"></span>
             {{ loading ? 'Saving...' : 'Update Personal Info' }}
           </button>
-<!--          <button type="button" class="btn btn-secondary" (click)="resetPersonalForm()">-->
-<!--            Reset-->
-<!--          </button>-->
+          <button type="button" class="btn btn-secondary" (click)="resetPersonalForm()" [disabled]="!updateForm.dirty">
+            Reset
+          </button>
         </div>
       </form>
     </div>
@@ -278,7 +308,7 @@
         </button>
 
         <div class="section-actions">
-          <button type="submit" class="btn btn-primary" [disabled]="addressLoading || addressForm.invalid">
+          <button type="submit" class="btn btn-primary" [disabled]="addressLoading || !isFormValid(addressForm)">
             <span *ngIf="addressLoading" class="spinner"></span>
             {{ addressLoading ? 'Saving...' : 'Update Addresses' }}
           </button>

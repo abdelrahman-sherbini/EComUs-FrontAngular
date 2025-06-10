@@ -6,11 +6,12 @@ import { debounceTime, distinctUntilChanged, Observable, Subject, switchMap, tap
 import {CustomerProductsService, ProductDTO} from '../openapi';
 import {AuthService} from '../../services/auth-service';
 import {ShoppingService} from '../../services/shopping.service';
+import {ToastComponent} from '../../components/toast/toast.component';
 
 @Component({
   selector: 'app-user-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterModule, FormsModule],
+  imports: [CommonModule, RouterOutlet, RouterModule, FormsModule, ToastComponent],
   templateUrl: './user-layout.component.html',
   styleUrls: ['./user-layout.component.scss']
 })

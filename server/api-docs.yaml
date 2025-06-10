@@ -80,12 +80,12 @@ paths:
       tags:
       - Customer - Profile
       operationId: updateProfile
-      parameters:
-      - name: userDTO
-        in: query
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileDTO"
         required: true
-        schema:
-          $ref: "#/components/schemas/UpdateProfileDTO"
       responses:
         "200":
           description: OK
@@ -100,12 +100,12 @@ paths:
       tags:
       - Customer - Profile
       operationId: updatePassword
-      parameters:
-      - name: changePasswordDTO
-        in: query
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordDTO"
         required: true
-        schema:
-          $ref: "#/components/schemas/ChangePasswordDTO"
       responses:
         "200":
           description: OK

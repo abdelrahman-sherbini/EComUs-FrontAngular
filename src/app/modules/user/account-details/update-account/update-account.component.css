@@ -167,6 +167,25 @@
   font-weight: 500;
 }
 
+.form-validation-message {
+  margin-bottom: 1.5rem;
+  padding: 0.75rem;
+  background-color: #fef2f2;
+  border-radius: 6px;
+  border: 1px solid #ef4444;
+  color: #b91c1c;
+}
+
+.form-validation-message ul {
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  padding-left: 1.5rem;
+}
+
+.form-validation-message li {
+  margin-bottom: 0.25rem;
+}
+
 /* Password strength indicator */
 .password-strength {
   margin-top: 0.75rem;
@@ -1078,3 +1097,18 @@
 /*    padding: 10px;*/
 /*  }*/
 /*}*/
+
+/* Form validation message */
+.form-validation-message {
+  margin-bottom: 1.5rem;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.form-validation-message p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}

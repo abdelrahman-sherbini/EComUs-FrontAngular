@@ -1,14 +1,16 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray, AbstractControl } from '@angular/forms';
-import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged, forkJoin } from 'rxjs';
 
 // Import the generated services and DTOs
 import { CustomerProfileService } from '../../../openapi/api/customer-profile.service';
+import { CustomerAddressesService } from '../../../openapi/api/customer-addresses.service';
 import { UserDTO } from '../../../openapi/model/user-dto';
 import { UpdateProfileDTO } from '../../../openapi/model/update-profile-dto';
 import { ChangePasswordDTO } from '../../../openapi/model/change-password-dto';
 import { AddressDTO } from '../../../openapi/model/address-dto';
+import { ToastService } from '../../../../services/toast';
 
 // Custom validator functions for better form validation
 export class CustomValidators {
@@ -16,7 +18,7 @@ export class CustomValidators {
     const value = control.value;
     if (!value) return null;
 
-    // Remove spaces and hyphens
+    // Remove spaces and hyphens for validation
     const cleanValue = value.replace(/[\s-]/g, '');
 
     // Check if it's 16 digits
@@ -24,23 +26,8 @@ export class CustomValidators {
       return { 'invalidCreditCard': true };
     }
 
-    // Simple Luhn algorithm check
-    let sum = 0;
-    let shouldDouble = false;
-
-    for (let i = cleanValue.length - 1; i >= 0; i--) {
-      let digit = parseInt(cleanValue.charAt(i));
-
-      if (shouldDouble) {
-        digit *= 2;
-        if (digit > 9) digit -= 9;
-      }
-
-      sum += digit;
-      shouldDouble = !shouldDouble;
-    }
-
-    return (sum % 10 === 0) ? null : { 'invalidCreditCard': true };
+    // Skip Luhn algorithm check for now to make validation easier
+    return null;
   }
 
   static phoneNumber(control: AbstractControl): {[key: string]: any} | null {
@@ -85,8 +72,10 @@ export class UpdateAccountComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   constructor(
+    private customerAddressesService: CustomerAddressesService,
     private fb: FormBuilder,
-    private customerProfileService: CustomerProfileService
+    private customerProfileService: CustomerProfileService,
+    private toastService: ToastService
   ) {
     this.updateForm = this.createUpdateForm();
     this.passwordForm = this.createPasswordForm();
@@ -105,10 +94,10 @@ export class UpdateAccountComponent implements OnInit, OnDestroy {
 
   /**
    * Creates the personal information update form
-   * Based on UpdateProfileDTO structure: userName, email, job, creditNo, creditLimit, phone
+   * Note: Birth date (bd) is included in the form but is not editable
    */
   private createUpdateForm(): FormGroup {
-    return this.fb.group({
+    const form = this.fb.group({
       userName: ['', [
         Validators.required,
         Validators.minLength(3),
@@ -124,9 +113,11 @@ export class UpdateAccountComponent implements OnInit, OnDestroy {
       job: ['', [Validators.maxLength(100)]],
       creditNo: ['', [CustomValidators.creditCardNumber]],
       creditLimit: [null, [Validators.min(0), Validators.max(1000000)]],
-      // Note: Birth date (bd) is not part of UpdateProfileDTO, so it's handled separately
-      bd: ['', [this.dateValidator]]
+      // Birth date is displayed but not editable
+      bd: [{value: '', disabled: true}]
     });
+
+    return form;
   }
 
   /**
@@ -169,27 +160,6 @@ export class UpdateAccountComponent implements OnInit, OnDestroy {
     return valid ? null : { 'weakPassword': true };
   }
 
-  /**
-   * Custom validator for birth date
-   */
-  private dateValidator(control: AbstractControl): {[key: string]: any} | null {
-    const value = control.value;
-    if (!value) return null;
-
-    const birthDate = new Date(value);
-    const today = new Date();
-    const age = today.getFullYear() - birthDate.getFullYear();
-
-    if (birthDate > today) {
-      return { 'futureDate': true };
-    }
-
-    if (age < 13) {
-      return { 'tooYoung': true };
-    }
-
-    return null;
-  }
 
   /**
    * Validates password confirmation
@@ -278,6 +248,9 @@ export class UpdateAccountComponent implements OnInit, OnDestroy {
       creditLimit: userData.creditLimit || null
     });
 
+    // Disable the birth date field since it's not editable
+    this.updateForm.get('bd')?.disable();
+
     // Populate addresses
     this.populateAddresses(userData.addresses || []);
   }
@@ -311,109 +284,109 @@ export class UpdateAccountComponent implements OnInit, OnDestroy {
    */
   removeAddress(index: number): void {
     const addressesArray = this.addressForm.get('addresses') as FormArray;
+
     if (addressesArray.length > 1) {
-      addressesArray.removeAt(index);
+      const address = addressesArray.at(index).value;
+
+      // If it's an existing address with an ID, we should delete it from the server
+      if (address.id) {
+        this.customerAddressesService.deleteAddress(address.id)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: () => {
+              addressesArray.removeAt(index);
+              this.showMessage('Address removed successfully', 'success');
+              this.toastService.showSuccess('Address removed successfully');
+            },
+            error: (error) => {
+              console.error('Failed to delete address:', error);
+              this.showMessage('Failed to remove address. Please try again.', 'error');
+            }
+          });
+      } else {
+        // If it's a new address without an ID, just remove it from the form
+        addressesArray.removeAt(index);
+      }
+    } else {
+      this.showMessage('You must have at least one address', 'error');
     }
   }
 
   /**
    * Handles profile update using UpdateProfileDTO
-   * Only includes fields that are part of the DTO: userName, email, job, creditNo, creditLimit, phone
    */
-  async onUpdateProfile(): Promise<void> {
-    if (this.updateForm.invalid) {
-      this.markFormGroupTouched(this.updateForm);
+  onUpdateProfile(): void {
+    // Mark all fields as touched to show validation errors
+    this.markFormGroupTouched(this.updateForm);
+
+    // Check only enabled controls for validation
+    const enabledInvalid = Object.keys(this.updateForm.controls)
+      .some(key => {
+        const control = this.updateForm.get(key);
+        return control && !control.disabled && control.invalid;
+      });
+
+    if (enabledInvalid) {
       this.showMessage('Please fix the validation errors before submitting.', 'error');
       return;
     }
 
-    this.loading = true;
-    this.message = null;
-
-    try {
-      const formData = this.updateForm.value;
-
-      // Create UpdateProfileDTO with only the fields it supports
-      const updatePayload: UpdateProfileDTO = {
-        userName: formData.userName,
-        email: formData.email
-      };
-
-      // Add optional fields only if they have values
-      if (formData.phone && formData.phone.trim()) {
-        updatePayload.phone = formData.phone.trim();
-      }
-
-      if (formData.job && formData.job.trim()) {
-        updatePayload.job = formData.job.trim();
-      }
-
-      if (formData.creditNo && formData.creditNo.trim()) {
-        updatePayload.creditNo = formData.creditNo.trim();
-      }
-
-      if (formData.creditLimit !== null && formData.creditLimit !== undefined) {
-        updatePayload.creditLimit = formData.creditLimit;
-      }
-
-      await this.customerProfileService.updateProfile(updatePayload)
-        .pipe(takeUntil(this.destroy$))
-        .toPromise();
-
-      this.showMessage('Profile updated successfully!', 'success');
-      this.hasUnsavedChanges = false;
-
-      // Reload user profile to get updated data
-      this.loadUserProfile();
-
-    } catch (error: any) {
-      console.error('Failed to update profile:', error);
-      this.showMessage(this.getErrorMessage(error), 'error');
-    } finally {
-      this.loading = false;
-    }
-  }
-
-  /**
-   * Separate method to handle birth date update
-   * Since 'bd' is not part of UpdateProfileDTO, this might need a different endpoint
-   */
-  async onUpdateBirthDate(): Promise<void> {
-    const bdControl = this.updateForm.get('bd');
-
-    if (!bdControl || bdControl.invalid) {
-      bdControl?.markAsTouched();
-      this.showMessage('Please enter a valid birth date.', 'error');
+    if (!this.hasProfileChanges()) {
+      this.showMessage('No changes detected. Please make changes before submitting.', 'error');
       return;
     }
 
     this.loading = true;
     this.message = null;
 
-    try {
-      // You might need a separate endpoint for birth date or include it in a different DTO
-      // For now, this is a placeholder - replace with actual API call
-      console.log('Birth date update:', bdControl.value);
+    const formData = this.updateForm.getRawValue(); // Gets values from both enabled and disabled controls
+    const updatePayload: UpdateProfileDTO = {
+      userName: formData.userName,
+      email: formData.email
+    };
 
-      // If you have a separate endpoint for birth date:
-      // await this.customerProfileService.updateBirthDate({ bd: bdControl.value })
-      //   .pipe(takeUntil(this.destroy$))
-      //   .toPromise();
-
-      this.showMessage('Birth date updated successfully!', 'success');
-
-    } catch (error: any) {
-      console.error('Failed to update birth date:', error);
-      this.showMessage(this.getErrorMessage(error), 'error');
-    } finally {
-      this.loading = false;
+    // Add optional fields only if they have values
+    if (formData.phone) {
+      updatePayload.phone = formData.phone;
     }
+
+    if (formData.job) {
+      updatePayload.job = formData.job;
+    }
+
+    if (formData.creditNo) {
+      updatePayload.creditNo = formData.creditNo;
+    }
+
+    if (formData.creditLimit !== null && formData.creditLimit !== undefined) {
+      updatePayload.creditLimit = formData.creditLimit;
+    }
+
+    this.customerProfileService.updateProfile(updatePayload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.showMessage('Profile updated successfully!', 'success');
+          this.toastService.showSuccess('Profile updated successfully!');
+          this.hasUnsavedChanges = false;
+
+          // Reload user profile to get updated data
+          this.loadUserProfile();
+        },
+        error: (error) => {
+          console.error('Failed to update profile:', error);
+          this.showMessage(this.getErrorMessage(error), 'error');
+        },
+        complete: () => {
+          this.loading = false;
+        }
+      });
   }
 
   /**
    * Handles password change
    */
-  async onChangePassword(): Promise<void> {
+  onChangePassword(): void {
     if (this.passwordForm.invalid) {
       this.markFormGroupTouched(this.passwordForm);
       this.showMessage('Please fix the validation errors before submitting.', 'error');
@@ -423,31 +396,34 @@ export class UpdateAccountComponent implements OnInit, OnDestroy {
     this.passwordLoading = true;
     this.message = null;
 
-    try {
-      const formData = this.passwordForm.value;
-      const changePasswordPayload: ChangePasswordDTO = {
-        oldPassword: formData.oldPassword,
-        newPassword: formData.newPassword
-      };
+    const formData = this.passwordForm.value;
+    const changePasswordPayload: ChangePasswordDTO = {
+      oldPassword: formData.oldPassword,
+      newPassword: formData.newPassword
+    };
 
-      await this.customerProfileService.updatePassword(changePasswordPayload)
-        .pipe(takeUntil(this.destroy$))
-        .toPromise();
-
-      this.showMessage('Password changed successfully!', 'success');
-      this.passwordForm.reset();
-    } catch (error: any) {
-      console.error('Failed to change password:', error);
-      this.showMessage(this.getErrorMessage(error), 'error');
-    } finally {
-      this.passwordLoading = false;
-    }
+    this.customerProfileService.updatePassword(changePasswordPayload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.showMessage('Password changed successfully!', 'success');
+          this.toastService.showSuccess('Password changed successfully!');
+          this.passwordForm.reset();
+        },
+        error: (error) => {
+          console.error('Failed to change password:', error);
+          this.showMessage(this.getErrorMessage(error), 'error');
+        },
+        complete: () => {
+          this.passwordLoading = false;
+        }
+      });
   }
 
   /**
    * Handles address updates
    */
-  async onUpdateAddresses(): Promise<void> {
+  onUpdateAddresses(): void {
     if (this.addressForm.invalid) {
       this.markFormGroupTouched(this.addressForm);
       this.showMessage('Please fix the validation errors before submitting.', 'error');
@@ -457,28 +433,54 @@ export class UpdateAccountComponent implements OnInit, OnDestroy {
     this.addressLoading = true;
     this.message = null;
 
-    try {
-      const addresses = this.addressesArray.value;
+    const addresses: AddressDTO[] = this.addressesArray.value;
 
-      // You'll need to implement address update logic here
-      // This might involve calling a separate addresses endpoint
-      console.log('Updating addresses:', addresses);
+    // Create an array of observables for each address update/creation
+    const addressObservables = addresses.map(address => {
+      if (address.id) {
+        // Update existing address
+        return this.customerAddressesService.updateAddress(address);
+      } else {
+        // Create new address
+        return this.customerAddressesService.createAddress(address);
+      }
+    });
 
-      this.showMessage('Addresses updated successfully!', 'success');
-    } catch (error: any) {
-      console.error('Failed to update addresses:', error);
-      this.showMessage(this.getErrorMessage(error), 'error');
-    } finally {
-      this.addressLoading = false;
-    }
+    // Use forkJoin to wait for all address operations to complete
+    forkJoin(addressObservables)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.showMessage('Addresses updated successfully!', 'success');
+          this.toastService.showSuccess('Addresses updated successfully!');
+
+          // Reload user profile to get updated addresses
+          this.loadUserProfile();
+        },
+        error: (error) => {
+          console.error('Failed to update addresses:', error);
+          this.showMessage(this.getErrorMessage(error), 'error');
+        },
+        complete: () => {
+          this.addressLoading = false;
+        }
+      });
   }
 
   /**
-   * Resets the form to original user data
+   * Resets the personal information form to the last saved values
    */
-  resetForm(): void {
+  resetPersonalForm(): void {
     if (this.user) {
-      this.populateForm(this.user);
+      this.updateForm.patchValue({
+        userName: this.user.userName || '',
+        email: this.user.email || '',
+        phone: this.user.phone || '',
+        job: this.user.job || '',
+        bd: this.user.bd || '',
+        creditNo: this.user.creditNo || '',
+        creditLimit: this.user.creditLimit || null
+      });
       this.hasUnsavedChanges = false;
     }
   }
@@ -491,7 +493,7 @@ export class UpdateAccountComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Resets the address form
+   * Resets the address form to the last saved values
    */
   resetAddressForm(): void {
     if (this.user) {
@@ -500,23 +502,15 @@ export class UpdateAccountComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Marks all form controls as touched
+   * Marks all controls in a form group as touched
    */
   private markFormGroupTouched(formGroup: FormGroup): void {
     Object.keys(formGroup.controls).forEach(key => {
       const control = formGroup.get(key);
       if (control instanceof FormGroup) {
         this.markFormGroupTouched(control);
-      } else if (control instanceof FormArray) {
-        control.controls.forEach(arrayControl => {
-          if (arrayControl instanceof FormGroup) {
-            this.markFormGroupTouched(arrayControl);
-          } else {
-            arrayControl.markAsTouched();
-          }
-        });
-      } else {
-        control?.markAsTouched();
+      } else if (control) {
+        control.markAsTouched();
       }
     });
   }
@@ -524,24 +518,28 @@ export class UpdateAccountComponent implements OnInit, OnDestroy {
   /**
    * Shows a message to the user
    */
-  private showMessage(message: string, type: 'success' | 'error'): void {
-    this.message = message;
+  private showMessage(text: string, type: 'success' | 'error'): void {
+    this.message = text;
     this.messageType = type;
 
-    // Auto-hide message after a delay
-    setTimeout(() => {
-      this.message = null;
-    }, type === 'success' ? 5000 : 8000);
+    // Auto-hide success messages after 5 seconds
+    if (type === 'success') {
+      setTimeout(() => {
+        if (this.message === text) {
+          this.message = null;
+        }
+      }, 5000);
+    }
   }
 
   /**
    * Extracts error message from API response
    */
   private getErrorMessage(error: any): string {
-    if (error?.error?.message) {
+    if (error.error && error.error.message) {
       return error.error.message;
     }
-    if (error?.message) {
+    if (error.message) {
       return error.message;
     }
     return 'An unexpected error occurred. Please try again.';
@@ -552,7 +550,8 @@ export class UpdateAccountComponent implements OnInit, OnDestroy {
    */
   isFieldInvalid(fieldPath: string): boolean {
     const field = this.updateForm.get(fieldPath);
-    return !!(field && field.invalid && (field.dirty || field.touched));
+    // Show errors if the field is invalid and either dirty, touched, or the form was submitted
+    return !!(field && field.invalid && (field.dirty || field.touched || this.updateForm.dirty));
   }
 
   /**
@@ -566,7 +565,24 @@ export class UpdateAccountComponent implements OnInit, OnDestroy {
 
   getFieldError(fieldPath: string): string {
     const field = this.updateForm.get(fieldPath);
-    return this.getControlError(field);
+    if (!field || !field.errors) return '';
+
+    const errors = field.errors;
+
+    if (errors['required']) return 'This field is required';
+    if (errors['email']) return 'Please enter a valid email address (e.g., user@example.com)';
+    if (errors['minlength']) return `Minimum length is ${errors['minlength'].requiredLength} characters`;
+    if (errors['maxlength']) return `Maximum length is ${errors['maxlength'].requiredLength} characters`;
+    if (errors['pattern'] && fieldPath === 'userName') return 'Username can only contain letters, numbers, and underscores (e.g., john_doe123)';
+    if (errors['pattern']) return 'Invalid format';
+    if (errors['invalidPhone']) return 'Please enter a valid phone number (e.g., +1234567890 or 123-456-7890)';
+    if (errors['invalidCreditCard']) return 'Please enter a valid 16-digit credit card number (e.g., 1234-5678-9012-3456 or 1234567890123456)';
+    if (errors['min']) return `Minimum value is ${errors['min'].min}`;
+    if (errors['max']) return `Maximum value is ${errors['max'].max}`;
+    if (errors['futureDate']) return 'Birth date cannot be in the future';
+    if (errors['tooYoung']) return 'You must be at least 13 years old';
+
+    return 'Invalid value';
   }
 
 
@@ -621,7 +637,7 @@ export class UpdateAccountComponent implements OnInit, OnDestroy {
   hasProfileChanges(): boolean {
     if (!this.user) return false;
 
-    const currentValues = this.updateForm.value;
+    const currentValues = this.updateForm.getRawValue();
 
     return (
       currentValues.userName !== (this.user.userName || '') ||
@@ -629,39 +645,46 @@ export class UpdateAccountComponent implements OnInit, OnDestroy {
       currentValues.phone !== (this.user.phone || '') ||
       currentValues.job !== (this.user.job || '') ||
       currentValues.creditNo !== (this.user.creditNo || '') ||
-      currentValues.creditLimit !== (this.user.creditLimit || null) ||
-      currentValues.bd !== (this.user.bd || '')
+      currentValues.creditLimit !== (this.user.creditLimit || null)
     );
   }
 
   /**
-   * Helper method to create UpdateProfileDTO from form data
+   * Creates an UpdateProfileDTO from form data
    */
   private createUpdateProfileDTO(formData: any): UpdateProfileDTO {
-    const dto: UpdateProfileDTO = {
+    return {
       userName: formData.userName,
-      email: formData.email
+      email: formData.email,
+      job: formData.job,
+      creditNo: formData.creditNo,
+      creditLimit: formData.creditLimit,
+      phone: formData.phone
     };
-
-    // Add optional fields only if they exist and are not empty
-    if (formData.phone && formData.phone.trim()) {
-      dto.phone = formData.phone.trim();
-    }
-
-    if (formData.job && formData.job.trim()) {
-      dto.job = formData.job.trim();
-    }
-
-    if (formData.creditNo && formData.creditNo.trim()) {
-      dto.creditNo = formData.creditNo.trim();
-    }
-
-    if (formData.creditLimit !== null && formData.creditLimit !== undefined) {
-      dto.creditLimit = formData.creditLimit;
-    }
-
-    return dto;
   }
 
+  /**
+   * Checks if the form is valid considering only enabled controls
+   * and if there are any changes compared to the original data
+   */
+  isFormValid(form: FormGroup): boolean {
+    // Check if all enabled controls are valid
+    const allEnabledValid = Object.keys(form.controls)
+      .filter(key => {
+        const control = form.get(key);
+        return control && !control.disabled;
+      })
+      .every(key => {
+        const control = form.get(key);
+        return control && control.valid;
+      });
+
+    // For the update form, also check if there are any changes
+    if (form === this.updateForm) {
+      return allEnabledValid && this.hasProfileChanges();
+    }
+
+    return allEnabledValid;
+  }
 
 }

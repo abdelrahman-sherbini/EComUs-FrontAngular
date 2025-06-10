@@ -40,8 +40,8 @@ export interface CustomerProfileServiceInterface {
     /**
      * 
      * 
-     * @param userDTO 
+     * @param updateProfileDTO 
      */
-    updateProfile(userDTO: UpdateProfileDTO, extraHttpRequestParams?: any): Observable<UserDTO>;
+    updateProfile(updateProfileDTO: UpdateProfileDTO, extraHttpRequestParams?: any): Observable<UserDTO>;
 
 }

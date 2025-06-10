@@ -715,7 +715,7 @@ export class CheckoutComponent implements OnInit {
     };
 
     const checkoutData: CheckOutOrderDTO = {
-      address: JSON.stringify(addressObject),
+      address: addressObject.buildingNo + ', ' + addressObject.street + ', ' + addressObject.area + ', ' + addressObject.city,
       payType: this.selectedPaymentType
     };
 

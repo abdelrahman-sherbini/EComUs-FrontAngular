@@ -107,10 +107,6 @@ export class CustomerProfileService extends BaseService implements CustomerProfi
             throw new Error('Required parameter changePasswordDTO was null or undefined when calling updatePassword.');
         }
 
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>changePasswordDTO, 'changePasswordDTO');
-
         let localVarHeaders = this.defaultHeaders;
 
         // authentication (BearerAuth) required
@@ -126,6 +122,15 @@ export class CustomerProfileService extends BaseService implements CustomerProfi
 
         const localVarTransferCache: boolean = options?.transferCache ?? true;
 
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
 
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
@@ -143,7 +148,7 @@ export class CustomerProfileService extends BaseService implements CustomerProfi
         return this.httpClient.request<any>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters,
+                body: changePasswordDTO,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -155,21 +160,17 @@ export class CustomerProfileService extends BaseService implements CustomerProfi
     }
 
     /**
-     * @param userDTO 
+     * @param updateProfileDTO 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public updateProfile(userDTO: UpdateProfileDTO, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<UserDTO>;
-    public updateProfile(userDTO: UpdateProfileDTO, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<UserDTO>>;
-    public updateProfile(userDTO: UpdateProfileDTO, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<UserDTO>>;
-    public updateProfile(userDTO: UpdateProfileDTO, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (userDTO === null || userDTO === undefined) {
-            throw new Error('Required parameter userDTO was null or undefined when calling updateProfile.');
+    public updateProfile(updateProfileDTO: UpdateProfileDTO, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<UserDTO>;
+    public updateProfile(updateProfileDTO: UpdateProfileDTO, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<UserDTO>>;
+    public updateProfile(updateProfileDTO: UpdateProfileDTO, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<UserDTO>>;
+    public updateProfile(updateProfileDTO: UpdateProfileDTO, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (updateProfileDTO === null || updateProfileDTO === undefined) {
+            throw new Error('Required parameter updateProfileDTO was null or undefined when calling updateProfile.');
         }
-
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>userDTO, 'userDTO');
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -188,6 +189,15 @@ export class CustomerProfileService extends BaseService implements CustomerProfi
         const localVarTransferCache: boolean = options?.transferCache ?? true;
 
 
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
             if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
@@ -204,7 +214,7 @@ export class CustomerProfileService extends BaseService implements CustomerProfi
         return this.httpClient.request<UserDTO>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters,
+                body: updateProfileDTO,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

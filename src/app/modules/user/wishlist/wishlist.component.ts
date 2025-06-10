@@ -4,6 +4,7 @@ import { CustomerWishlistService } from '../../openapi';
 import { PagedResponseProductDTO, ProductDTO } from '../../openapi';
 import { FormsModule } from '@angular/forms';
 import { CurrencyPipe, SlicePipe } from '@angular/common';
+import {ShoppingService} from '../../../services/shopping.service';
 
 @Component({
   selector: 'app-wishlist',
@@ -35,7 +36,7 @@ export class WishlistComponent implements OnInit {
   sortField: 'productId' | 'userId' = 'productId';
   sortDir: 'asc' | 'desc' = 'asc';
 
-  constructor(private wishlistService: CustomerWishlistService) {}
+  constructor(private shoppingService: ShoppingService,private wishlistService: CustomerWishlistService) {}
 
   ngOnInit(): void {
     this.loadWishlistItems();
@@ -143,6 +144,8 @@ export class WishlistComponent implements OnInit {
       next: () => {
         console.log('Product removed successfully');
         // Reload with current view (filtered or unfiltered)
+
+        this.shoppingService.decrementWishlistCount()
         if (this.hasActiveFilters()) {
           this.loadWishlistItemsWithFilters();
         } else {
