@@ -16,7 +16,27 @@
 <!--    </div> &ndash;&gt;-->
 <!--  </div>-->
 
-
+  <!-- Custom Confirmation Dialog -->
+<div class="confirmation-overlay" *ngIf="showConfirmation" (click)="cancelClearCart()">
+  <div class="confirmation-dialog" (click)="$event.stopPropagation()">
+    <div class="confirmation-header">
+      <h3>Clear Cart</h3>
+      <button class="close-btn" (click)="cancelClearCart()">&times;</button>
+    </div>
+    <div class="confirmation-body">
+      <div class="warning-icon">⚠️</div>
+      <p>Are you sure you want to clear all items from your cart?</p>
+      <p class="warning-text">This action cannot be undone and will remove all {{ totalQuantity }} items.</p>
+    </div>
+    <div class="confirmation-actions">
+      <button class="cancel-btn" (click)="cancelClearCart()">Cancel</button>
+      <button class="confirm-btn" (click)="confirmClearCart()" [disabled]="loading">
+        <span *ngIf="!loading">Clear All Items</span>
+        <span *ngIf="loading">Clearing...</span>
+      </button>
+    </div>
+  </div>
+</div>
 
   <!-- Loading Spinner -->
   <div *ngIf="loading" class="loading">
@@ -66,9 +86,16 @@
         {{ totalElements }} items
       </div>
 
-      <button class="continue-shopping-btn" (click)="continueShopping()">
-        Continue Shopping
-      </button>
+      <div class="action-buttons">
+        <button class="continue-shopping-btn" (click)="continueShopping()">
+          Continue Shopping
+        </button>
+        <button class="clear-cart-btn" 
+                (click)="showClearCartConfirmation()" 
+                [disabled]="loading || cartItems.length === 0">
+          Clear All Cart
+        </button>
+      </div>
     </div>
   </div>
 
@@ -175,11 +202,11 @@
         <div class="payment-methods">
           <p>Guarantee Safe Checkout</p>
           <div class="payment-icons">
-            <div class="payment-icon visa">VISA</div>
-            <div class="payment-icon paypal">PP</div>
-            <div class="payment-icon mastercard">MC</div>
-            <div class="payment-icon amex">AMEX</div>
-            <div class="payment-icon amazon">A</div>
+           <img src="/assets/visa.png" alt="Visa">
+           <img src="/assets/mastercard.png" alt="MasterCard">
+            <img src="/assets/paypal.png" alt="Paypal">
+         <img src="/assets/amex.png" alt="Amex">
+
           </div>
         </div>
       </div>
