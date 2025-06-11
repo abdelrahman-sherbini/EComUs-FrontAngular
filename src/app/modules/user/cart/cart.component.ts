@@ -26,6 +26,9 @@ export class CartComponent implements OnInit {
   sortField: 'quantity' | 'productId' | 'userId' = 'productId';
   sortDir: 'asc' | 'desc' = 'asc';
 
+  // Confirmation dialog properties
+  showConfirmation: boolean = false;
+
   // Make Math available in template
   Math = Math;
 
@@ -131,6 +134,61 @@ export class CartComponent implements OnInit {
       error: (error) => {
         console.error('Error loading total quantity:', error);
       }
+    });
+  }
+
+  // Clear Cart Methods
+  showClearCartConfirmation(): void {
+    this.showConfirmation = true;
+  }
+
+  cancelClearCart(): void {
+    this.showConfirmation = false;
+  }
+
+  confirmClearCart(): void {
+    this.showConfirmation = false;
+    this.clearAllCart();
+  }
+
+  clearAllCart(): void {
+    this.loading = true;
+    this.error = '';
+    
+    const productIds = this.cartItems.map(item => item.product?.productId).filter(id => id !== undefined) as number[];
+    
+    if (productIds.length === 0) {
+      this.loading = false;
+      return;
+    }
+    
+    // Remove all items sequentially
+    const removePromises = productIds.map(productId => 
+      this.cartService.removeCartItem(productId).toPromise()
+    );
+    
+    Promise.all(removePromises).then(() => {
+      this.cartItems = [];
+      this.totalPrice = 0;
+      this.totalQuantity = 0;
+      this.totalElements = 0;
+      this.totalPages = 0;
+      this.currentPage = 1;
+      this.loading = false;
+      
+      this.updateUrlParams();
+      this.shoppingService.refreshCounts();
+      
+      console.log('All cart items cleared successfully');
+    }).catch((error) => {
+      this.error = 'Failed to clear some cart items';
+      this.loading = false;
+      console.error('Error clearing cart items:', error);
+      
+      // Reload cart to get current state
+      this.loadCartItems();
+      this.loadTotalPrice();
+      this.loadTotalQuantity();
     });
   }
 
@@ -256,89 +314,84 @@ export class CartComponent implements OnInit {
       }
     });
   }
-// FIXED: Updated methods to work correctly with backend
-increaseQuantity(productId: number, currentQuantity: number): void {
-  // Use addOrUpdateCartItem to ADD 1 to the existing quantity
-  const shoppingCartDTO: ShoppingCartDTO = {
-    productId: productId,
-    quantity: 1  // Add 1 to existing quantity
-  };
-  const cartItem = this.cartItems.find(item => item.product?.productId === productId);
-  if (cartItem!.quantity! >= cartItem!.product.quantity!) {
-    this.error = 'Not enough stock available';
-    return;
+
+  // FIXED: Updated methods to work correctly with backend
+  increaseQuantity(productId: number, currentQuantity: number): void {
+    // Use addOrUpdateCartItem to ADD 1 to the existing quantity
+    const shoppingCartDTO: ShoppingCartDTO = {
+      productId: productId,
+      quantity: 1  // Add 1 to existing quantity
+    };
+    const cartItem = this.cartItems.find(item => item.product?.productId === productId);
+    if (cartItem!.quantity! >= cartItem!.product.quantity!) {
+      this.error = 'Not enough stock available';
+      return;
+    }
+
+    this.cartService.addOrUpdateCartItem(shoppingCartDTO).subscribe({
+      next: (updatedItem: CartDTO) => {
+        const index = this.cartItems.findIndex(item => item.product?.productId === productId);
+        if (index !== -1) {
+          this.cartItems[index] = updatedItem;
+        }
+        this.loadTotalPrice();
+        this.loadTotalQuantity();
+        this.shoppingService.incrementCartCount();
+      },
+      error: (error) => {
+        this.error = 'Failed to update cart item';
+        console.error('Error updating cart item:', error);
+      }
+    });
   }
 
-  this.cartService.addOrUpdateCartItem(shoppingCartDTO).subscribe({
-    next: (updatedItem: CartDTO) => {
-      const index = this.cartItems.findIndex(item => item.product?.productId === productId);
-      if (index !== -1) {
-        this.cartItems[index] = updatedItem;
-      }
-      this.loadTotalPrice();
-      this.loadTotalQuantity();
-      this.shoppingService.incrementCartCount();
-    },
-    error: (error) => {
-      this.error = 'Failed to update cart item';
-      console.error('Error updating cart item:', error);
+  decreaseQuantity(productId: number, currentQuantity: number): void {
+    if (currentQuantity <= 1) {
+      this.removeItem(productId);
+      return;
     }
-  });
-}
 
-decreaseQuantity(productId: number, currentQuantity: number): void {
-  if (currentQuantity <= 1) {
-    // If quantity is 1 or less, remove the item completely
-    this.removeItem(productId);
-    return;
+
+    const shoppingCartDTO: ShoppingCartDTO = {
+      productId: productId,
+      quantity: 1  // Subtract 1 from existing quantity
+    };
+
+    this.cartService.removeOrUpdateCartItem(shoppingCartDTO).subscribe({
+      next: (updatedItem: CartDTO) => {
+        const index = this.cartItems.findIndex(item => item.product?.productId === productId);
+        if (index !== -1) {
+          this.cartItems[index] = updatedItem;
+        }
+        this.loadTotalPrice();
+        this.loadTotalQuantity();
+        this.shoppingService.decrementCartCount();
+      },
+      error: (error) => {
+        this.error = 'Failed to update cart item';
+        console.error('Error updating cart item:', error);
+      }
+    });
   }
-
-  // Use removeOrUpdateCartItem to SUBTRACT 1 from existing quantity
-  const shoppingCartDTO: ShoppingCartDTO = {
-    productId: productId,
-    quantity: 1  // Subtract 1 from existing quantity
-  };
-
-  this.cartService.removeOrUpdateCartItem(shoppingCartDTO).subscribe({
-    next: (updatedItem: CartDTO) => {
-      const index = this.cartItems.findIndex(item => item.product?.productId === productId);
-      if (index !== -1) {
-        this.cartItems[index] = updatedItem;
-      }
-      this.loadTotalPrice();
-      this.loadTotalQuantity();
-      this.shoppingService.decrementCartCount();
-    },
-    error: (error) => {
-      this.error = 'Failed to update cart item';
-      console.error('Error updating cart item:', error);
-    }
-  });
-}
 
   getItemTotal(item: CartDTO): number {
     return (item.product?.price || 0) * (item.quantity || 0);
   }
 
- // Add this new property
   checkoutAttempted: boolean = false;
 
-  // ... existing methods ...
-
-  // Update the proceedToCheckout method
   proceedToCheckout(): void {
     this.checkoutAttempted = true;
 
-    // Check if terms are agreed to
+
     const termsCheckbox = document.getElementById('terms') as HTMLInputElement;
 
     if (!termsCheckbox?.checked) {
-      // Don't proceed if terms not checked
+   
       return;
     }
 
-
-    // Reset the flag and proceed
+   
     this.checkoutAttempted = false;
     console.log('Proceeding to checkout...');
     this.router.navigate(['/user/checkout']);
