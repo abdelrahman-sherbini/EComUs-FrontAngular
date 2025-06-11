@@ -66,7 +66,7 @@ export class PasswordResetComponent implements OnInit {
     this.customerProfileService.validateResetToken(token).subscribe({
       next: (isValid) => {
         console.log('Token validation response:', isValid);
-        
+
         this.tokenValid = Boolean(isValid);
         this.showResetForm = Boolean(isValid);
 
