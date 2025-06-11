@@ -9,7 +9,7 @@ import {ShoppingService} from '../../../services/shopping.service';
   imports: [ CurrencyPipe,
     CommonModule],
   templateUrl: './cart.component.html',
-  styleUrl: './cart.component.css'
+  styleUrl: './cart.component.scss'
 })
 export class CartComponent implements OnInit {
   cartItems: CartDTO[] = [];

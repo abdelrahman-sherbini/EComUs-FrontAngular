@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { NgClass, CommonModule } from '@angular/common';
+import {  CommonModule } from '@angular/common';
 import { OrdersComponent } from './orders/orders.component';
 import { UpdateAccountComponent } from './update-account/update-account.component';
-import { AddressDTO } from '../../openapi/model/address-dto';
+import { AddressDTO } from '../../openapi';
 import { WishlistComponent } from '../wishlist/wishlist.component';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
@@ -34,7 +34,7 @@ interface UserProfile {
     WishlistComponent
   ],
   templateUrl: './account.component.html',
-  styleUrls: ['./account.component.css']
+  styleUrls: ['./account.component.scss']
 })
 export class AccountComponent implements OnInit, OnDestroy {
   user: UserProfile | null = null;
@@ -198,7 +198,7 @@ export class AccountComponent implements OnInit, OnDestroy {
 //     UpdateAccountComponent
 //   ],
 //   templateUrl: './account.component.html',
-//   styleUrls: ['./account.component.css']
+//   styleUrls: ['./account.component.scss']
 // })
 // export class AccountComponent implements OnInit {
 //   user: UserProfile | null = null;

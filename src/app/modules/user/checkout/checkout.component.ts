@@ -22,7 +22,7 @@ import {ShoppingService} from '../../../services/shopping.service';
   selector: 'app-checkout',
   imports: [CommonModule, FormsModule, CurrencyPipe],
   templateUrl: './checkout.component.html',
-  styleUrl: './checkout.component.css'
+  styleUrl: './checkout.component.scss'
 })
 export class CheckoutComponent implements OnInit {
   // Customer Information

@@ -1,7 +1,10 @@
 <!-- account.component.html - Updated with dynamic page header -->
 <div class="account-container">
   <!-- Dynamic Page Title -->
-  <div class="page-header">
+  <header class="page-header">
+    <div class="header-content">
+
+
     @switch (activeTab) {
       @case ('account-details') {
         <h1>Account Details</h1>
@@ -19,7 +22,8 @@
         <h1>My Account</h1>
       }
     }
-  </div>
+    </div>
+  </header>
 
   <div class="account-content">
     <!-- Sidebar Navigation -->

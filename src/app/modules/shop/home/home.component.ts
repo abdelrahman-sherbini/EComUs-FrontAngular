@@ -29,7 +29,7 @@ import {WishListService} from '../../../services/wish-list-service';
     PopupComponent,
   ],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.css'
+  styleUrl: './home.component.scss'
 })
 export class HomeComponent implements OnInit  {
   products: ProductDTO[] = [];

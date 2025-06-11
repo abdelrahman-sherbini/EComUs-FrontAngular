@@ -1,3 +1,45 @@
+$primary: #000000;
+$secondary: #764ba2;
+$danger: #ff6b35;
+$bg: #faf9f6;
+$border-radius: 18px;
+
+// Shared page header style
+.page-header {
+  background: radial-gradient(circle, #ffe0e9 0%, #d8e4f2 100%);
+  border-radius: $border-radius;
+  margin: 2rem auto 1rem auto;
+  padding: 1.8rem 1.2rem 1rem 1.2rem;
+  text-align: center;
+  box-shadow: 0 6px 24px rgba($primary, 0.10);
+
+  .header-content h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: $primary;
+    margin-bottom: 0.15rem;
+    letter-spacing: -1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4em;
+  }
+  p {
+    color: #5d6b8a;
+    font-size: 1.02rem;
+  }
+}
+
+@media (max-width: 430px) {
+  .page-header .header-content h1 {
+    font-size: 1rem;
+  }
+  .page-header {
+    padding: 0.9rem 0.5rem 0.5rem 0.5rem;
+  }
+}
+
+
 .checkout-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -5,29 +47,29 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.checkout-header {
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-  margin: 0;
-    margin-bottom: 40px;
-  padding: 0 30px;
-  height: 150px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: radial-gradient(circle, rgba(255, 224, 233, 1) 0%, rgba(216, 228, 242, 1) 100%);
-  box-sizing: border-box;
-}
-
-.checkout-header h1 {
- font-size: 50px;
-  font-weight: 400;
-  color: #2c3e50;
-  margin: 0;
-  letter-spacing: -0.5px;
-}
+//.checkout-header {
+//  width: 100vw;
+//  position: relative;
+//  left: 50%;
+//  transform: translateX(-50%);
+//  margin: 0;
+//    margin-bottom: 40px;
+//  padding: 0 30px;
+//  height: 150px;
+//  display: flex;
+//  justify-content: center;
+//  align-items: center;
+//  background: radial-gradient(circle, rgba(255, 224, 233, 1) 0%, rgba(216, 228, 242, 1) 100%);
+//  box-sizing: border-box;
+//}
+//
+//.checkout-header h1 {
+// font-size: 50px;
+//  font-weight: 400;
+//  color: #2c3e50;
+//  margin: 0;
+//  letter-spacing: -0.5px;
+//}
 
 .loading {
   text-align: center;
