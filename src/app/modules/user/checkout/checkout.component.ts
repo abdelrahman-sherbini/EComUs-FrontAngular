@@ -295,7 +295,7 @@ export class CheckoutComponent implements OnInit {
   viewOrderDetails(): void {
     if (this.createdOrderId) {
       this.closeSuccessModal();
-      this.router.navigate(['/user/account']);
+      this.router.navigate(['/user/account?tab=orders'])
     }
   }
 
