@@ -21,6 +21,10 @@ import {
 export class CategoryManagementComponent implements OnInit, OnDestroy {
   // Data properties
   categories: CategoryDTO[] = [];
+  filteredCategories: CategoryDTO[] = [];
+
+  // Search
+  searchKeyword: string = '';
 
   // State properties
   loading = false;
@@ -65,6 +69,7 @@ export class CategoryManagementComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           this.categories = response;
+          this.applySearch(); // Apply search filter to initialize filteredCategories
           this.loading = false;
         },
         error: (error) => {
@@ -73,6 +78,34 @@ export class CategoryManagementComponent implements OnInit, OnDestroy {
           this.loading = false;
         }
       });
+  }
+
+  // Search functionality
+  onSearch(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.searchKeyword = target.value;
+    this.applySearch();
+  }
+
+  clearSearch(): void {
+    this.searchKeyword = '';
+    this.applySearch();
+  }
+
+  private applySearch(): void {
+    if (!this.searchKeyword.trim()) {
+      this.filteredCategories = [...this.categories];
+      return;
+    }
+
+    const keyword = this.searchKeyword.toLowerCase().trim();
+    this.filteredCategories = this.categories.filter(category =>
+      category.categoryName?.toLowerCase().includes(keyword) ||
+      category.categoryId?.toString().includes(keyword) ||
+      category.products?.some(product =>
+        product.productName?.toLowerCase().includes(keyword)
+      )
+    );
   }
 
   // Open add category modal

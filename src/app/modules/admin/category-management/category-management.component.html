@@ -16,6 +16,31 @@
     </div>
   </div>
 
+  <!-- Search Bar -->
+  <div class="search-section mb-4">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="search-box">
+          <i class="fas fa-search search-icon"></i>
+          <input
+            type="text"
+            class="form-control search-input"
+            placeholder="Search categories by name or products..."
+            [value]="searchKeyword"
+            (input)="onSearch($event)">
+          <button *ngIf="searchKeyword" class="btn btn-sm btn-link clear-search" (click)="clearSearch()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <div class="col-md-6 text-end">
+        <span class="search-results" *ngIf="filteredCategories.length !== categories.length">
+          Found {{ filteredCategories.length }} of {{ categories.length }} categories
+        </span>
+      </div>
+    </div>
+  </div>
+
   <!-- Loading State -->
   <div *ngIf="loading" class="loading-state text-center p-5">
     <div class="spinner-border text-primary" role="status">
@@ -34,10 +59,20 @@
     </button>
   </div>
 
+  <!-- No Search Results -->
+  <div *ngIf="!loading && categories.length > 0 && filteredCategories.length === 0" class="empty-state text-center p-5">
+    <i class="fas fa-search fa-4x text-muted mb-3"></i>
+    <h4>No Categories Found</h4>
+    <p class="text-muted">No categories match your search criteria.</p>
+    <button class="btn btn-outline-primary mt-3" (click)="clearSearch()">
+      <i class="fas fa-times me-2"></i>Clear Search
+    </button>
+  </div>
+
   <!-- Categories Grid -->
-  <div *ngIf="!loading && categories.length > 0" class="categories-grid">
+  <div *ngIf="!loading && filteredCategories.length > 0" class="categories-grid">
     <div class="row">
-      <div class="col-lg-4 col-md-6 mb-4" *ngFor="let category of categories; let i = index">
+      <div class="col-lg-4 col-md-6 mb-4" *ngFor="let category of filteredCategories; let i = index">
         <div class="category-card" [ngClass]="'category-card-' + getCategoryColor(i)">
           <div class="category-card-header">
             <div class="category-icon">
