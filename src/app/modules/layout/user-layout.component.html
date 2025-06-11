@@ -65,10 +65,10 @@
                 <div class="user-info" *ngIf="currentUser$ | async as user">
                   <p>Hello, {{ user.name || 'User' }}</p>
                 </div>
-                <a routerLink="/user/dashboard">Dashboard</a>
+                <a routerLink="/user/dashboard">Home</a>
                 <a routerLink="/user/account">My Profile</a>
-                <a routerLink="/user/orders">My Orders</a>
-                <a routerLink="/user/settings">Settings</a>
+                <a routerLink="/user/account" [queryParams]="{tab: 'orders'}">My Orders</a>
+                <a routerLink="/user/account" [queryParams]="{tab: 'update-account'}">Update Account</a>
                 <div class="dropdown-divider"></div>
                 <a href="javascript:void(0)" (click)="logout()">Logout</a>
               </ng-container>

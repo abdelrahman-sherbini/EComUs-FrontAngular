@@ -5,7 +5,7 @@ import { OrdersComponent } from './orders/orders.component';
 import { UpdateAccountComponent } from './update-account/update-account.component';
 import { AddressDTO } from '../../openapi/model/address-dto';
 import { WishlistComponent } from '../wishlist/wishlist.component';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 import {AuthService} from '../../../services/auth-service';
 
@@ -40,16 +40,24 @@ export class AccountComponent implements OnInit, OnDestroy {
   user: UserProfile | null = null;
   loading = false;
   error: string | null = null;
-  activeTab = 'account-details';
+  activeTab: string = 'account-details';
   private routerSubscription: Subscription | null = null;
 
   constructor(
     private authService: AuthService,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
+    // Check for tab query parameter
+    this.route.queryParams.subscribe(params => {
+      if (params['tab']) {
+        this.setActiveTab(params['tab']);
+      }
+    });
+
     // Load user profile initially
     this.loadUserProfile();
 
