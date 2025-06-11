@@ -65,9 +65,12 @@ export class PasswordResetComponent implements OnInit {
 
     this.customerProfileService.validateResetToken(token).subscribe({
       next: (isValid) => {
-        this.tokenValid = isValid;
-        this.showResetForm = isValid;
-        if (!isValid) {
+        console.log('Token validation response:', isValid);
+        
+        this.tokenValid = Boolean(isValid);
+        this.showResetForm = Boolean(isValid);
+
+        if (!this.tokenValid) {
           this.errorMessage = 'Invalid or expired password reset token. Please request a new one.';
         }
         this.isLoading = false;
