@@ -1,5 +1,15 @@
 <app-toast></app-toast>
 <app-popup></app-popup>
+<!-- Header -->
+<header class="page-header">
+  <div class="header-content">
+    <h1>{{product?.productName}}</h1>
+    <p *ngIf="!loading && product">Details for {{product.productName}}</p>
+    <p *ngIf="loading">Loading product details...</p>
+  </div>
+</header>
+
+
 <div class="container py-5 product-details-page" *ngIf="!loading && product as prod; else loadingOrError">
   <div class="row gx-5 gy-4">
     <!-- Images -->
